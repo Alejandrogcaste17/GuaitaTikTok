@@ -1,0 +1,165 @@
+
+body{
+    background-color: #c9d6ff;
+    background: linear-gradient(to right, #e2e2e2, #c9d6ff);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding-top: 25px;
+}
+
+.navbar {
+    margin-bottom: 30px; /* Asegura un espacio entre la navbar y el contenido siguiente */
+}
+
+header{
+    padding: 0 80px;
+    height: calc(100vh - 80px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 30px;
+}
+
+header .left{
+    width: 700px;
+    margin-left: 100px;
+}
+
+header .left h1{
+    font-size: 80px;
+}
+
+header .left h1 span{
+    color: #0f2182;
+}
+
+header .left p{
+    margin: 40px 0;
+    color: #777;
+}
+
+header .left a{
+    display: flex;
+    align-items: center;
+    background: #000;
+    width: 200px;
+    padding: 8px;
+    border-radius: 60px;
+}
+
+header .left a i{
+    background-color: #fff;
+    font-size: 24px;
+    border-radius: 50%;
+    padding: 8px;
+}
+
+header .left a span{
+    color: #fff;
+    margin-left: 10px;
+}
+
+header img{
+    width: 500px;
+}
+
+img{
+    object-fit: cover;
+    margin-right: 150px;
+}
+
+i{
+    font-size: 44px;
+    color: #304ffe;
+}
+
+a {
+    text-decoration: none;
+    color: inherit; /* Asegura que los enlaces tomen el color por defecto del texto */
+}
+
+@media screen and (max-width: 1400px) {
+
+    header{
+        padding: 0 40px;
+        margin-top: 30px;
+    }
+
+    header .left h1{
+        font-size: 60px;
+    }
+
+    header img{
+        width: 540px;
+    }
+
+}
+
+@media screen and (max-width: 1200px) {
+
+    header .left h1{
+        font-size: 48px;
+    }
+
+    header img{
+        width: 480px;
+    }
+
+}
+
+@media screen and (max-width: 992px) {
+
+    header{
+        flex-direction: column-reverse;
+        height: auto;
+        margin-bottom: 60px;
+        margin-top: 30px;
+    }
+
+    header .left{
+        width: 100%;
+    }
+
+    header img{
+        width: 100%;
+    }
+
+}
+
+@media screen and (max-width: 768px) {
+
+    header {
+        padding: 0 20px;
+        margin-top: 30px;
+    }
+
+    header .left h1{
+        font-size: 36px;
+    }
+
+    header .left p{
+        font-size: 14px;
+    }
+
+    header .left a{
+        padding: 6px;
+        width: 160px;
+        font-size: 14px;
+    }
+
+    header .left a i{
+        padding: 6px;
+    }
+}
+
+@media screen and (max-width: 576px) {
+    
+    header {
+        margin-top: 30px;
+    }
+
+    header .left h1{
+        font-size: 30px;
+    }
+}
