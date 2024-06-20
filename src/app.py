@@ -1,10 +1,12 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from bson.objectid import ObjectId
-from celeryConfiguration import celery
 from TikTokAPI import process_task
 from mongoConfiguration import usersCollection, tasksCollection
 from hashlib import sha256
+import asyncio
+import threading
+from concurrent.futures import ThreadPoolExecutor
 
 
 app = Flask(__name__, template_folder='../static/templates', static_folder='../static')
@@ -109,6 +111,12 @@ def logout():
 def index():
     return render_template('index.html',  username=current_user.username)
 
+async def run_process_task(task_id, user_id):
+    await process_task(task_id, user_id)
+
+# Crear un ThreadPoolExecutor para tareas de fondo
+executor = ThreadPoolExecutor(max_workers=2)
+
 @app.route('/newTask', methods=['POST', 'GET'])
 @login_required
 def newTask():
@@ -153,10 +161,8 @@ def newTask():
             inserted_task_id = str(result.inserted_id)  # Convertir ObjectId a string
             inserted_task = tasksCollection.find_one({'_id': result.inserted_id})
 
-            # Llamar a la función de procesamiento en segundo plano con el ID de la tarea insertada
-            process_task.delay(inserted_task_id, current_user.id)
-
-            print("llego aqui")
+            # Ejecutar la tarea en segundo plano usando ThreadPoolExecutor
+            executor.submit(asyncio.run, run_process_task(inserted_task, current_user.id))
 
             # Mostrar un mensaje de éxito si el registro fue exitoso
             createdTask = 'The task has been created successfully, please go to the my tasks tab to see its status'

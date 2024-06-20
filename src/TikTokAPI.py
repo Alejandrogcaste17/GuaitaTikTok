@@ -1,7 +1,7 @@
 import requests
 import json
 import time
-from celeryConfiguration import celery
+import asyncio
 from celery.exceptions import Ignore
 from mongoConfiguration import tasksCollection, videosCollection
 
@@ -16,6 +16,7 @@ def videosWithVoiceToText(response):
     for video in response["data"]["videos"]:
         if "voice_to_text" in video:
             results.append(video)
+    return results
 
 def getAccessToken(taskCollection):
 
@@ -42,10 +43,9 @@ def getAccessToken(taskCollection):
             {'_id': taskCollection['_id']},
             {'$set': {'state': 'Stopped', 'state_message': 'Something wrong happened when obtaining access token'}}
         )
-        raise Ignore()
 
 def getRegionCode(taskCollection):
-    if taskCollection['language'] == 'Spanish':
+    if taskCollection['language'] == "spanish":
         return "ES"
     else: 
         return "EN"
@@ -54,11 +54,10 @@ def getFormatDate(date):
     # Eliminar los guiones "-" de la fecha original
     return date.replace("-", "")
 
-@celery.task
-def process_task(taskCollection, current_user):
+async def process_task(taskCollection, current_user):
 
-    print("llego aqui x2")
     access_token = getAccessToken(taskCollection)
+    print(access_token)
 
     # Define la URL de la solicitud
     url = 'https://open.tiktokapis.com/v2/research/video/query/?fields=id,video_description,create_time,voice_to_text'
@@ -80,6 +79,7 @@ def process_task(taskCollection, current_user):
         "end_date": endDate
         
     }
+    print(data)
 
     # Define los encabezados de la solicitud
     headers = {
@@ -96,7 +96,7 @@ def process_task(taskCollection, current_user):
     if response.status_code == 200:
 
         response_data = response.json()
-        results += videosWithVoiceToText(response_data)
+        results.append(videosWithVoiceToText(response_data))
 
         time.sleep(8)
         while response_data["data"]["cursor"] < 1000:
@@ -109,7 +109,7 @@ def process_task(taskCollection, current_user):
 
             if response.status_code == 200:
                 response_data = response.json()
-                results += videosWithVoiceToText(response_data)
+                results.append(videosWithVoiceToText(response_data))
             else:
                 print('Error al realizar la solicitud:', response.status_code)
                 print(response.text)
@@ -146,5 +146,4 @@ def process_task(taskCollection, current_user):
             {'_id': taskCollection['_id']},
             {'$set': {'state': 'Stopped', 'state_message': 'Error when making the first request, please try again later, or try the task again'}}
         )
-        raise Ignore()
 
