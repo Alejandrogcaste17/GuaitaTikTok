@@ -35,15 +35,6 @@ form h2{
     margin-bottom: 20px;
 }
 
-.firstrow label, input{
-    width: 50%;
-}
-
-.firstrow textarea {
-    width: 100%;
-}
-
-
 .form-control{
     position: relative;
     margin-bottom: 15px;
@@ -52,6 +43,7 @@ form h2{
 .form-control label{
     display: block;
     margin-bottom: 5px;
+    margin-right: 5px;
 }
 
 .form-control input,
@@ -160,4 +152,32 @@ button:hover{
         width: 100%;
     }
 
+}
+
+.info-icon {
+    display: inline-block;
+    margin-left: 10px;
+    position: relative;
+    cursor: pointer;
+}
+
+.info-icon i {
+    font-size: 24px;
+    color: black;
+}
+
+.info-icon:hover::after {
+    content: attr(data-info);
+    background: #333;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    transform: translateX(10px) translateY(-50%);
+    white-space: normal;
+    z-index: 1000;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 300px;
 }
