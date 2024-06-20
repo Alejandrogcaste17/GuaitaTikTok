@@ -67,6 +67,7 @@ header img{
 img{
     object-fit: cover;
     margin-right: 150px;
+    margin-left: 50px;
 }
 
 i{

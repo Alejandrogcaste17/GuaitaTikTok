@@ -5,7 +5,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from bson.objectid import ObjectId
 import hashlib
 
-app = Flask(__name__, template_folder='static/templates')
+app = Flask(__name__, template_folder='../static/templates', static_folder='../static')
 app.config['SECRET_KEY'] = '123456789012345678901234567890'
 
 # Configura la URI de MongoDB
@@ -116,6 +116,12 @@ def logout():
 @login_required
 def index():
     return render_template('index.html',  username=current_user.username)
+
+@app.route('/newTask')
+@login_required
+def newTask():
+    return render_template('newTask.html',  username=current_user.username)
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=80, debug=True)
