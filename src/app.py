@@ -1,22 +1,14 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
-from flask_pymongo import PyMongo
-from pymongo import MongoClient
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from bson.objectid import ObjectId
-import hashlib
+from celeryConfiguration import celery
+from TikTokAPI import process_task
+from mongoConfiguration import usersCollection, tasksCollection
+from hashlib import sha256
+
 
 app = Flask(__name__, template_folder='../static/templates', static_folder='../static')
 app.config['SECRET_KEY'] = '123456789012345678901234567890'
-
-# Configura la URI de MongoDB
-mongo_uri = 'mongodb+srv://alejandrogcaste17:guaitaTikTok@guaitatiktok.ouggjsa.mongodb.net/'
-
-# Crea un cliente MongoDB
-client = MongoClient(mongo_uri)
-
-# Selecciona la base de datos que usarás
-db = client.GuaitaTikTok
-usersCollection = db.users
 
 # Configura Flask-Login
 login_manager = LoginManager()
@@ -51,7 +43,7 @@ def login():
 
         if user_document:
             # Verificar la contraseña (hasheada)
-            hashed_password = hashlib.sha256(password.encode()).hexdigest()
+            hashed_password = sha256(password.encode()).hexdigest()
             if hashed_password == user_document['password']:
                 user = User(id=str(user_document['_id']), username=user_document['username'], email=user_document['email'])
                 login_user(user)
@@ -76,7 +68,7 @@ def registro():
     password = request.form['password']
 
     # Opcional: Hashear la contraseña antes de almacenarla
-    hashed_password = hashlib.sha256(password.encode()).hexdigest()
+    hashed_password = sha256(password.encode()).hexdigest()
 
     # Verificar si el usuario ya existe en la base de datos
     existing_user = usersCollection.find_one({'email': email})
@@ -117,10 +109,64 @@ def logout():
 def index():
     return render_template('index.html',  username=current_user.username)
 
-@app.route('/newTask')
+@app.route('/newTask', methods=['POST', 'GET'])
 @login_required
 def newTask():
-    return render_template('newTask.html',  username=current_user.username)
+    if request.method == 'POST':
+        # Obtener los datos del formulario
+        taskName = request.form['name']
+        description = request.form['description']
+        tags = request.form['tags']
+        message = request.form['message']
+        startDate = request.form['startDate']
+        endDate = request.form['endDate']
+        language = request.form['language']
+
+        # Convertir las etiquetas en un vector
+        tags_list = [tag.strip() for tag in tags.split(',') if tag.strip()]
+
+        if(startDate > endDate):
+            # Mostrar un mensaje de éxito si el registro fue exitoso
+            wrongDate = 'The end date is before the origin date, please change the values'
+            return render_template('newTask.html', wrongDate=wrongDate, username=current_user.username)
+        
+        # Creamos nuestro documento a insertar en la base de datos
+        task_document = {
+            'state': 'In progress',
+            'state_message': 'The task is currently being carried out',
+            'taskName': taskName,
+            'description': description,
+            'tags_list': tags_list,
+            'message': message,
+            'startDate': startDate,
+            'endDate': endDate,
+            'language': language,
+            'userId': current_user.username
+        }
+
+        # Insertar el documento en la colección de tasks
+        result = tasksCollection.insert_one(task_document)
+
+        # Verificar si la inserción fue exitosa
+        if result.inserted_id:
+            # Obtener el objeto completo insertado con su _id
+            inserted_task_id = str(result.inserted_id)  # Convertir ObjectId a string
+            inserted_task = tasksCollection.find_one({'_id': result.inserted_id})
+
+            # Llamar a la función de procesamiento en segundo plano con el ID de la tarea insertada
+            process_task.delay(inserted_task_id, current_user.id)
+
+            print("llego aqui")
+
+            # Mostrar un mensaje de éxito si el registro fue exitoso
+            createdTask = 'The task has been created successfully, please go to the my tasks tab to see its status'
+            return render_template('newTask.html', createdTask=createdTask, username=current_user.username)
+        else:
+            # Mostrar un mensaje de error si ocurrió un problema al insertar en la base de datos
+            errorTask = 'Something strange happened, please try again.'
+            return render_template('newTask.html', errorTask=errorTask, username=current_user.username)
+    else:    
+        return render_template('newTask.html',  username=current_user.username)
 
 
 if __name__ == '__main__':
