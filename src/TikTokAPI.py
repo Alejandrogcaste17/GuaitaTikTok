@@ -11,12 +11,10 @@ client_secret = 'C1Fq10WTwgYygDlteNj8KDWLZTK5EaRe'
 
 access_token = ''
 
-def videosWithVoiceToText(response):
-    results = []
+def videosWithVoiceToText(response, results):
     for video in response["data"]["videos"]:
         if "voice_to_text" in video:
             results.append(video)
-    return results
 
 def getAccessToken(taskCollection):
 
@@ -90,35 +88,72 @@ async def process_task(taskCollection, current_user):
     results = []
 
     # Realiza la solicitud POST
-    response = requests.post(url, json=data, headers=headers)
+    first_response = requests.post(url, json=data, headers=headers)
 
     # Procesa la respuesta
-    if response.status_code == 200:
+    if first_response.status_code == 200:
 
-        response_data = response.json()
-        results.append(videosWithVoiceToText(response_data))
+        response_data = first_response.json()
+        videosWithVoiceToText(response_data, results)
 
-        time.sleep(8)
+        time.sleep(5)
+
+        # Variable para saber cuando la request ha fallado y realizar la peticion otra vez
+        request_again = False
+
+        # Variable para saber si es la primera iteracion del loop
+        first_iteration = True
+
         while response_data["data"]["cursor"] < 1000:
 
-            data["cursor"] = response_data["data"]["cursor"]
-            data["search_id"] = response_data["data"]["search_id"]
+            print("Empezamos bucle")
+            
+            if request_again == False:
+                if first_iteration:
+                    data["cursor"] = response_data["data"]["cursor"]
+                    data["search_id"] = response_data["data"]["search_id"]
+                    first_iteration = False
+                else:
+                    data["cursor"] = loop_response_data["data"]["cursor"]
+                    data["search_id"] = loop_response_data["data"]["search_id"]
 
-            # Realiza la solicitud POST
-            response = requests.post(url, json=data, headers=headers)
-
-            if response.status_code == 200:
-                response_data = response.json()
-                results.append(videosWithVoiceToText(response_data))
+                # Realiza la solicitud POST
+                print("realizamos peticion")
+                print("Cursor: ", data["cursor"])
+                print("Search_id: ", data["search_id"])
+                time.sleep(5)
+                loop_response = requests.post(url, json=data, headers=headers)
             else:
-                print('Error al realizar la solicitud:', response.status_code)
-                print(response.text)
-                break
-        
+                # Realiza la solicitud POST
+                print("realizamos peticion 2.0")
+                print("Cursor: ", data["cursor"])
+                print("Search_id: ", data["search_id"])
+                time.sleep(5)
+                loop_response = requests.post(url, json=data, headers=headers)
+                request_again = False
+
+            if loop_response.status_code == 200:
+                print("Buena peticion")
+                loop_response_data = loop_response.json()
+                results.append(videosWithVoiceToText(loop_response_data, results))
+                print("Cantidad de videos: ", len(results))
+            else:
+                if loop_response.status_code == 500:
+                    print("Mala peticion")
+                    request_again = True
+                    print("Cantidad de videos: ", len(results))
+                    print(loop_response.text)
+
+                else:
+                    print('Error al realizar la solicitud:', loop_response.status_code)
+                    print(loop_response.text)
+                    break
+
         # Creamos nuestro documento a insertar en la base de datos
         video_document = {
             'taskId': taskCollection['_id'],
             'userId': current_user,
+            'tags': tags_list,
             'total_videos': len(results),
             'list_videos': results,
             'cursor': response_data["data"]["cursor"],
@@ -140,8 +175,8 @@ async def process_task(taskCollection, current_user):
                 {'$set': {'state': 'Stopped', 'state_message': 'Error adding videos to the database'}}
             )
     else:
-        print('Error al realizar la solicitud:', response.status_code)
-        print(response.text)
+        print('Error al realizar la solicitud:', first_response.status_code)
+        print(first_response.text)
         tasksCollection.update_one(
             {'_id': taskCollection['_id']},
             {'$set': {'state': 'Stopped', 'state_message': 'Error when making the first request, please try again later, or try the task again'}}
