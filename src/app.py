@@ -149,7 +149,7 @@ def newTask():
             'startDate': startDate,
             'endDate': endDate,
             'language': language,
-            'userId': current_user.username
+            'userId': current_user.id
         }
 
         # Insertar el documento en la colección de tasks
