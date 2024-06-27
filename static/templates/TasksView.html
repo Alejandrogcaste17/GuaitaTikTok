@@ -97,6 +97,7 @@
                     <th scope="col">Start Date</th>
                     <th scope="col">End Date</th>
                     <th scope="col">Language</th>
+                    <th scope="col">Task Type</th>
                     <th scope="col">Review</th>
                 </tr>
             </thead>
@@ -121,6 +122,7 @@
                         <td>{{ task['startDate'] }}</td>
                         <td>{{ task['endDate'] }}</td>
                         <td>{{ task['language'] }}</td>
+                        <td>{{ task['taskType'] }}</td>
                         <td><a class="taskReview" href="{{ url_for('taskReview', task_id=task['_id']) }}">Review</a></td>
                     </tr>
                 {% endfor %}

@@ -6,6 +6,7 @@ body{
     flex-direction: column;
     height: 100vh;
     padding-top: 25px;
+    font-family: 'Montserrat', sans-serif;
 }
 
 .navbar {

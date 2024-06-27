@@ -49,66 +49,140 @@
             </div>
         </div>
     </nav>
-    <div class="container">
-        
-        <form id="mainForm" method="POST" action="/newTask">
-            <h2>Create a new Task</h2>
-            <div class="form-control">
-                <label for="name">Task Name</label>
-                <input type="text" name="name" id="name" placeholder="Enter your task name" autocomplete="off" required>
-                <i class="icon"></i>
-            </div>
-
-            <div class="form-control">
-                <label for="description">Description</label>
-                <input type="text" name="description" id="description" placeholder="Explain a description for the task" autocomplete="off" required>
-                <i class="icon"></i>
-            </div>
-
-            <div class="form-control">
-                <div class="input-group">
-                    <label for="tags">Tags</label>
-                    <span class="info-icon" data-info='Please enter the tags you want separated by commas. For example: "politics, economy, health..."'>
-                        <i class='bx bx-info-circle' ></i>
-                    </span>
+    <div class="container" id="container">
+        <div class="form-container profileTask">
+            <form id="mainForm" method="POST" action="/newTaskProfile">
+                <h2>Create profile task</h2>
+                <div class="form-control">
+                    <div class="input-group">
+                        <label for="username">Username</label>
+                        <span class="info-icon" data-info='Please enter the username of the profile you want to track, like "joe11235"'>
+                            <i class='bx bx-info-circle' ></i>
+                        </span>
+                    </div>
+                    <input type="text" name="username" id="username" placeholder="Enter the username of the profile" autocomplete="off" required>                
                 </div>
-                <input type="text" name="tags" id="tags" placeholder="Enter your tags for the search" autocomplete="off" required>
-                <i class="icon"></i>
-            </div>
-
-            <div class="form-control">
-                <label for="message">Message</label>
-                <textarea id="message" name="message" placeholder="Enter your message" required></textarea>
-                <i class="icon"></i>
-            </div>
-            
-            <div class="form-control">
-                <label for="startDate">Start Date</label>
-                {% if wrongDate %}
-                    <p style="color: red;">{{ wrongDate }}</p>
-                {% endif %}
-                <input type="date" id="startDate" name="startDate" autocomplete="off" required>
-                <i class="icon"></i>
-            </div>
+                <div class="form-control">
+                    <label for="name">Task Name</label>
+                    <input type="text" name="name" id="name" placeholder="Enter your task name" autocomplete="off" required>
+                    <i class="icon"></i>
+                </div>
     
-            <div class="form-control">
-                <label for="endDate">End Date</label>
-                <input type="date" id="endDate" name="endDate" autocomplete="off" required>
-                <i class="icon"></i>
+                <div class="form-control">
+                    <label for="description">Description</label>
+                    <input type="text" name="description" id="description" placeholder="Explain a description for the task" autocomplete="off" required>
+                    <i class="icon"></i>
+                </div>
+                
+                <div class="form-control">
+                    <label for="startDate">Start Date</label>
+                    {% if wrongDate %}
+                        <p style="color: red;">{{ wrongDate }}</p>
+                    {% endif %}
+                    <input type="date" id="startDate" name="startDate" autocomplete="off" required>
+                    <i class="icon"></i>
+                </div>
+        
+                <div class="form-control">
+                    <label for="endDate">End Date</label>
+                    <input type="date" id="endDate" name="endDate" autocomplete="off" required>
+                    <i class="icon"></i>
+                </div>
+    
+                <div class="form-control">
+                    <label for="language">Language</label>
+                    <select id="language" name="language">
+                        <option value="spanish">Spanish</option>
+                        <option value="english">English</option>
+                    </select>
+                    <i class="icon"></i>
+                </div>
+    
+                <button type="submit">Create Profile Task</button>
+    
+            </form>
+        </div>
+        <div class="form-container generalTask">
+            <form id="mainForm" method="POST" action="/newTaskGeneral">
+                <h2>Create general task</h2>
+                <div class="form-control">
+                    <label for="name">Task Name</label>
+                    <input type="text" name="name" id="name" placeholder="Enter your task name" autocomplete="off" required>
+                    <i class="icon"></i>
+                </div>
+    
+                <div class="form-control">
+                    <label for="description">Description</label>
+                    <input type="text" name="description" id="description" placeholder="Explain a description for the task" autocomplete="off" required>
+                    <i class="icon"></i>
+                </div>
+    
+                <div class="form-control">
+                    <div class="input-group">
+                        <label for="tags">Tags</label>
+                        <span class="info-icon" data-info='Please enter the tags you want separated by commas. For example: "politics, economy, health..."'>
+                            <i class='bx bx-info-circle' ></i>
+                        </span>
+                    </div>
+                    <input type="text" name="tags" id="tags" placeholder="Enter your tags for the search" autocomplete="off" required>
+                    <i class="icon"></i>
+                </div>
+    
+                <div class="form-control">
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" placeholder="Enter your message" required></textarea>
+                    <i class="icon"></i>
+                </div>
+                
+                <div class="form-control">
+                    <label for="startDate">Start Date</label>
+                    {% if wrongDate %}
+                        <p style="color: red;">{{ wrongDate }}</p>
+                    {% endif %}
+                    <input type="date" id="startDate" name="startDate" autocomplete="off" required>
+                    <i class="icon"></i>
+                </div>
+        
+                <div class="form-control">
+                    <label for="endDate">End Date</label>
+                    <input type="date" id="endDate" name="endDate" autocomplete="off" required>
+                    <i class="icon"></i>
+                </div>
+    
+                <div class="form-control">
+                    <label for="language">Language</label>
+                    <select id="language" name="language">
+                        <option value="spanish">Spanish</option>
+                        <option value="english">English</option>
+                    </select>
+                    <i class="icon"></i>
+                </div>
+    
+                <button type="submit">Create General Task</button>
+    
+            </form>
+
+        </div>
+        <div class="toggle-container">
+            <div class="toggle">
+                <div class="toggle-panel toggle-left">
+                    <h1>General Task</h1>
+                    <p>Create a follow-up task on a specific topic across all public TikTok profiles</p>
+                    <span class="general-icon">
+                        <i class='bx bx-notepad' ></i>
+                    </span>
+                    <button class="hidden" id="general">General Task</button>
+                </div>
+                <div class="toggle-panel toggle-right">
+                    <h1>Profile task</h1>
+                    <p>Create a monitoring task for a specific public profile</p>
+                    <span class="user-icon">
+                        <i class='bx bxs-user' ></i>
+                    </span>
+                    <button class="hidden" id="profile">Profile Task</button>
+                </div>
             </div>
-
-            <div class="form-control">
-                <label for="language">Language</label>
-                <select id="language" name="language">
-                    <option value="spanish">Spanish</option>
-                    <option value="english">English</option>
-                </select>
-                <i class="icon"></i>
-            </div>
-
-            <button type="submit">Create Task</button>
-
-        </form>
+        </div>
     </div>
 
     {% if createdTask %}
@@ -134,9 +208,22 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const modal = document.getElementById('successModal');
 
+    const container = document.getElementById('container');
+    const profileBtn = document.getElementById('profile');
+    const generalBtn = document.getElementById('general');
+
+    const modal = document.getElementById('successModal');
     const closeBtn = document.querySelector('.close-button');
+
+    profileBtn.addEventListener('click', () => {
+        container.classList.add("active");
+    });
+
+    generalBtn.addEventListener('click', () => {
+        container.classList.remove("active");
+    });
+
     closeBtn.onclick = function () {
         modal.style.display = 'none';
     };
