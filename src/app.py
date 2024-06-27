@@ -174,6 +174,25 @@ def newTask():
     else:    
         return render_template('newTask.html',  username=current_user.username)
 
+@app.route('/tasksView', methods=['POST', 'GET'])
+@login_required
+def tasksView():
+
+    # Verificar si el usuario ya existe en la base de datos
+    existing_user_tasks = tasksCollection.find({'userId': current_user.id})
+    
+    # Convertir el cursor a una lista
+    tasks_list = list(existing_user_tasks)
+
+    if tasks_list:
+        return render_template('tasksView.html', tasks_list=tasks_list, username=current_user.username)
+    else:
+        # Mostrar un mensaje de informacion de que no tiene tareas todavia creadas
+        notTask = "Sorry, you don't have any tasks created yet, please go to the ""New Task"" section and start one."
+        return render_template('tasksView.html', notTask=notTask, username=current_user.username)
+
+
+    return render_template('tasksView.html',  username=current_user.username)
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=80, debug=True)
