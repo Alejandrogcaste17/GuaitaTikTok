@@ -1,7 +1,8 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from bson.objectid import ObjectId
-from TikTokAPI import process_task
+from generalTaskAPI import process_general_task
+from profileTaskAPI import process_profile_task
 from mongoConfiguration import usersCollection, tasksCollection, videosCollection
 from hashlib import sha256
 import asyncio
@@ -111,21 +112,82 @@ def logout():
 def index():
     return render_template('index.html',  username=current_user.username)
 
-async def run_process_task(task_id, user_id):
-    await process_task(task_id, user_id)
+async def run_process_general_task(task_id, user_id):
+    await process_general_task(task_id, user_id)
+
+async def run_process_profile_task(task_id, user_id):
+    await process_profile_task(task_id, user_id)
 
 # Crear un ThreadPoolExecutor para tareas de fondo
-executor = ThreadPoolExecutor(max_workers=2)
+executor = ThreadPoolExecutor(max_workers=4)
 
-@app.route('/newTask', methods=['POST', 'GET'])
+@app.route('/newTask')
 @login_required
 def newTask():
+    return render_template('newTask.html',  username=current_user.username)
+
+@app.route('/newTaskProfile', methods=['POST', 'GET'])
+@login_required
+def newTaskProfile():
+    if request.method == 'POST':
+        # Obtener los datos del formulario
+        userProfile = request.form['username']
+        taskName = request.form['name']
+        description = request.form['description']
+        startDate = request.form['startDate']
+        endDate = request.form['endDate']
+        language = request.form['language']
+
+        if(startDate > endDate):
+            # Mostrar un mensaje de éxito si el registro fue exitoso
+            wrongDate = 'The end date is before the origin date, please change the values'
+            return render_template('newTask.html', wrongDate=wrongDate, username=current_user.username)
+
+        # Creamos nuestro documento a insertar en la base de datos
+        task_document = {
+            'state': 'In progress',
+            'state_message': 'The task is currently being carried out',
+            'userProfile': userProfile,
+            'taskName': taskName,
+            'description': description,
+            'startDate': startDate,
+            'endDate': endDate,
+            'language': language,
+            'userId': current_user.id,
+            'taskType': 'profile'
+        }
+
+        # Insertar el documento en la colección de tasks
+        result = tasksCollection.insert_one(task_document)
+        createdTask = 'The task has been created successfully, please go to the my tasks tab to see its status'
+        return render_template('newTask.html', createdTask=createdTask, username=current_user.username)
+        """# Verificar si la inserción fue exitosa
+        if result.inserted_id:
+            # Obtener el objeto completo insertado con su _id
+            inserted_task = tasksCollection.find_one({'_id': result.inserted_id})
+
+            # Ejecutar la tarea en segundo plano usando ThreadPoolExecutor
+            executor.submit(asyncio.run, run_process_profile_task(inserted_task, current_user.id))
+
+            # Mostrar un mensaje de éxito si el registro fue exitoso
+            createdTask = 'The task has been created successfully, please go to the my tasks tab to see its status'
+            return render_template('newTask.html', createdTask=createdTask, username=current_user.username)
+        else:
+            # Mostrar un mensaje de error si ocurrió un problema al insertar en la base de datos
+            errorTask = 'Something strange happened, please try again.'
+            return render_template('newTask.html', errorTask=errorTask, username=current_user.username)"""
+        
+    else:
+        return render_template('newTask.html',  username=current_user.username)
+
+@app.route('/newTaskGeneral', methods=['POST', 'GET'])
+@login_required
+def newTaskGeneral():
     if request.method == 'POST':
         # Obtener los datos del formulario
         taskName = request.form['name']
         description = request.form['description']
         tags = request.form['tags']
-        message = request.form['message']
         startDate = request.form['startDate']
         endDate = request.form['endDate']
         language = request.form['language']
@@ -145,24 +207,25 @@ def newTask():
             'taskName': taskName,
             'description': description,
             'tags_list': tags_list,
-            'message': message,
             'startDate': startDate,
             'endDate': endDate,
             'language': language,
-            'userId': current_user.id
+            'userId': current_user.id,
+            'taskType': 'general'
         }
 
         # Insertar el documento en la colección de tasks
         result = tasksCollection.insert_one(task_document)
-
-        # Verificar si la inserción fue exitosa
+        createdTask = 'The task has been created successfully, please go to the my tasks tab to see its status'
+        return render_template('newTask.html', createdTask=createdTask, username=current_user.username)
+        """# Verificar si la inserción fue exitosa
         if result.inserted_id:
             # Obtener el objeto completo insertado con su _id
             inserted_task_id = str(result.inserted_id)  # Convertir ObjectId a string
             inserted_task = tasksCollection.find_one({'_id': result.inserted_id})
 
             # Ejecutar la tarea en segundo plano usando ThreadPoolExecutor
-            executor.submit(asyncio.run, run_process_task(inserted_task, current_user.id))
+            executor.submit(asyncio.run, run_process_general_task(inserted_task, current_user.id))
 
             # Mostrar un mensaje de éxito si el registro fue exitoso
             createdTask = 'The task has been created successfully, please go to the my tasks tab to see its status'
@@ -170,7 +233,7 @@ def newTask():
         else:
             # Mostrar un mensaje de error si ocurrió un problema al insertar en la base de datos
             errorTask = 'Something strange happened, please try again.'
-            return render_template('newTask.html', errorTask=errorTask, username=current_user.username)
+            return render_template('newTask.html', errorTask=errorTask, username=current_user.username)"""
     else:    
         return render_template('newTask.html',  username=current_user.username)
 
@@ -228,6 +291,11 @@ def taskReview(task_id):
         # Mostrar un mensaje de informacion de que no tiene tareas todavia creadas
         notVideoList = "I'm sorry, but there was a problem submitting the review request, please try again later."
         return render_template('taskReview.html', task=None, notVideoList=notVideoList, username=current_user.username)
+    
+@app.route('/taskDouble')
+@login_required
+def taskDouble():
+    return render_template('taskDouble.html', username=current_user.username)
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=80, debug=True)

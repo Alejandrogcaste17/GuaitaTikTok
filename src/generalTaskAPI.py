@@ -79,13 +79,13 @@ def getTimeList(startDate, endDate):
     
     return time_list
 
-async def process_task(taskCollection, current_user):
+async def process_general_task(taskCollection, current_user):
 
     access_token = getAccessToken(taskCollection)
     print(access_token)
 
     # Define la URL de la solicitud
-    url = 'https://open.tiktokapis.com/v2/research/video/query/?fields=id,video_description,create_time,voice_to_text'
+    url = 'https://open.tiktokapis.com/v2/research/video/query/?fields=id,video_description,create_time,voice_to_text,hashtag_names,username'
 
     tags_list = taskCollection['tags_list']
     regionCode = getRegionCode(taskCollection)
