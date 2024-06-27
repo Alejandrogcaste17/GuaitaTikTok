@@ -51,81 +51,19 @@
             </div>
         </div>
     </nav>
-    <center><h1>Welcome to your tasks</h1></center>
-
-    {% if notTask %}
-    <h2>Sorry you don't have any tasks yet</h2>
-    <div id="successModal" class="modal">
-        <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <h2 style="color: orange";>Warning!</h2>
-            <p>{{ notTask }}</p>
-            <a class="taskButton" href="/newTask">New Task</a>
-        </div>
-    </div>
+    {% if task['taskName'] %}
+        <center><h1>{{task['taskName']}} Review</h1></center>
     {% endif %}
 
-    {% if notFinished %}
-    <div id="successModal" class="modal">
-        <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <h2 style="color: orange";>Information!</h2>
-            <p>{{ notFinished }}</p>
-        </div>
-    </div>
-    {% endif %}
-
-    {% if stopped %}
+    {% if notVideoList %}
     <div id="successModal" class="modal">
         <div class="modal-content">
             <span class="close-button">&times;</span>
             <h2 style="color: red";>Warning!</h2>
-            <p>{{ stopped }}</p>
+            <p>{{ notVideoList }}</p>
+            <a class="taskButton" href="/tasksView">My tasks</a>
         </div>
     </div>
-    {% endif %}
-
-    {% if tasks_list %}
-        <table class="table table-dark table-striped">
-            <thead>
-                <tr>
-                    <th scope="col"></th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Status Message</th>
-                    <th scope="col">Task Name</th>
-                    <th scope="col">Description</th>
-                    <th scope="col">Start Date</th>
-                    <th scope="col">End Date</th>
-                    <th scope="col">Language</th>
-                    <th scope="col">Review</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for task in tasks_list %}
-                    <tr>
-                        <td>
-                            {% if task['state'] == 'In progress' %}
-                                <i class='bx bx-loader-alt bx-spin' style="color: white;"></i>
-                            {% endif %}
-                            {% if task['state'] == 'Finished' %}
-                                <i class='bx bxs-check-circle' style="color: green;"></i>
-                            {% endif %}
-                            {% if task['state'] == 'Stopped' %}
-                                <i class='bx bxs-error-circle' style="color: red;"></i>
-                            {% endif %}
-                        </td>
-                        <td>{{ task['state'] }}</td>
-                        <td>{{ task['state_message'] }}</td>
-                        <td>{{ task['taskName'] }}</td>
-                        <td>{{ task['description'] }}</td>
-                        <td>{{ task['startDate'] }}</td>
-                        <td>{{ task['endDate'] }}</td>
-                        <td>{{ task['language'] }}</td>
-                        <td><a class="taskReview" href="{{ url_for('taskReview', task_id=task['_id']) }}">Review</a></td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
     {% endif %}
 </body>
 <script>
