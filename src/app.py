@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for, f
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from bson.objectid import ObjectId
 from TikTokAPI import process_task
-from mongoConfiguration import usersCollection, tasksCollection
+from mongoConfiguration import usersCollection, tasksCollection, videosCollection
 from hashlib import sha256
 import asyncio
 import threading
@@ -174,6 +174,60 @@ def newTask():
     else:    
         return render_template('newTask.html',  username=current_user.username)
 
+@app.route('/tasksView')
+@login_required
+def tasksView():
+
+    # Verificar si el usuario ya existe en la base de datos
+    existing_user_tasks = tasksCollection.find({'userId': current_user.id})
+    
+    # Convertir el cursor a una lista
+    tasks_list = list(existing_user_tasks)
+
+    if tasks_list:
+        return render_template('tasksView.html', tasks_list=tasks_list, username=current_user.username)
+    else:
+        # Mostrar un mensaje de informacion de que no tiene tareas todavia creadas
+        notTask = "Sorry, you don't have any tasks created yet, please go to the ""New Task"" section and start one."
+        return render_template('tasksView.html', notTask=notTask, username=current_user.username)
+    
+@app.route('/taskReview/<task_id>')
+@login_required
+def taskReview(task_id):
+    # Convertir task_id a ObjectId
+    task_id = ObjectId(task_id)
+
+    # Verificar si el usuario ya existe en la base de datos
+    existing_task = tasksCollection.find_one({'_id': task_id})
+
+    # Verificar si el usuario ya existe en la base de datos
+    existing_user_tasks = tasksCollection.find({'userId': current_user.id})
+    
+    # Convertir el cursor a una lista
+    tasks_list = list(existing_user_tasks)
+    
+    if existing_task['state'] == 'In progress':
+        # Mostrar un mensaje de informacion de que todavia la tarea no ha terminado
+        notFinished = "Sorry, you haven't finished the task yet, wait for it to finish to be able to access the review"
+        return render_template('tasksView.html', tasks_list=tasks_list, notFinished=notFinished, username=current_user.username)
+    
+    if existing_task['state'] == 'Stopped':
+        # Mostrar un mensaje de informacion de que no tiene tareas todavia creadas
+        stopped = "Sorry, the task encountered an error while completing it, so the review option is not available."
+        return render_template('tasksView.html', tasks_list=tasks_list, stopped=stopped, username=current_user.username)
+    
+    # Buscamos los videos relacionados con esa tarea
+    videos = videosCollection.find({'taskId': task_id})
+
+    # Convertir el cursor a una lista
+    videos_list = list(videos)
+
+    if videos_list:
+        return render_template('taskReview.html', task=existing_task, videos_list=videos_list, username=current_user.username)
+    else:
+        # Mostrar un mensaje de informacion de que no tiene tareas todavia creadas
+        notVideoList = "I'm sorry, but there was a problem submitting the review request, please try again later."
+        return render_template('taskReview.html', task=None, notVideoList=notVideoList, username=current_user.username)
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=80, debug=True)

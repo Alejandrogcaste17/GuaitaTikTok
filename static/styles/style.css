@@ -164,3 +164,85 @@ a {
         font-size: 30px;
     }
 }
+
+.modal{
+    display: block;
+    position: fixed;
+    z-index: 2;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content{
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    width: 80%;
+    border: 1px solid #888;
+    max-width: 500px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.close-button{
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.close-button:hover,
+.close-button:focus{
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.taskButton {
+    background-color: orange;
+    color: #fff;
+    font-size: 12px;
+    padding: 10px 45px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+
+.taskReview {
+    background-color: rgb(77, 25, 221);
+    color: #fff;
+    font-size: 15px;
+    padding: 10px 45px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+h1 {
+    align-items: center;
+    justify-content: center;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+td {
+    text-align: left;
+    vertical-align: middle;
+    padding: 8px; /* Añade un poco de relleno para mejorar la apariencia */
+}
