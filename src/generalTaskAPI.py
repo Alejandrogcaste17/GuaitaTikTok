@@ -82,7 +82,6 @@ def getTimeList(startDate, endDate):
 async def process_general_task(taskCollection, current_user):
 
     access_token = getAccessToken(taskCollection)
-    print(access_token)
 
     # Define la URL de la solicitud
     url = 'https://open.tiktokapis.com/v2/research/video/query/?fields=id,video_description,create_time,voice_to_text,hashtag_names,username'
@@ -95,9 +94,11 @@ async def process_general_task(taskCollection, current_user):
 
     results = []
 
-    for start_date, end_date in time_list:
-        print("Start Date: ", start_date)
-        print("End Date: ", end_date)
+    # Define los encabezados de la solicitud
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'application/json'
+    }
 
     for start_date, end_date in time_list:
         data = {
@@ -113,12 +114,6 @@ async def process_general_task(taskCollection, current_user):
             
         }
 
-        # Define los encabezados de la solicitud
-        headers = {
-            'Authorization': f'Bearer {access_token}',
-            'Content-Type': 'application/json'
-        }
-
         # Realiza la solicitud POST
         first_response = requests.post(url, json=data, headers=headers)
 
@@ -127,6 +122,10 @@ async def process_general_task(taskCollection, current_user):
 
             response_data = first_response.json()
             videosWithVoiceToText(response_data, results)
+
+            # Condicion para el caso en el que encuentre menos de 100 videos en el rango de fechas establecido
+            if response_data["data"]["cursor"] < 100:
+                break
 
             time.sleep(5)
 
@@ -140,10 +139,10 @@ async def process_general_task(taskCollection, current_user):
             data["cursor"] = response_data["data"]["cursor"]
             data["search_id"] = response_data["data"]["search_id"]
 
-            while data["cursor"] < 1000:
+            while data["cursor"] < 1000 and data["cursor"] % 100 == 0:
 
                 print("Empezamos bucle")
-                
+                                
                 if request_again == False:
                     if not first_iteration:
                         data["cursor"] = loop_response_data["data"]["cursor"]
@@ -169,7 +168,7 @@ async def process_general_task(taskCollection, current_user):
                 if loop_response.status_code == 200:
                     print("Buena peticion")
                     loop_response_data = loop_response.json()
-                    results.append(videosWithVoiceToText(loop_response_data, results))
+                    videosWithVoiceToText(loop_response_data, results)
                     print("Cantidad de videos: ", len(results))
                 else:
                     if loop_response.status_code == 500:

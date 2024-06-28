@@ -159,9 +159,8 @@ def newTaskProfile():
 
         # Insertar el documento en la colección de tasks
         result = tasksCollection.insert_one(task_document)
-        createdTask = 'The task has been created successfully, please go to the my tasks tab to see its status'
-        return render_template('newTask.html', createdTask=createdTask, username=current_user.username)
-        """# Verificar si la inserción fue exitosa
+        
+        # Verificar si la inserción fue exitosa
         if result.inserted_id:
             # Obtener el objeto completo insertado con su _id
             inserted_task = tasksCollection.find_one({'_id': result.inserted_id})
@@ -175,7 +174,7 @@ def newTaskProfile():
         else:
             # Mostrar un mensaje de error si ocurrió un problema al insertar en la base de datos
             errorTask = 'Something strange happened, please try again.'
-            return render_template('newTask.html', errorTask=errorTask, username=current_user.username)"""
+            return render_template('newTask.html', errorTask=errorTask, username=current_user.username)
         
     else:
         return render_template('newTask.html',  username=current_user.username)
@@ -216,9 +215,8 @@ def newTaskGeneral():
 
         # Insertar el documento en la colección de tasks
         result = tasksCollection.insert_one(task_document)
-        createdTask = 'The task has been created successfully, please go to the my tasks tab to see its status'
-        return render_template('newTask.html', createdTask=createdTask, username=current_user.username)
-        """# Verificar si la inserción fue exitosa
+
+        # Verificar si la inserción fue exitosa
         if result.inserted_id:
             # Obtener el objeto completo insertado con su _id
             inserted_task_id = str(result.inserted_id)  # Convertir ObjectId a string
@@ -233,7 +231,7 @@ def newTaskGeneral():
         else:
             # Mostrar un mensaje de error si ocurrió un problema al insertar en la base de datos
             errorTask = 'Something strange happened, please try again.'
-            return render_template('newTask.html', errorTask=errorTask, username=current_user.username)"""
+            return render_template('newTask.html', errorTask=errorTask, username=current_user.username)
     else:    
         return render_template('newTask.html',  username=current_user.username)
 
