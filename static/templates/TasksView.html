@@ -114,6 +114,12 @@
                             {% if task['state'] == 'Stopped' %}
                                 <i class='bx bxs-error-circle' style="color: red;"></i>
                             {% endif %}
+                            {% if task['state'] == 'Profile Founded' %}
+                                <i class='bx bx-search-alt bx-tada' style="color: white;"></i>
+                            {% endif %}
+                            {% if task['state'] == 'Private' %}
+                                <i class='bx bx-lock' style="color: white;"></i>
+                            {% endif %}
                         </td>
                         <td>{{ task['state'] }}</td>
                         <td>{{ task['state_message'] }}</td>
