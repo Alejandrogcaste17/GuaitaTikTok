@@ -187,15 +187,30 @@ def newTaskGeneral():
         taskName = request.form['name']
         description = request.form['description']
         tags = request.form['tags']
+        keywords = request.form['keywords']
         startDate = request.form['startDate']
         endDate = request.form['endDate']
         language = request.form['language']
 
+        if not tags and not keywords:
+            # Mostrar un mensaje de error ya que no se completo alguno de los dos filtros
+            notFilter = 'At least one of the two filters, "tags" or "keywords" must be filled'
+            return render_template('newTask.html', notFilter=notFilter, username=current_user.username)
+
         # Convertir las etiquetas en un vector
-        tags_list = [tag.strip() for tag in tags.split(',') if tag.strip()]
+        if tags:
+            tags_list = [tag.strip() for tag in tags.split(',') if tag.strip()]
+        else:
+            tags_list = []
+
+        # Convertir las palabras clave en un vector
+        if keywords:
+            keywords_list = [keyword.strip() for keyword in keywords.split(',') if keyword.strip()]
+        else:
+            keywords_list = []
 
         if(startDate > endDate):
-            # Mostrar un mensaje de éxito si el registro fue exitoso
+            # Mostrar un mensaje de error ya que la fecha final es antes que la fecha de inicio
             wrongDate = 'The end date is before the origin date, please change the values'
             return render_template('newTask.html', wrongDate=wrongDate, username=current_user.username)
         
@@ -206,6 +221,7 @@ def newTaskGeneral():
             'taskName': taskName,
             'description': description,
             'tags_list': tags_list,
+            'keywords_list': keywords_list,
             'startDate': startDate,
             'endDate': endDate,
             'language': language,
@@ -219,7 +235,6 @@ def newTaskGeneral():
         # Verificar si la inserción fue exitosa
         if result.inserted_id:
             # Obtener el objeto completo insertado con su _id
-            inserted_task_id = str(result.inserted_id)  # Convertir ObjectId a string
             inserted_task = tasksCollection.find_one({'_id': result.inserted_id})
 
             # Ejecutar la tarea en segundo plano usando ThreadPoolExecutor
@@ -289,11 +304,6 @@ def taskReview(task_id):
         # Mostrar un mensaje de informacion de que no tiene tareas todavia creadas
         notVideoList = "I'm sorry, but there was a problem submitting the review request, please try again later."
         return render_template('taskReview.html', task=None, notVideoList=notVideoList, username=current_user.username)
-    
-@app.route('/taskDouble')
-@login_required
-def taskDouble():
-    return render_template('taskDouble.html', username=current_user.username)
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=80, debug=True)

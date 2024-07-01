@@ -79,6 +79,68 @@ def getTimeList(startDate, endDate):
     
     return time_list
 
+def dataQuery(tags_list, keywords_list, startDate, endDate, regionCode):
+    if tags_list:
+        if keywords_list:
+            tags = []
+            for tag in tags_list:
+                condition = { "operation": "EQ", "field_name": "hashtag_name", "field_values": [tag] }
+                tags.append(condition)
+
+            keywords = []
+            for keyword in keywords_list:
+                condition = { "operation": "EQ", "field_name": "keyword", "field_values": [keyword] }
+                keywords.append(condition)
+            
+            data = {
+                "query": {
+                    "and": [
+                        { "operation": "IN", "field_name": "region_code", "field_values": [regionCode] }
+                    ],
+                    "or": tags,
+                    "or": keywords
+                },
+                "max_count": 100,
+                "start_date": startDate,
+                "end_date": endDate
+            }
+            return data
+        else:
+            tags = []
+            for tag in tags_list:
+                condition = { "operation": "EQ", "field_name": "hashtag_name", "field_values": [tag] }
+                tags.append(condition)
+            data = {
+                "query": {
+                    "and": [
+                        { "operation": "IN", "field_name": "region_code", "field_values": [regionCode] }
+                    ],
+                    "or": tags
+                },
+                "max_count": 100,
+                "start_date": startDate,
+                "end_date": endDate
+            }
+            return data
+    else:
+        if keywords_list:
+            keywords = []
+            for keyword in keywords_list:
+                condition = { "operation": "EQ", "field_name": "keyword", "field_values": [keyword] }
+                keywords.append(condition)
+            data = {
+                "query": {
+                    "and": [
+                        { "operation": "IN", "field_name": "region_code", "field_values": [regionCode] }
+                    ],
+                    "or": keywords
+                },
+                "max_count": 100,
+                "start_date": startDate,
+                "end_date": endDate
+            }
+            return data
+
 async def process_general_task(taskCollection, current_user):
 
     access_token = getAccessToken(taskCollection)
@@ -87,6 +149,7 @@ async def process_general_task(taskCollection, current_user):
     url = 'https://open.tiktokapis.com/v2/research/video/query/?fields=id,video_description,create_time,voice_to_text,hashtag_names,username'
 
     tags_list = taskCollection['tags_list']
+    keywords_list = taskCollection['keywords_list']
     regionCode = getRegionCode(taskCollection)
     startDate = getFormatDate(taskCollection['startDate'])
     endDate = getFormatDate(taskCollection['endDate'])
@@ -100,19 +163,15 @@ async def process_general_task(taskCollection, current_user):
         'Content-Type': 'application/json'
     }
 
+    first_data = True
     for start_date, end_date in time_list:
-        data = {
-            "query": {
-                "and": [
-                    { "operation": "IN", "field_name": "region_code", "field_values": [regionCode] },
-                    { "operation": "EQ", "field_name": "hashtag_name", "field_values": tags_list }
-                ]
-            },
-            "max_count": 100,
-            "start_date": start_date,
-            "end_date": end_date
-            
-        }
+
+        if first_data:
+            data = dataQuery(tags_list, keywords_list, start_date, end_date, regionCode)
+            first_data = False
+        else:
+            data["start_date"] = start_date
+            data["end_date"] = end_date
 
         # Realiza la solicitud POST
         first_response = requests.post(url, json=data, headers=headers)

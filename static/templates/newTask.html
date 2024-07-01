@@ -116,22 +116,35 @@
                     <input type="text" name="description" id="description" placeholder="Explain a description for the task" autocomplete="off" required>
                     <i class="icon"></i>
                 </div>
-    
+                
                 <div class="form-control">
                     <div class="input-group">
-                        <label for="tags">Tags</label>
-                        <span class="info-icon" data-info='Please enter the tags you want separated by commas. For example: "politics, economy, health..."'>
+                        <label for="filters">Filters</label>
+                        <span class="info-icon" data-info='Enter some type of filter, in a general task the specification of at least one of the two filters, tags or keywords must be mandatory.'>
                             <i class='bx bx-info-circle' ></i>
                         </span>
                     </div>
-                    <input type="text" name="tags" id="tags" placeholder="Enter your tags for the search" autocomplete="off" required>
-                    <i class="icon"></i>
-                </div>
-    
-                <div class="form-control">
-                    <label for="message">Message</label>
-                    <textarea id="message" name="message" placeholder="Enter your message" required></textarea>
-                    <i class="icon"></i>
+                    <div class="form-control">
+                        <div class="input-group">
+                            <label for="tags">Tags</label>
+                            <span class="info-icon" data-info='Tags are the words that can be found in the hashtags of a video. Enter these tags separated by commas to perform the search, example: politics, economy...'>
+                                <i class='bx bx-info-circle' ></i>
+                            </span>
+                        </div>
+                        <input type="text" name="tags" id="tags" placeholder="Enter your tags for the search" autocomplete="off">
+                        <i class="icon"></i>
+                    </div>
+        
+                    <div class="form-control">
+                        <div class="input-group">
+                            <label for="keywords">Keywords</label>
+                            <span class="info-icon" data-info='Keywords are the words that can be found in the description of a video. Enter these keywords to perform the search, example: world war, soccer...'>
+                                <i class='bx bx-info-circle' ></i>
+                            </span>
+                        </div>
+                        <input type="text" name="keywords" id="keywords" placeholder="Enter your keywords for the search" autocomplete="off">
+                        <i class="icon"></i>
+                    </div>
                 </div>
                 
                 <div class="form-control">
@@ -201,6 +214,16 @@
             <span class="close-button">&times;</span>
             <h2 style="color: red;">Error!</h2>
             <p>{{ errorTask }}</p>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if notFilter %}
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2 style="color: red;">Error!</h2>
+            <p>{{ notFilter }}</p>
         </div>
     </div>
     {% endif %}
