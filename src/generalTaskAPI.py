@@ -2,6 +2,7 @@ import requests
 import json
 import time
 import asyncio
+from classificationAPI import process_classification_api
 from datetime import datetime, timedelta
 from celery.exceptions import Ignore
 from mongoConfiguration import tasksCollection, videosCollection
@@ -265,6 +266,14 @@ async def process_general_task(taskCollection, current_user):
 
     # Verificar si la inserción fue exitosa
     if result.inserted_id:
+        
+        tasksCollection.update_one(
+            {'_id': taskCollection['_id']},
+            {'$set': {'state_message': 'The classification is being carried out'}}
+        )
+
+        process_classification_api(taskCollection, current_user)
+
         tasksCollection.update_one(
             {'_id': taskCollection['_id']},
             {'$set': {'state': 'Finished', 'state_message': 'The task has been completed successfully'}}
