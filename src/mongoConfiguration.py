@@ -12,3 +12,4 @@ usersCollection = db.users
 tasksCollection = db.tasks
 videosCollection = db.videos
 profilesCollection = db.profiles
+classificationCollection = db.classification
