@@ -54,6 +54,16 @@ def getFormatDate(date):
     # Eliminar los guiones "-" de la fecha original
     return date.replace("-", "")
 
+def dateFormat(results):   
+    for video in results:
+        if 'create_time' in video and isinstance(video['create_time'], int):
+            fecha = datetime.utcfromtimestamp(video['create_time'])
+            video['create_time'] = fecha.strftime('%Y%m%d')
+        else:
+            print(f"El video {video.get('id', 'sin ID')} no tiene 'create_time' válido.")
+    return results
+
+
 def getTimeList(startDate, endDate):
     # Convertir las fechas del formato "YYYYMMDD" a objetos datetime.date
     fecha_inicio = datetime.strptime(startDate, "%Y%m%d").date()
@@ -250,6 +260,10 @@ async def process_general_task(taskCollection, current_user):
                 {'$set': {'state': 'Stopped', 'state_message': 'Error when making the first request, please try again later, or try the task again'}}
         )
     
+
+    # Convertimos la variable create_time al formato "YYYYMMDD"
+    results = dateFormat(results)
+
     # Creamos nuestro documento a insertar en la base de datos
     video_document = {
         'taskId': taskCollection['_id'],
