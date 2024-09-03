@@ -1,0 +1,103 @@
+body{
+    background-color: #c9d6ff;
+    background: linear-gradient(to right, #e2e2e2, #c9d6ff);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding-top: 25px;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.navbar {
+    margin-bottom: 30px; /* Asegura un espacio entre la navbar y el contenido siguiente */
+}
+
+h1 {
+    align-items: center;
+    justify-content: center;
+}
+
+#dashboard-container {
+    padding: 0;
+    margin-top: 15px;
+}
+
+#dashboard-container .left-half {
+    border-radius: 15px;
+}
+
+#dashboard-container .right-half {
+    text-align: center; /* Centrar el contenido dentro de la mitad derecha */
+    width: 100%;
+}
+
+#dashboard-container .table {
+    margin: 0; /* Asegúrate de que la tabla ocupe todo el ancho disponible */
+    border-radius: 20px;
+}
+
+#dashboard-container canvas {
+    max-width: 80%; /* Limitar el tamaño máximo del gráfico */
+    max-height: 400px; /* Limitar la altura máxima del gráfico */
+    height: auto;
+}
+
+#dashboard-container h4 {
+    margin-top: 25px;
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: black;
+}
+
+#sentimentChart {
+    width: 100% !important;
+    height: auto !important;
+}
+
+.info-box {
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.carousel-item {
+    text-align: left; /* Alinear el texto a la izquierda */
+}
+
+.carousel-item h5 {
+    margin-bottom: 10px;
+}
+
+.carousel-item p {
+    margin: 5px 0;
+}
+
+/* Cambiar el color de los botones de control */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: #6c757d; /* Cambia este color por el que prefieras */
+    border-radius: 50%; /* Hacer que los botones sean circulares */
+}
+
+/* Ajustar la posición de los botones de control */
+.carousel-control-prev,
+.carousel-control-next {
+    width: auto;
+    bottom: 10px; /* Mover los controles hacia abajo */
+    top: unset; /* Desanclar de la parte superior */
+    transform: translateY(100%); /* Asegura que estén justo debajo del contenido */
+}
+
+.carousel-item {
+    position: relative;
+}
+
+/* Asegurarse de que los botones estén centrados horizontalmente */
+.carousel-control-prev {
+    left: 20%; /* Centrar el botón de atrás */
+}
+
+.carousel-control-next {
+    right: 20%; /* Centrar el botón de adelante */
+}

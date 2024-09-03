@@ -6,7 +6,7 @@ from classificationAPI import process_classification_api
 from datetime import datetime, timedelta
 from celery.exceptions import Ignore
 from mongoConfiguration import tasksCollection, videosCollection
-
+ 
 # Define las credenciales de la aplicación
 client_key = 'awoy8doraswxa914'
 client_secret = 'C1Fq10WTwgYygDlteNj8KDWLZTK5EaRe'
@@ -209,7 +209,7 @@ async def process_general_task(taskCollection, current_user):
             data["cursor"] = response_data["data"]["cursor"]
             data["search_id"] = response_data["data"]["search_id"]
 
-            while data["cursor"] < 1000 and data["cursor"] % 100 == 0:
+            while data["cursor"] < 5000 and data["cursor"] % 100 == 0:
 
                 print("Empezamos bucle")
                                 
@@ -271,7 +271,7 @@ async def process_general_task(taskCollection, current_user):
         'tags': tags_list,
         'total_videos': len(results),
         'list_videos': results,
-        'cursor': response_data["data"]["cursor"],
+        'cursor': loop_response_data["data"]["cursor"],
         'search_id': response_data["data"]["search_id"]
     }
 

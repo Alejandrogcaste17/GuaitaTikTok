@@ -3,7 +3,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from bson.objectid import ObjectId
 from generalTaskAPI import process_general_task
 from profileTaskAPI import process_profile_task
-from mongoConfiguration import usersCollection, tasksCollection, videosCollection
+from mongoConfiguration import usersCollection, tasksCollection, videosCollection, statisticsCollection
 from hashlib import sha256
 import asyncio
 import threading
@@ -293,13 +293,12 @@ def taskReview(task_id):
         return render_template('tasksView.html', tasks_list=tasks_list, stopped=stopped, username=current_user.username)
     
     # Buscamos los videos relacionados con esa tarea
-    videos = videosCollection.find({'taskId': task_id})
+    videos = videosCollection.find_one({'taskId': task_id})
 
-    # Convertir el cursor a una lista
-    videos_list = list(videos)
+    statistics = statisticsCollection.find_one({'taskId': task_id})
 
-    if videos_list:
-        return render_template('taskReview.html', task=existing_task, videos_list=videos_list, username=current_user.username)
+    if videos:
+        return render_template('taskReview.html', task=existing_task, videos_list=videos, statistics=statistics, username=current_user.username)
     else:
         # Mostrar un mensaje de informacion de que no tiene tareas todavia creadas
         notVideoList = "I'm sorry, but there was a problem submitting the review request, please try again later."

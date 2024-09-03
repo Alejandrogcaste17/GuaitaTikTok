@@ -5,6 +5,7 @@ import asyncio
 from datetime import datetime, timedelta
 from celery.exceptions import Ignore
 from mongoConfiguration import tasksCollection, videosCollection, classificationCollection
+from statisticsAPI import process_statistics_api
 
 api_url = "http://boso.dsic.upv.es:5008/tweet_classification"
 
@@ -29,16 +30,12 @@ tasks = [ "tass19_es_sentiment",
 
 def process_classification_api(taskCollection, current_user):
 
-    print("llegamos a clasificador")
     # Headers para indicar que se está enviando un payload JSON
     headers = {
         'Content-Type': 'application/json'
     }
 
     task_videos = videosCollection.find_one({'taskId': taskCollection['_id']})
-
-    if task_videos:
-        print("Encontrado")
 
     # Array para almacenar los valores id y voice_to_text de cada video en list_videos
     video_data = []
@@ -54,7 +51,6 @@ def process_classification_api(taskCollection, current_user):
             # Añadimos el par (id, voice_to_text) al array
             video_data.append({'id': video_id, 'voice_to_text': voice_to_text})
     
-    print("llegamos aqui x2")
     # Extraemos todos los valores de 'voice_to_text' de 'video_data'
     texts = [video['voice_to_text'] for video in video_data]
 
@@ -71,7 +67,6 @@ def process_classification_api(taskCollection, current_user):
 
     if response.status_code == 200:
         response_data = response.json()
-        print(json.dumps(response_data, indent=4))
 
         #Extraemos todos los datos obtenidos de cada video
         sentiment = response_data['Sentiment']['tass19_es_sentiment']
@@ -107,10 +102,8 @@ def process_classification_api(taskCollection, current_user):
         irony = response_data['Irony']['irosva19_es_irony']
 
         num_videos = len(sentiment)
-        print(num_videos)
 
         for i in range(num_videos):
-            print(video_data[i]['id'])
             classification_document = {
                 'videoId': video_data[i]['id'],
                 'voice_to_text': video_data[i]['voice_to_text'],
@@ -135,6 +128,9 @@ def process_classification_api(taskCollection, current_user):
             # Insertar el documento en la colección de classification
             result = classificationCollection.insert_one(classification_document)
 
+        # Ahora generaremos las estadisticas que se visualizaran en la pagina
+
+        process_statistics_api(taskCollection, current_user)
     else:
         print('Error al realizar la solicitud:', response.status_code)
         print(response.text)

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="../static/styles/style.css">
+    <link rel="stylesheet" type="text/css" href="../static/styles/styleReview.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <title>Guaita TikTok</title>
 </head>
@@ -52,8 +52,144 @@
         </div>
     </nav>
     {% if task['taskName'] %}
-        <center><h1>{{task['taskName']}} Review</h1></center>
+        <center><h1>{{task['taskName']}} Review </h1></center>
     {% endif %}
+
+    <div id="dashboard-container" class="container-fluid">
+        <div class="row">
+            <div class="col-md-8 d-flex justify-content-center align-items-center">
+                <div class="card shadow p-4" style="background-color: #e6e0f8;; border-radius: 15px; margin-top: 20px; margin-left: 15px; margin-right: 15px;">
+                    <!-- Parte izquierda: tabla de datos -->
+                    <div class="left-half w-100">
+                        <table class="table table-dark table-striped w-100">
+                            <tbody>
+                                <tr>
+                                    <th scope="row">Status</th>
+                                    <td>
+                                        {% if task['state'] == 'In progress' %}
+                                            <i class='bx bx-loader-alt bx-spin' style="color: white;"></i> {{ task['state'] }}
+                                        {% elif task['state'] == 'Finished' %}
+                                            <i class='bx bxs-check-circle' style="color: green;"></i> {{ task['state'] }}
+                                        {% elif task['state'] == 'Stopped' %}
+                                            <i class='bx bxs-error-circle' style="color: red;"></i> {{ task['state'] }}
+                                        {% elif task['state'] == 'Profile Founded' %}
+                                            <i class='bx bx-search-alt bx-tada' style="color: white;"></i> {{ task['state'] }}
+                                        {% elif task['state'] == 'Private' %}
+                                            <i class='bx bx-lock' style="color: white;"></i> {{ task['state'] }}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Status Message</th>
+                                    <td>{{ task['state_message'] }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Task Name</th>
+                                    <td>{{ task['taskName'] }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Description</th>
+                                    <td>{{ task['description'] }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Start Date</th>
+                                    <td>{{ task['startDate'] }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">End Date</th>
+                                    <td>{{ task['endDate'] }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Language</th>
+                                    <td>{{ task['language'] }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Task Type</th>
+                                    <td>{{ task['taskType'] }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- Parte derecha: gráfico circular -->
+            
+            <div class="col-md-4 d-flex flex-column justify-content-center align-items-center">
+                <div class="card shadow p-4" style="background-color: #e6e0f8;; border-radius: 15px; margin-top: 20px; margin-left: 15px; margin-right: 15px;">
+                    <h4 class="text-center text-black mb-4">Number of Classified Videos</h4>
+                    <div class="right-half w-100 d-flex justify-content-center align-items-center">  
+                        <input type="hidden" id="classifiedVideos" value="{{ videos_list['total_videos'] }}">
+                        <input type="hidden" id="cursor" value="{{ videos_list['cursor'] }}">
+                        <canvas id="videoChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow p-4" style="background-color: #e6e0f8;; border-radius: 15px; margin-top: 20px; margin-left: 15px; margin-right: 15px; height: 600px;">
+        <h3 class="text-center text-black mb-4">Sentiments Statistics</h3>
+        <div id="dashboard-container" class="container-fluid" style="margin-bottom: 400px;">
+            <div class="row">
+                <div class="col-md-7 d-flex flex-column justify-content-center align-items-center">
+                    <h4 class="text-center text-black mb-4">Sentiments</h4>
+                    <div class="w-100 d-flex justify-content-center">
+                        <canvas id="sentimentChart"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-5 d-flex flex-column justify-content-center align-items-center">
+                    <h4 class="text-center text-black mb-4">Best Videos</h4>
+                    <div id="bestVideosCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            <!-- Video 1 Information -->
+                            <div class="carousel-item active">
+                                <div class="info-box d-block w-100">
+                                    <input type="hidden" id="averagePositive" value="{{ statistics['sentiments']['averagePositive'] }}">
+                                    <h5>Best Positive Video</h5>
+                                    <p><strong>Creator:</strong> Creator Name 1</p>
+                                    <p><strong>Transcription:</strong> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ac metus nec metus placerat condimentum.</p>
+                                </div>
+                            </div>
+                            <!-- Video 2 Information -->
+                            <div class="carousel-item">
+                                <div class="info-box d-block w-100">
+                                    <input type="hidden" id="averageNegative" value="{{ statistics['sentiments']['averageNegative'] }}">
+                                    <h5>Best Negative Video</h5>
+                                    <p><strong>Creator:</strong> Creator Name 2</p>
+                                    <p><strong>Transcription:</strong> Aenean lacinia bibendum nulla sed consectetur. Donec ullamcorper nulla non metus auctor fringilla.</p>
+                                </div>
+                            </div>
+                            <!-- Video 3 Information -->
+                            <div class="carousel-item">
+                                <div class="info-box d-block w-100">
+                                    <h5>Best Neutral Video</h5>
+                                    <p><strong>Creator:</strong> Creator Name 3</p>
+                                    <p><strong>Transcription:</strong> Curabitur blandit tempus porttitor. Nullam id dolor id nibh ultricies vehicula ut id elit.</p>
+                                </div>
+                            </div>
+                            <div class="carousel-item">
+                                <div class="info-box d-block w-100">
+                                    <h5>Best None Video</h5>
+                                    <p><strong>Creator:</strong> Creator Name 3</p>
+                                    <p><strong>Transcription:</strong> Curabitur blandit tempus porttitor. Nullam id dolor id nibh ultricies vehicula ut id elit.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Carousel controls -->
+                        <a class="carousel-control-prev" href="#bestVideosCarousel" role="button" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </a>
+                        <a class="carousel-control-next" href="#bestVideosCarousel" role="button" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </a>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
 
     {% if notVideoList %}
     <div id="successModal" class="modal">
@@ -66,19 +202,10 @@
     </div>
     {% endif %}
 </body>
-<script>
-    const modal = document.getElementById('successModal');
-
-    const closeBtn = document.querySelector('.close-button');
-    closeBtn.onclick = function () {
-        modal.style.display = 'none';
-    };
-
-    window.onclick = function (event) {
-        if (event.target === modal) {
-            modal.style.display = 'none';
-        }
-    };
-</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Agregar Chart.js desde CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='scripts/canvas.js') }}"></script> 
+
+
 </html>
