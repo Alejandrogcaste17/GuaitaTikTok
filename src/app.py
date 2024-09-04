@@ -295,7 +295,7 @@ def taskReview(task_id):
     # Buscamos los videos relacionados con esa tarea
     videos = videosCollection.find_one({'taskId': task_id})
 
-    statistics = statisticsCollection.find_one({'taskId': task_id})
+    statistics = statisticsCollection.find_one({'taskId': str(task_id)})
 
     if videos:
         return render_template('taskReview.html', task=existing_task, videos_list=videos, statistics=statistics, username=current_user.username)
