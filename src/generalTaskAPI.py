@@ -264,6 +264,10 @@ async def process_general_task(taskCollection, current_user):
     # Convertimos la variable create_time al formato "YYYYMMDD"
     results = dateFormat(results)
 
+    # Convertimos los id de los videos a string
+    for video in results:
+        video['id'] = str(video['id'])
+
     # Creamos nuestro documento a insertar en la base de datos
     video_document = {
         'taskId': taskCollection['_id'],
