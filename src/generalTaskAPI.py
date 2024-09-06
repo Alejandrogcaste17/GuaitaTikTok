@@ -258,7 +258,7 @@ async def process_general_task(taskCollection, current_user):
             tasksCollection.update_one(
                 {'_id': taskCollection['_id']},
                 {'$set': {'state': 'Stopped', 'state_message': 'Error when making the first request, please try again later, or try the task again'}}
-        )
+            )
     
 
     # Convertimos la variable create_time al formato "YYYYMMDD"

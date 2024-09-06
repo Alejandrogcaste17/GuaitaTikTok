@@ -126,8 +126,12 @@
             </div>
         </div>
     </div>
+    <input type="hidden" id="averagePositive" value="{{ statistics['sentiments']['averagePositive'] }}">
+    <input type="hidden" id="averageNegative" value="{{ statistics['sentiments']['averageNegative'] }}">
+    <input type="hidden" id="averageNeutral" value="{{ statistics['sentiments']['averageNeutral'] }}">
+    <input type="hidden" id="averageNone" value="{{ statistics['sentiments']['averageNone'] }}">
 
-    <div class="card shadow p-4" style="background-color: #e6e0f8;; border-radius: 15px; margin-top: 20px; margin-left: 15px; margin-right: 15px; height: 600px;">
+    <div class="card shadow p-4" style="background-color: #e6e0f8;; border-radius: 15px; margin-top: 20px; margin-left: 15px; margin-right: 15px; min-height: 600px; height: auto">
         <h3 class="text-center text-black mb-4">Sentiments Statistics</h3>
         <div id="dashboard-container" class="container-fluid" style="margin-bottom: 400px;">
             <div class="row">
@@ -144,34 +148,43 @@
                             <!-- Video 1 Information -->
                             <div class="carousel-item active">
                                 <div class="info-box d-block w-100">
-                                    <input type="hidden" id="averagePositive" value="{{ statistics['sentiments']['averagePositive'] }}">
                                     <h5>Best Positive Video</h5>
-                                    <p><strong>Creator:</strong> Creator Name 1</p>
-                                    <p><strong>Transcription:</strong> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ac metus nec metus placerat condimentum.</p>
+                                    <p><strong>Creator: </strong>{{statistics['sentiments']['positiveId']['username']}}</p>
+                                    <p><strong>Description: </strong>{{statistics['sentiments']['positiveId']['video_description']}}</p>
+                                    <p><strong>Text of the video:</strong> {{statistics['sentiments']['positiveId']['voice_to_text']}}</p>
+                                    <p><strong>Date Creation:</strong> {{statistics['sentiments']['positiveId']['create_time']}}</p>
                                 </div>
                             </div>
                             <!-- Video 2 Information -->
                             <div class="carousel-item">
                                 <div class="info-box d-block w-100">
-                                    <input type="hidden" id="averageNegative" value="{{ statistics['sentiments']['averageNegative'] }}">
+                                    
                                     <h5>Best Negative Video</h5>
-                                    <p><strong>Creator:</strong> Creator Name 2</p>
-                                    <p><strong>Transcription:</strong> Aenean lacinia bibendum nulla sed consectetur. Donec ullamcorper nulla non metus auctor fringilla.</p>
+                                    <p><strong>Creator: </strong>{{statistics['sentiments']['negativeId']['username']}}</p>
+                                    <p><strong>Description: </strong>{{statistics['sentiments']['negativeId']['video_description']}}</p>
+                                    <p><strong>Text of the video:</strong> {{statistics['sentiments']['negativeId']['voice_to_text']}}</p>
+                                    <p><strong>Date Creation:</strong> {{statistics['sentiments']['negativeId']['create_time']}}</p>
                                 </div>
                             </div>
                             <!-- Video 3 Information -->
                             <div class="carousel-item">
                                 <div class="info-box d-block w-100">
+                                    
                                     <h5>Best Neutral Video</h5>
-                                    <p><strong>Creator:</strong> Creator Name 3</p>
-                                    <p><strong>Transcription:</strong> Curabitur blandit tempus porttitor. Nullam id dolor id nibh ultricies vehicula ut id elit.</p>
+                                    <p><strong>Creator: </strong>{{statistics['sentiments']['neutralId']['username']}}</p>
+                                    <p><strong>Description: </strong>{{statistics['sentiments']['neutralId']['video_description']}}</p>
+                                    <p><strong>Text of the video:</strong> {{statistics['sentiments']['neutralId']['voice_to_text']}}</p>
+                                    <p><strong>Date Creation:</strong> {{statistics['sentiments']['neutralId']['create_time']}}</p>
                                 </div>
                             </div>
                             <div class="carousel-item">
                                 <div class="info-box d-block w-100">
+                                    
                                     <h5>Best None Video</h5>
-                                    <p><strong>Creator:</strong> Creator Name 3</p>
-                                    <p><strong>Transcription:</strong> Curabitur blandit tempus porttitor. Nullam id dolor id nibh ultricies vehicula ut id elit.</p>
+                                    <p><strong>Creator: </strong>{{statistics['sentiments']['noneId']['username']}}</p>
+                                    <p><strong>Description: </strong>{{statistics['sentiments']['noneId']['video_description']}}</p>
+                                    <p><strong>Text of the video:</strong> {{statistics['sentiments']['noneId']['voice_to_text']}}</p>
+                                    <p><strong>Date Creation:</strong> {{statistics['sentiments']['noneId']['create_time']}}</p>
                                 </div>
                             </div>
                         </div>

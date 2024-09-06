@@ -12,6 +12,20 @@ body{
     margin-bottom: 30px; /* Asegura un espacio entre la navbar y el contenido siguiente */
 }
 
+@media (max-width: 768px) {
+    .card {
+        margin: 10px; /* Reducir los márgenes en pantallas más pequeñas */
+        padding: 15px;
+    }
+    .carousel-inner {
+        height: auto; /* Asegurarse de que el carrusel se ajuste al contenido */
+    }
+    h3, h4 {
+        font-size: 1.5rem; /* Ajustar los tamaños de texto para pantallas más pequeñas */
+    }
+}
+
+
 h1 {
     align-items: center;
     justify-content: center;

@@ -26,7 +26,7 @@ def process_statistics_api(taskCollection, current_user):
             # Añadimos el par (id, voice_to_text) al array
             video_data.append({'id': video_id, 'voice_to_text': voice_to_text})
 
-    sentiments = sentimentsStatistics(video_data)
+    sentiments = sentimentsStatistics(video_data, taskCollection)
     
     toxicity = toxicityStatistics(video_data)
 
@@ -56,7 +56,7 @@ def process_statistics_api(taskCollection, current_user):
 
     constructive = constructiveStatistics(video_data)
 
-    emotion = emotionStatistics(video_data)
+    emotion = emotionStatistics(video_data, taskCollection)
 
     statistic_document = {
         'taskId': taskCollection['_id'],
@@ -74,7 +74,8 @@ def process_statistics_api(taskCollection, current_user):
         'sarcasm': sarcasm,
         'aggressive': aggressive,
         'mockery': mockery,
-        'argumentative': argumentative
+        'argumentative': argumentative,
+        'emotion': emotion
     }
     
     try:
@@ -87,7 +88,24 @@ def process_statistics_api(taskCollection, current_user):
         print(f"Error al insertar el documento: {e}")
     
 
-def emotionStatistics(video_data):
+def searchVideo(id, taskCollection):
+
+    result = []
+
+    task_videos = videosCollection.find_one({'taskId': taskCollection['_id']})
+
+    # Verificamos que task_videos y list_videos existan
+    if task_videos and 'list_videos' in task_videos:
+        # Iteramos sobre cada video dentro de list_videos
+        for video in task_videos['list_videos']:
+            if video.get('id') == id:
+                result = video
+                break
+    
+    return result
+
+
+def emotionStatistics(video_data, taskCollection):
 
     averageAnger = 0
     averageDisgust = 0
@@ -179,25 +197,25 @@ def emotionStatistics(video_data):
     result = {
         'averageAnger': averageAnger,
         'bestAnger': bestAnger,
-        'angerId': angerId,
+        'angerId': searchVideo(angerId, taskCollection),
         'averageDisgust': averageDisgust,
         'bestDisgust': bestDisgust,
-        'disgustId': disgustId,
+        'disgustId': searchVideo(disgustId, taskCollection),
         'averageFear': averageFear,
         'bestFear': bestFear,
-        'fearId': fearId,
+        'fearId': searchVideo(fearId, taskCollection),
         'averageJoy': averageJoy,
         'bestJoy': bestJoy,
-        'joyId': joyId,
+        'joyId': searchVideo(joyId, taskCollection),
         'averageSadness': averageSadness,
         'bestSadness': bestSadness,
-        'sadnessId': sadnessId,
+        'sadnessId': searchVideo(sadnessId, taskCollection),
         'averageSurprise': averageSurprise,
         'bestSurprise': bestSurprise,
-        'surpriseId': surpriseId,
+        'surpriseId': searchVideo(surpriseId, taskCollection),
         'averageOthers': averageOthers,
         'bestOthers': bestOthers,
-        'othersId': othersId
+        'othersId': searchVideo(othersId, taskCollection)
     }
 
     return result
@@ -568,7 +586,7 @@ def stereotypeStatistics(video_data):
 
     return result
 
-def sentimentsStatistics(video_data):
+def sentimentsStatistics(video_data, taskCollection):
 
     averagePositive = 0
     averageNegative = 0
@@ -626,16 +644,16 @@ def sentimentsStatistics(video_data):
     result = {
         'averagePositive': averagePositive,
         'bestPositive': bestPositive,
-        'positiveId': positiveId,
+        'positiveId': searchVideo(positiveId, taskCollection),
         'averageNegative': averageNegative,
         'bestNegative': bestNegative,
-        'negativeId': negativeId,
+        'negativeId': searchVideo(negativeId, taskCollection),
         'averageNeutral': averageNeutral,
         'bestNeutral': bestNeutral,
-        'neutralId': neutralId,
+        'neutralId': searchVideo(neutralId, taskCollection),
         'averageNone': averageNone,
         'bestNone': bestNone,
-        'noneId': noneId
+        'noneId': searchVideo(noneId, taskCollection)
     }
 
     return result

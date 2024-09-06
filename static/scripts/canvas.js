@@ -52,29 +52,31 @@ const videoChart = new Chart(ctx, {
 
 const ctx2 = document.getElementById('sentimentChart').getContext('2d');
 
-const averagePositive = parseFloat(document.getElementById('averagePositive').value, 10);; 
-const averageNegative = parseFloat(document.getElementById('averageNegative').value, 10); 
+const averagePositive = parseFloat(document.getElementById('averagePositive').value, 10);
+const averageNegative = parseFloat(document.getElementById('averageNegative').value, 10);
+const averageNeutral = parseFloat(document.getElementById('averageNeutral').value, 10);
+const averageNone = parseFloat(document.getElementById('averageNone').value, 10);
 
 const sentimentData = {
     labels: ['Sentiments'], // Etiqueta única para la categoría de sentimientos
     datasets: [
         {
             label: 'Negative',
-            data: averageNegative,
+            data: [averageNegative],
             backgroundColor: '#dc3545',
             borderColor: '#dc3545',
             borderWidth: 1
         },
         {
             label: 'Neutral',
-            data: [0.611],
+            data: [averageNeutral],
             backgroundColor: '#6c757d',
             borderColor: '#6c757d',
             borderWidth: 1
         },
         {
             label: 'None',
-            data: [0.0003],
+            data: [averageNone],
             backgroundColor: '#ffc107',
             borderColor: '#ffc107',
             borderWidth: 1
