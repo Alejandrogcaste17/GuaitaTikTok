@@ -78,7 +78,7 @@ def getTimeList(startDate, endDate):
     # Iterar desde la fecha de inicio hasta la fecha final
     while fecha_actual <= fecha_final:
         # Calcular la fecha de final del intervalo actual
-        fecha_intervalo_final = fecha_actual + timedelta(days=29)
+        fecha_intervalo_final = fecha_actual + timedelta(days=27)
         if fecha_intervalo_final > fecha_final:
             fecha_intervalo_final = fecha_final
         
@@ -174,18 +174,32 @@ async def process_general_task(taskCollection, current_user):
         'Content-Type': 'application/json'
     }
 
-    first_data = True
     for start_date, end_date in time_list:
 
-        if first_data:
-            data = dataQuery(tags_list, keywords_list, start_date, end_date, regionCode)
-            first_data = False
-        else:
-            data["start_date"] = start_date
-            data["end_date"] = end_date
+        print(start_date)
+        print(end_date)
+        time.sleep(5)
+        data = dataQuery(tags_list, keywords_list, start_date, end_date, regionCode)
 
-        # Realiza la solicitud POST
-        first_response = requests.post(url, json=data, headers=headers)
+        # Verificar si ambos 'cursor' y 'search_id' existen y eliminarlos
+        if 'cursor' in data and 'search_id' in data:
+            del data['cursor']
+            del data['search_id']
+
+        goodRequest = False
+        count = 0
+
+        while goodRequest == False:
+
+            # Realiza la solicitud POST
+            first_response = requests.post(url, json=data, headers=headers)
+
+            if first_response.status_code == 200:
+                goodRequest = True
+            count += 1
+            if count == 40:
+                break
+            print(count)
 
         # Procesa la respuesta
         if first_response.status_code == 200:
@@ -194,7 +208,7 @@ async def process_general_task(taskCollection, current_user):
             videosWithVoiceToText(response_data, results)
 
             # Condicion para el caso en el que encuentre menos de 100 videos en el rango de fechas establecido
-            if response_data["data"]["cursor"] < 100:
+            if response_data["data"]["cursor"] < 100 and response_data["data"]["has_more"] == False:
                 break
 
             time.sleep(5)
@@ -209,8 +223,11 @@ async def process_general_task(taskCollection, current_user):
             data["cursor"] = response_data["data"]["cursor"]
             data["search_id"] = response_data["data"]["search_id"]
 
-            while data["cursor"] < 5000 and data["cursor"] % 100 == 0:
-
+            while data["cursor"] < 1500:
+                # Comprobamos si se puede seguir realizando paginacion
+                if not first_iteration and loop_response_data["data"]["has_more"] == False:
+                    print("No hay mas videos")
+                    print(loop_response_data["data"]["has_more"])
                 print("Empezamos bucle")
                                 
                 if request_again == False:
@@ -240,6 +257,9 @@ async def process_general_task(taskCollection, current_user):
                     loop_response_data = loop_response.json()
                     videosWithVoiceToText(loop_response_data, results)
                     print("Cantidad de videos: ", len(results))
+                    print("Cursor: ", loop_response_data["data"]["cursor"])
+                    print("Search_id: ", loop_response_data["data"]["search_id"])
+                    print("Cursor: ", loop_response_data["data"]["has_more"])
                 else:
                     if loop_response.status_code == 500:
                         print("Mala peticion")
@@ -248,9 +268,18 @@ async def process_general_task(taskCollection, current_user):
                         print(loop_response.text)
 
                     else:
-                        print('Error al realizar la solicitud:', loop_response.status_code)
-                        print(loop_response.text)
-                        break
+                        loop_response_data2 = loop_response.json()
+                        if loop_response_data2["error"]["message"] == "Invalid count or cursor":
+                            print("Mala peticion")
+                            request_again = True
+                            print("Cantidad de videos: ", len(results))
+                            print(loop_response.text)
+                        else:
+                            print('Error al realizar la solicitud:', loop_response.status_code)
+                            print(loop_response.text)
+                            print("Cursor: ", data["cursor"])
+                            print("Search_id: ", data["search_id"])
+                            break
 
         else:
             print('Error al realizar la solicitud:', first_response.status_code)
@@ -276,7 +305,7 @@ async def process_general_task(taskCollection, current_user):
         'total_videos': len(results),
         'list_videos': results,
         'cursor': loop_response_data["data"]["cursor"],
-        'search_id': response_data["data"]["search_id"]
+        'search_id': loop_response_data["data"]["search_id"]
     }
 
     # Insertar el documento en la colección de videos
