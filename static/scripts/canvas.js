@@ -19,6 +19,40 @@ document.addEventListener('DOMContentLoaded', function() {
 const totalVideos = parseInt(document.getElementById('cursor').value, 10);; // Número total de videos (puedes cargar este valor dinámicamente)
 const classifiedVideos = parseInt(document.getElementById('classifiedVideos').value, 10); // Número de videos almacenados para la tarea actual
 
+const humorCount = parseInt(document.getElementById('humorCount').value, 10);; // Número total de videos (puedes cargar este valor dinámicamente)
+const notHumorCount = parseInt(document.getElementById('notHumorCount').value, 10); // Número de videos almacenados para la tarea actual
+
+const ctx4 = document.getElementById('videoChart2').getContext('2d');
+
+// Crear el gráfico circular (doughnut)
+const videoChart2 = new Chart(ctx4, {
+    type: 'doughnut', // Gráfico circular de tipo 'doughnut'
+    data: {
+        labels: ['Number of videos with humor', 'Number of videos without humor'],
+        datasets: [{
+            data: [humorCount, notHumorCount],
+            backgroundColor: ['#28a745', '#6c757d'], // Verde para videos almacenados, gris para videos restantes
+            hoverBackgroundColor: ['#218838', '#5a6268'], // Colores de hover
+            borderWidth: 1,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '70%', // Hace que sea un gráfico tipo doughnut con un corte en el centro
+        plugins: {
+            legend: {
+                display: false // Ocultar leyenda si no es necesaria
+            }
+        },
+        animation: {
+            animateRotate: true, // Animación rotativa
+            duration: 2000, // Duración de la animación (2 segundos)
+            easing: 'easeInOutCubic' // Efecto de suavizado
+        }
+    }
+});
+
 const ctx = document.getElementById('videoChart').getContext('2d');
 
 // Crear el gráfico circular (doughnut)
@@ -107,3 +141,149 @@ const sentimentChart = new Chart(ctx2, {
         }
     }
 });
+
+const ctx3 = document.getElementById('emotionChart').getContext('2d');
+
+const averageAnger = parseFloat(document.getElementById('averageAnger').value, 10);
+const averageDisgust = parseFloat(document.getElementById('averageDisgust').value, 10);
+const averageFear = parseFloat(document.getElementById('averageFear').value, 10);
+const averageJoy = parseFloat(document.getElementById('averageJoy').value, 10);
+const averageSadness = parseFloat(document.getElementById('averageSadness').value, 10);
+const averageSurprise = parseFloat(document.getElementById('averageSurprise').value, 10);
+
+const emotionData = {
+    labels: ['Emotions'], // Etiqueta única para la categoría de sentimientos
+    datasets: [
+        {
+            label: 'Anger',
+            data: [averageAnger],
+            backgroundColor: '#dc3545',
+            borderColor: '#dc3545',
+            borderWidth: 1
+        },
+        {
+            label: 'Disgust',
+            data: [averageDisgust],
+            backgroundColor: '#6c757d',
+            borderColor: '#6c757d',
+            borderWidth: 1
+        },
+        {
+            label: 'Fear',
+            data: [averageFear],
+            backgroundColor: '#ffc107',
+            borderColor: '#ffc107',
+            borderWidth: 1
+        },
+        {
+            label: 'Joy',
+            data: [averageJoy],
+            backgroundColor: '#28a745',
+            borderColor: '#28a745',
+            borderWidth: 1
+        },
+        {
+            label: 'Sadness',
+            data: [averageSadness],
+            backgroundColor: '#33ff57',
+            borderColor: '#33ff57',
+            borderWidth: 1
+        },
+        {
+            label: 'Surprise',
+            data: [averageSurprise],
+            backgroundColor: '#1abc9c',
+            borderColor: '#1abc9c',
+            borderWidth: 1
+        }
+    ]
+};
+
+
+const emotionChart = new Chart(ctx3, {
+    type: 'bar',
+    data: emotionData,
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Probability'
+                }
+            }
+        }
+    }
+});
+
+
+function drawFace(humor) {
+    const canvas = document.getElementById('humorCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Limpiar el canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Dibujar la cara
+    // Dibuja el círculo exterior de la cara (fondo sin relleno)
+    ctx.beginPath();
+    ctx.arc(100, 100, 80, 0, Math.PI * 2, true); // Círculo exterior
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = '#000000';
+    ctx.stroke();
+
+    // Crear una máscara circular
+    ctx.save();  // Guardar el contexto actual
+    ctx.beginPath();
+    ctx.arc(100, 100, 80, 0, Math.PI * 2, true);  // Definir el área circular
+    ctx.clip();  // Aplicar la máscara circular
+
+    // Calcular el relleno en función del valor de humor
+    const fillHeight = 160 * humor; // Proporcional al valor de humor (0.0 - 1.0)
+    ctx.fillStyle = 'yellow';
+    ctx.fillRect(20, 180 - fillHeight, 160, fillHeight);  // Rellenar desde la parte inferior
+
+    ctx.restore();  // Restaurar el contexto sin el clip
+
+    // Dibuja los ojos
+    ctx.beginPath();
+    ctx.arc(70, 80, 10, 0, Math.PI * 2, true);  // Ojo izquierdo
+    ctx.arc(130, 80, 10, 0, Math.PI * 2, true); // Ojo derecho
+    ctx.fillStyle = '#000000';
+    ctx.fill();
+
+    // Dibuja la boca sonriente
+    ctx.beginPath();
+    ctx.arc(100, 130, 50, 0, Math.PI, false);  // Boca (arco)
+    ctx.lineWidth = 5;
+    ctx.stroke();
+}
+
+// Valor fijo de humor (valor entre 0.0 y 1.0)
+const humorLevel = 0.75;
+
+// Mostrar el valor de humor
+document.getElementById('humorValue').innerText = humorLevel.toFixed(2);
+
+// Llamar a la función para dibujar la cara y el relleno según el humor
+drawFace(humorLevel);
+
+// Mostrar un label cuando el ratón esté sobre el canvas
+const canvas = document.getElementById('humorCanvas');
+const hoverLabel = document.getElementById('hoverLabel');
+
+canvas.addEventListener('mousemove', function(event) {
+    // Mostrar el valor de humor en la etiqueta
+    hoverLabel.innerText = `Humor: ${humorLevel.toFixed(2)}`;
+    hoverLabel.style.visibility = 'visible';
+
+    // Posicionar la etiqueta justo donde está el ratón
+    hoverLabel.style.top = event.clientY + 'px'; // Posición Y exacta del ratón
+    hoverLabel.style.left = event.clientX + 'px'; // Posición X exacta del ratón
+});
+
+// Ocultar la etiqueta cuando el ratón sale del canvas
+canvas.addEventListener('mouseout', function() {
+    hoverLabel.style.visibility = 'hidden';
+});
+

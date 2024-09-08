@@ -5,12 +5,22 @@ import asyncio
 from datetime import datetime, timedelta
 from celery.exceptions import Ignore
 from mongoConfiguration import tasksCollection, videosCollection, profilesCollection
+from classificationAPI import procces_classification_profile_api
 
 # Define las credenciales de la aplicación
 client_key = 'awoy8doraswxa914'
 client_secret = 'C1Fq10WTwgYygDlteNj8KDWLZTK5EaRe'
 
 access_token = ''
+
+def dateFormat(results):   
+    for video in results:
+        if 'create_time' in video and isinstance(video['create_time'], int):
+            fecha = datetime.utcfromtimestamp(video['create_time'])
+            video['create_time'] = fecha.strftime('%Y%m%d')
+        else:
+            print(f"El video {video.get('id', 'sin ID')} no tiene 'create_time' válido.")
+    return results
 
 def videosWithVoiceToText(response, results):
     for video in response["data"]["videos"]:
@@ -47,12 +57,6 @@ def getAccessToken(taskCollection):
             {'_id': taskCollection['_id']},
             {'$set': {'state': 'Stopped', 'state_message': 'Something wrong happened when obtaining access token'}}
         )
-
-def getRegionCode(taskCollection):
-    if taskCollection['language'] == "spanish":
-        return "ES"
-    else: 
-        return "EN"
 
 def getFormatDate(date):
     # Eliminar los guiones "-" de la fecha original
@@ -114,7 +118,7 @@ def add_user_profile(username, headers, taskCollection, current_user):
         if result.inserted_id:
             tasksCollection.update_one(
                 {'_id': taskCollection['_id']},
-                {'$set': {'state': 'Profile Founded', 'state_message': 'The task has been completed successfully'}}
+                {'$set': {'state': 'Profile Founded', 'state_message': 'Searching videos of the user'}}
             )
             return True
         else:
@@ -166,7 +170,6 @@ async def process_profile_task(taskCollection, current_user):
         # Definimos las dos url que utilizaremos
         url = 'https://open.tiktokapis.com/v2/research/video/query/?fields=id,video_description,create_time,voice_to_text,hashtag_names,username,music_id'
 
-        regionCode = getRegionCode(taskCollection)
         startDate = getFormatDate(taskCollection['startDate'])
         endDate = getFormatDate(taskCollection['endDate'])
         time_list = getTimeList(startDate, endDate)
@@ -178,7 +181,7 @@ async def process_profile_task(taskCollection, current_user):
             data = {
                 "query": {
                     "and": [
-                        { "operation": "IN", "field_name": "region_code", "field_values": [regionCode] },
+                        { "operation": "IN", "field_name": "region_code", "field_values": ["ES"] },
                         { "operation": "EQ", "field_name": "username", "field_values": [username] }
                     ]
                 },
@@ -200,7 +203,7 @@ async def process_profile_task(taskCollection, current_user):
                 videosWithoutVoiceToText(response_data, results2)
                 
                 # Condicion para el caso en el que encuentre menos de 100 videos en el rango de fechas establecido
-                if response_data["data"]["cursor"] < 100:
+                if response_data["data"]["cursor"] < 100 and response_data["data"]["has_more"] == False:
                     break
                 
                 time.sleep(5)
@@ -216,7 +219,11 @@ async def process_profile_task(taskCollection, current_user):
                 data["search_id"] = response_data["data"]["search_id"]
 
                 while data["cursor"] < 1000 and data["cursor"] % 100 == 0:
-
+                    # Comprobamos si se puede seguir realizando paginacion
+                    if not first_iteration and loop_response_data["data"]["has_more"] == False:
+                        print("No hay mas videos")
+                        print(loop_response_data["data"]["has_more"])
+                        break
                     print("Empezamos bucle")
                     
                     if request_again == False:
@@ -255,9 +262,18 @@ async def process_profile_task(taskCollection, current_user):
                             print(loop_response.text)
 
                         else:
-                            print('Error al realizar la solicitud:', loop_response.status_code)
-                            print(loop_response.text)
-                            break
+                            loop_response_data2 = loop_response.json()
+                            if loop_response_data2["error"]["message"] == "Invalid count or cursor":
+                                print("Mala peticion")
+                                request_again = True
+                                print("Cantidad de videos: ", len(results))
+                                print(loop_response.text)
+                            else:
+                                print('Error al realizar la solicitud:', loop_response.status_code)
+                                print(loop_response.text)
+                                print("Cursor: ", data["cursor"])
+                                print("Search_id: ", data["search_id"])
+                                break
 
             else:
                 print('Error al realizar la solicitud:', first_response.status_code)
@@ -266,7 +282,14 @@ async def process_profile_task(taskCollection, current_user):
                     {'_id': taskCollection['_id']},
                     {'$set': {'state': 'Stopped', 'state_message': 'Error when making the first request, please try again later, or try the task again'}}
             )
-        
+                
+        # Convertimos la variable create_time al formato "YYYYMMDD"
+        results = dateFormat(results)
+
+        # Convertimos los id de los videos a string
+        for video in results:
+            video['id'] = str(video['id'])
+
         # Creamos nuestro documento a insertar en la base de datos
         video_document = {
             'taskId': taskCollection['_id'],
@@ -285,6 +308,12 @@ async def process_profile_task(taskCollection, current_user):
 
         # Verificar si la inserción fue exitosa
         if result.inserted_id:
+            tasksCollection.update_one(
+                {'_id': taskCollection['_id']},
+                {'$set': {'state_message': 'The classification is being carried out'}}
+            )
+            print("nos vamos a clasificar")
+            procces_classification_profile_api(taskCollection, current_user)
             tasksCollection.update_one(
                 {'_id': taskCollection['_id']},
                 {'$set': {'state': 'Finished', 'state_message': 'The task has been completed successfully'}}

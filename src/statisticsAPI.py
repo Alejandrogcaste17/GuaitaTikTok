@@ -8,6 +8,57 @@ from celery.exceptions import Ignore
 from mongoConfiguration import tasksCollection, videosCollection, classificationCollection, statisticsCollection
 from pymongo.errors import PyMongoError
 
+def process_statistics_profile_api(taskCollection, current_user):
+
+    task_videos = videosCollection.find_one({'taskId': taskCollection['_id']})
+
+    # Array para almacenar los valores id y voice_to_text de cada video en list_videos
+    video_data = []
+
+    # Verificamos que task_videos y list_videos existan
+    if task_videos and 'list_videos_with_voice' in task_videos:
+        # Iteramos sobre cada video dentro de list_videos
+        for video in task_videos['list_videos_with_voice']:
+            # Extraemos el id y el voice_to_text, si existen
+            video_id = video.get('id')
+            voice_to_text = video.get('voice_to_text')
+            
+            # Añadimos el par (id, voice_to_text) al array
+            video_data.append({'id': video_id, 'voice_to_text': voice_to_text})
+
+    statistic_document = {
+        'taskId': taskCollection['_id'],
+        'gender': genderStatistics(video_data),
+        'age': ageStatistics(video_data),
+        'bot': botStatistics(video_data),
+        'personality': personalityStatistics(video_data),
+        'sentiments': sentimentsStatistics(video_data, taskCollection),
+        'offensiveness': offensiveStatistics(video_data),
+        'hate': hateStatistics(video_data),
+        'stereotypes': stereotypeStatistics(video_data),
+        'intolerance': intoleranceStatistics(video_data),
+        'insult': insultStatistics(video_data),
+        'irony': ironyStatistics(video_data),
+        'humor': humorStatistics(video_data, taskCollection),
+        'constructive': constructiveStatistics(video_data),
+        'improperLanguage': improperLanguageStatistics(video_data),
+        'toxicity': toxicityStatistics(video_data),
+        'sarcasm': sarcarsmStatistics(video_data),
+        'aggressive': aggressiveStatistics(video_data),
+        'mockery': mockeryStatistics(video_data),
+        'argumentative': argumentativeStatistics(video_data),
+        'emotion': emotionStatistics(video_data, taskCollection)
+    }
+    
+    try:
+        # Intentar insertar el documento en la colección
+        result = statisticsCollection.insert_one(statistic_document)
+        print(f"Documento insertado con ID: {result.inserted_id}")
+
+    except PyMongoError as e:
+        # Si ocurre un error, imprimir el mensaje de error
+        print(f"Error al insertar el documento: {e}")
+
 def process_statistics_api(taskCollection, current_user):
 
     task_videos = videosCollection.find_one({'taskId': taskCollection['_id']})
@@ -26,56 +77,24 @@ def process_statistics_api(taskCollection, current_user):
             # Añadimos el par (id, voice_to_text) al array
             video_data.append({'id': video_id, 'voice_to_text': voice_to_text})
 
-    sentiments = sentimentsStatistics(video_data, taskCollection)
-    
-    toxicity = toxicityStatistics(video_data)
-
-    sarcasm = sarcarsmStatistics(video_data)
-
-    offensiveness = offensiveStatistics(video_data)
-
-    intolerance =  intoleranceStatistics(video_data)
-
-    hate =  hateStatistics(video_data)
-
-    stereotypes = stereotypeStatistics(video_data)
-
-    aggressive = aggressiveStatistics(video_data)
-
-    mockery = mockeryStatistics(video_data)
-
-    argumentative = argumentativeStatistics(video_data)
-
-    insult = insultStatistics(video_data)
-
-    irony = ironyStatistics(video_data)
-
-    improperLanguage = improperLanguageStatistics(video_data)
-
-    humor = humorStatistics(video_data)
-
-    constructive = constructiveStatistics(video_data)
-
-    emotion = emotionStatistics(video_data, taskCollection)
-
     statistic_document = {
         'taskId': taskCollection['_id'],
-        'sentiments': sentiments,
-        'offensiveness': offensiveness,
-        'hate': hate,
-        'stereotypes': stereotypes,
-        'intolerance': intolerance,
-        'insult': insult,
-        'irony': irony,
-        'humor': humor,
-        'constructive': constructive,
-        'improperLanguage': improperLanguage,
-        'toxicity': toxicity,
-        'sarcasm': sarcasm,
-        'aggressive': aggressive,
-        'mockery': mockery,
-        'argumentative': argumentative,
-        'emotion': emotion
+        'sentiments': sentimentsStatistics(video_data, taskCollection),
+        'offensiveness': offensiveStatistics(video_data),
+        'hate': hateStatistics(video_data),
+        'stereotypes': stereotypeStatistics(video_data),
+        'intolerance': intoleranceStatistics(video_data),
+        'insult': insultStatistics(video_data),
+        'irony': ironyStatistics(video_data),
+        'humor': humorStatistics(video_data, taskCollection),
+        'constructive': constructiveStatistics(video_data),
+        'improperLanguage': improperLanguageStatistics(video_data),
+        'toxicity': toxicityStatistics(video_data),
+        'sarcasm': sarcarsmStatistics(video_data),
+        'aggressive': aggressiveStatistics(video_data),
+        'mockery': mockeryStatistics(video_data),
+        'argumentative': argumentativeStatistics(video_data),
+        'emotion': emotionStatistics(video_data, taskCollection)
     }
     
     try:
@@ -104,6 +123,139 @@ def searchVideo(id, taskCollection):
     
     return result
 
+def botStatistics(video_data):
+
+    botCount = 0
+    humanCount = 0
+
+    for video in video_data:
+        classification = classificationCollection.find_one({'videoId': video['id']})
+        if classification and 'bot' in classification:
+            if classification['bot'].get('bot', None) == 1.0:
+                botCount += 1
+            else:
+                humanCount += 1
+    if botCount > humanCount:
+        bot = 'bot'
+    else: 
+        bot = 'human'
+    
+    result = {
+        'bot': bot
+    }
+
+    return result
+
+def ageStatistics(video_data):
+
+    count1 = 0
+    count2 = 0
+    count3 = 0
+    count4 = 0
+    for video in video_data:
+        classification = classificationCollection.find_one({'videoId': video['id']})
+        if classification and 'age' in classification:
+            # Obtenemos valores anger
+            if classification['age'].get('18-24', None) == 1.0:
+                count1 += 1
+            elif classification['age'].get('25-34', None) == 1.0:
+                count2 += 1
+            elif classification['age'].get('35-49', None) == 1.0:
+                count3 += 1
+            else:
+                count4 += 1
+    
+     # Encontrar el valor máximo y el grupo de edad correspondiente
+    max_count = max(count1, count2, count3, count4)
+    
+    if max_count == count1:
+        age_group = '18-24'
+    elif max_count == count2:
+        age_group = '25-34'
+    elif max_count == count3:
+        age_group = '35-49'
+    else:
+        age_group = '50-xx'
+
+    result = {
+        'age': age_group
+    }
+
+    return result
+
+def genderStatistics(video_data):
+
+    maleCount = 0
+    femaleCount = 0
+
+    for video in video_data:
+        classification = classificationCollection.find_one({'videoId': video['id']})
+        if classification and 'gender' in classification:
+            # Obtenemos valores anger
+            if classification['gender'].get('Male', None) == 1.0:
+                maleCount += 1
+            else:
+                femaleCount += 1
+    if maleCount > femaleCount:
+        gender = 'male'
+    else:
+        gender = 'female'
+
+    result = {
+        'gender': gender
+    }
+
+    return result
+
+def personalityStatistics(video_data):
+
+    averageAgreeable = 0
+    averageConscientious = 0
+    averageExtroverted = 0
+    averageOpen = 0
+    averageStable = 0
+
+    numVideos = len(video_data)
+    for video in video_data:
+        classification = classificationCollection.find_one({'videoId': video['id']})
+
+        if classification and 'personality' in classification:
+            # Obtenemos valores Agreeable
+            agreeableValue = classification['personality'].get('Agreeable', None)
+            averageAgreeable += agreeableValue
+
+            # Obtenemos valores disgust
+            conscientiousValue = classification['personality'].get('Conscientious', None)
+            averageConscientious += conscientiousValue
+
+            # Obtenemos valores fear
+            extrovertedValue = classification['personality'].get('Extroverted', None)
+            averageExtroverted += extrovertedValue
+
+            # Obtenemos valores joy
+            openValue = classification['personality'].get('Open', None)
+            averageOpen += openValue
+
+            # Obtenemos valores sadness
+            stableValue = classification['personality'].get('Stable', None)
+            averageStable += stableValue
+
+    # Calculamos los promedios
+    averageAgreeable /= numVideos
+    averageConscientious /= numVideos
+    averageExtroverted /= numVideos
+    averageOpen /= numVideos
+    averageStable /= numVideos
+
+    result = {
+        'averageAgreeable': averageAgreeable,
+        'averageConscientious': averageConscientious,
+        'averageExtroverted': averageExtroverted,
+        'averageOpen': averageOpen,
+        'averageStable': averageStable
+    }
+
+    return result
 
 def emotionStatistics(video_data, taskCollection):
 
@@ -481,23 +633,55 @@ def ironyStatistics(video_data):
 
     return result
 
-def humorStatistics(video_data):
+def humorStatistics(video_data, taskCollection):
 
     humorCount = 0
     notHumorCount = 0
+
+    averageHumor = 0
+    averageNoHumor = 0
+
+    bestHumor = -float('inf')
+    bestNotHumor = -float('inf')
+
+    humorId = None
+    notHumorId = None
 
     for video in video_data:
         classification = classificationCollection.find_one({'videoId': video['id']})
 
         if classification and 'humor' in classification:
-            if classification['humor'].get('Humor', None) == 1:
+            humorValue = classification['humor'].get('Humor', None)
+            notHumorValue = classification['humor'].get('Not humor', None)
+
+            if humorValue > 0.49:
                 humorCount += 1
-            else:
+            else:      
                 notHumorCount += 1
 
+            if bestHumor < humorValue:
+                bestHumor = humorValue
+                humorId = video['id']
+            
+            if bestNotHumor < notHumorValue:
+                bestNotHumor = notHumorValue
+                notHumorId = video['id']
+
+            averageHumor += humorValue
+            averageHumor += notHumorValue
+
+    averageHumor /= len(video_data)
+    averageNoHumor /= len(video_data)
+
     result = {
-        'humor': humorCount,
-        'notHumor': notHumorCount
+        'averageHumor': averageHumor,
+        'bestHumor': bestHumor,
+        'humorId': searchVideo(humorId, taskCollection),
+        'averageNoHumor': averageNoHumor,
+        'bestNotHumor': bestNotHumor,
+        'notHumorId': searchVideo(notHumorId, taskCollection),
+        'videosWithHumor': humorCount,
+        'videosWithoutHumor': notHumorCount
     }
 
     return result
