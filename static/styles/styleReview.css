@@ -25,6 +25,19 @@ body{
     }
 }
 
+#hoverLabel {
+    font-size: 16px;
+    font-weight: bold;
+    color: #000;
+    visibility: hidden; /* Oculto por defecto */
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 5px;
+    position: absolute;
+    z-index: 10;
+    border-radius: 4px;
+    pointer-events: none; /* Para que el label no interfiera con el cursor */
+}
 
 h1 {
     align-items: center;

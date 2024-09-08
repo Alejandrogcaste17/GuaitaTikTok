@@ -200,7 +200,6 @@ async def process_general_task(taskCollection, current_user):
             if count == 40:
                 break
             print(count)
-
         # Procesa la respuesta
         if first_response.status_code == 200:
 
@@ -209,6 +208,7 @@ async def process_general_task(taskCollection, current_user):
 
             # Condicion para el caso en el que encuentre menos de 100 videos en el rango de fechas establecido
             if response_data["data"]["cursor"] < 100 and response_data["data"]["has_more"] == False:
+                print("No se encontraron mas de 100 videos")
                 break
 
             time.sleep(5)
@@ -223,11 +223,12 @@ async def process_general_task(taskCollection, current_user):
             data["cursor"] = response_data["data"]["cursor"]
             data["search_id"] = response_data["data"]["search_id"]
 
-            while data["cursor"] < 1500:
+            while data['cursor'] < 2000:
                 # Comprobamos si se puede seguir realizando paginacion
                 if not first_iteration and loop_response_data["data"]["has_more"] == False:
                     print("No hay mas videos")
                     print(loop_response_data["data"]["has_more"])
+                    break
                 print("Empezamos bucle")
                                 
                 if request_again == False:

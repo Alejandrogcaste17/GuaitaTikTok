@@ -136,7 +136,6 @@ def newTaskProfile():
         description = request.form['description']
         startDate = request.form['startDate']
         endDate = request.form['endDate']
-        language = request.form['language']
 
         if(startDate > endDate):
             # Mostrar un mensaje de éxito si el registro fue exitoso
@@ -152,7 +151,6 @@ def newTaskProfile():
             'description': description,
             'startDate': startDate,
             'endDate': endDate,
-            'language': language,
             'userId': current_user.id,
             'taskType': 'profile'
         }

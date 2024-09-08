@@ -143,7 +143,7 @@
                 </div>
                 <div class="col-md-5 d-flex flex-column justify-content-center align-items-center">
                     <h4 class="text-center text-black mb-4">Best Videos</h4>
-                    <div id="bestVideosCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <div id="bestSentimentsVideosCarousel" class="carousel slide" data-bs-ride="false">
                         <div class="carousel-inner">
                             <!-- Video 1 Information -->
                             <div class="carousel-item active">
@@ -189,11 +189,11 @@
                             </div>
                         </div>
                         <!-- Carousel controls -->
-                        <a class="carousel-control-prev" href="#bestVideosCarousel" role="button" data-bs-slide="prev">
+                        <a class="carousel-control-prev" href="#bestSentimentsVideosCarousel" role="button" data-bs-slide="prev">
                             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                             <span class="visually-hidden">Previous</span>
                         </a>
-                        <a class="carousel-control-next" href="#bestVideosCarousel" role="button" data-bs-slide="next">
+                        <a class="carousel-control-next" href="#bestSentimentsVideosCarousel" role="button" data-bs-slide="next">
                             <span class="carousel-control-next-icon" aria-hidden="true"></span>
                             <span class="visually-hidden">Next</span>
                         </a>
@@ -202,6 +202,170 @@
                 
             </div>
         </div>
+    </div>
+
+    <input type="hidden" id="averageAnger" value="{{ statistics['emotion']['averageAnger'] }}">
+    <input type="hidden" id="averageDisgust" value="{{ statistics['emotion']['averageDisgust'] }}">
+    <input type="hidden" id="averageFear" value="{{ statistics['emotion']['averageFear'] }}">
+    <input type="hidden" id="averageJoy" value="{{ statistics['emotion']['averageJoy'] }}">
+    <input type="hidden" id="averageSadness" value="{{ statistics['emotion']['averageSadness'] }}">
+    <input type="hidden" id="averageSurprise" value="{{ statistics['emotion']['averageSurprise'] }}">
+
+    <div class="card shadow p-4" style="background-color: #e6e0f8;; border-radius: 15px; margin-top: 20px; margin-left: 15px; margin-right: 15px; min-height: 600px; height: auto">
+        <h3 class="text-center text-black mb-4">Emotion Statistics</h3>
+        <div id="dashboard-container" class="container-fluid" style="margin-bottom: 400px;">
+            <div class="row">
+                <div class="col-md-5 d-flex flex-column justify-content-center align-items-center">
+                    <h4 class="text-center text-black mb-4">Best Videos</h4>
+                    <div id="bestEmotionsVideosCarousel" class="carousel slide" data-bs-ride="false">
+                        <div class="carousel-inner">
+                            <!-- Video 1 Information -->
+                            <div class="carousel-item active">
+                                <div class="info-box d-block w-100">
+                                    <h5>Best Anger Video</h5>
+                                    <p><strong>Creator: </strong>{{statistics['emotion']['angerId']['username']}}</p>
+                                    <p><strong>Description: </strong>{{statistics['emotion']['angerId']['video_description']}}</p>
+                                    <p><strong>Text of the video:</strong> {{statistics['emotion']['angerId']['voice_to_text']}}</p>
+                                    <p><strong>Date Creation:</strong> {{statistics['emotion']['angerId']['create_time']}}</p>
+                                    <p><strong>Anger Value:</strong> {{statistics['emotion']['bestAnger']}}</p>
+                                </div>
+                            </div>
+                            <!-- Video 2 Information -->
+                            <div class="carousel-item">
+                                <div class="info-box d-block w-100">
+                                    <h5>Best Disgust Video</h5>
+                                    <p><strong>Creator: </strong>{{statistics['emotion']['disgustId']['username']}}</p>
+                                    <p><strong>Description: </strong>{{statistics['emotion']['disgustId']['video_description']}}</p>
+                                    <p><strong>Text of the video:</strong> {{statistics['emotion']['disgustId']['voice_to_text']}}</p>
+                                    <p><strong>Date Creation:</strong> {{statistics['emotion']['disgustId']['create_time']}}</p>
+                                    <p><strong>Disgust Value:</strong> {{statistics['emotion']['bestDisgust']}}</p>
+
+                                </div>
+                            </div>
+                            <!-- Video 3 Information -->
+                            <div class="carousel-item">
+                                <div class="info-box d-block w-100">
+                                    <h5>Best Fear Video</h5>
+                                    <p><strong>Creator: </strong>{{statistics['emotion']['fearId']['username']}}</p>
+                                    <p><strong>Description: </strong>{{statistics['emotion']['fearId']['video_description']}}</p>
+                                    <p><strong>Text of the video:</strong> {{statistics['emotion']['fearId']['voice_to_text']}}</p>
+                                    <p><strong>Date Creation:</strong> {{statistics['emotion']['fearId']['create_time']}}</p>
+                                    <p><strong>Fear Value:</strong> {{statistics['emotion']['bestFear']}}</p>
+                                </div>
+                            </div>
+                            <!-- Video 4 Information -->
+                            <div class="carousel-item">
+                                <div class="info-box d-block w-100">
+                                    <h5>Best Joy Video</h5>
+                                    <p><strong>Creator: </strong>{{statistics['emotion']['joyId']['username']}}</p>
+                                    <p><strong>Description: </strong>{{statistics['emotion']['joyId']['video_description']}}</p>
+                                    <p><strong>Text of the video:</strong> {{statistics['emotion']['joyId']['voice_to_text']}}</p>
+                                    <p><strong>Date Creation:</strong> {{statistics['emotion']['joyId']['create_time']}}</p>
+                                    <p><strong>Joy Value:</strong> {{statistics['emotion']['bestJoy']}}</p>
+                                </div>
+                            </div>
+                            <!-- Video 5 Information -->
+                            <div class="carousel-item">
+                                <div class="info-box d-block w-100">
+                                    <h5>Best Sadness Video</h5>
+                                    <p><strong>Creator: </strong>{{statistics['emotion']['sadnessId']['username']}}</p>
+                                    <p><strong>Description: </strong>{{statistics['emotion']['sadnessId']['video_description']}}</p>
+                                    <p><strong>Text of the video:</strong> {{statistics['emotion']['sadnessId']['voice_to_text']}}</p>
+                                    <p><strong>Date Creation:</strong> {{statistics['emotion']['sadnessId']['create_time']}}</p>
+                                    <p><strong>Sadness Value:</strong> {{statistics['emotion']['bestSadness']}}</p>
+                                </div>
+                            </div>
+                            <!-- Video 6 Information -->
+                            <div class="carousel-item">
+                                <div class="info-box d-block w-100">
+                                    <h5>Best Surprise Video</h5>
+                                    <p><strong>Creator: </strong>{{statistics['emotion']['surpriseId']['username']}}</p>
+                                    <p><strong>Description: </strong>{{statistics['emotion']['surpriseId']['video_description']}}</p>
+                                    <p><strong>Text of the video:</strong> {{statistics['emotion']['surpriseId']['voice_to_text']}}</p>
+                                    <p><strong>Date Creation:</strong> {{statistics['emotion']['surpriseId']['create_time']}}</p>
+                                    <p><strong>Surprise Value:</strong> {{statistics['emotion']['bestSurprise']}}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Carousel controls -->
+                        <a class="carousel-control-prev" href="#bestEmotionsVideosCarousel" role="button" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </a>
+                        <a class="carousel-control-next" href="#bestEmotionsVideosCarousel" role="button" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-7 d-flex flex-column justify-content-center align-items-center">
+                    <h4 class="text-center text-black mb-4">Emotions</h4>
+                    <div class="w-100 d-flex justify-content-center">
+                        <canvas id="emotionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <input type="hidden" id="humorCount" value="{{ statistics['humor']['videosWithHumor'] }}">
+    <input type="hidden" id="notHumorCount" value="{{ statistics['humor']['videosWithoutHumor'] }}">
+
+    <div class="card shadow p-4" style="background-color: #e6e0f8;; border-radius: 15px; margin-top: 20px; margin-left: 15px; margin-right: 15px; min-height: 750px; height: auto">
+        <h3 class="text-center text-black mb-4">Humor Statistics</h3>
+        <div id="dashboard-container" class="container-fluid" style="margin-bottom: 400px;">
+            <div class="row">
+                <!--<div class="col-md-4 d-flex flex-column justify-content-center align-items-center">
+                    <h2>Humor Level: <span id="humorValue">0.75</span></h2>
+                    <canvas id="humorCanvas" width="200" height="200"></canvas>
+                    <div id="hoverLabel"></div>
+                </div>-->
+                <div class="col-md-4 d-flex flex-column justify-content-center align-items-center">
+                    <h4 class="text-center text-black mb-4">Humor Videos</h4>
+                    <canvas id="videoChart2"></canvas>
+                </div>
+                <div class="col-md-8 d-flex flex-column justify-content-center align-items-center">
+                    <h4 class="text-center text-black mb-4">Best Videos</h4>
+                    <div id="bestHumorVideosCarousel" class="carousel slide" data-bs-ride="false">
+                        <div class="carousel-inner">
+                            <!-- Video 1 Information -->
+                            <div class="carousel-item active">
+                                <div class="info-box d-block w-100">
+                                    <h5>Best Humor Video</h5>
+                                    <p><strong>Creator: </strong>{{statistics['humor']['humorId']['username']}}</p>
+                                    <p><strong>Description: </strong>{{statistics['humor']['humorId']['video_description']}}</p>
+                                    <p><strong>Text of the video:</strong> {{statistics['humor']['humorId']['voice_to_text']}}</p>
+                                    <p><strong>Date Creation:</strong> {{statistics['humor']['humorId']['create_time']}}</p>
+                                    <p><strong>Humor Value:</strong> {{statistics['humor']['bestHumor']}}</p>
+                                </div>
+                            </div>
+                            <!-- Video 2 Information -->
+                            <div class="carousel-item">
+                                <div class="info-box d-block w-100">
+                                    
+                                    <h5>Best Not Humor Video</h5>
+                                    <p><strong>Creator: </strong>{{statistics['humor']['notHumorId']['username']}}</p>
+                                    <p><strong>Description: </strong>{{statistics['humor']['notHumorId']['video_description']}}</p>
+                                    <p><strong>Text of the video:</strong> {{statistics['humor']['notHumorId']['voice_to_text']}}</p>
+                                    <p><strong>Date Creation:</strong> {{statistics['humor']['notHumorId']['create_time']}}</p>
+                                    <p><strong>Not Humor Value:</strong> {{statistics['humor']['bestNotHumor']}}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Carousel controls -->
+                        <a class="carousel-control-prev" href="#bestHumorVideosCarousel" role="button" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </a>
+                        <a class="carousel-control-next" href="#bestHumorVideosCarousel" role="button" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
     </div>
 
     {% if notVideoList %}
