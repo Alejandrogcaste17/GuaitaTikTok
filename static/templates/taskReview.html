@@ -149,30 +149,28 @@
                     <div class="col-md-6 d-flex flex-column justify-content-center align-items-center">
                         <h4 class="text-center text-black mb-4"><strong>Profile Stadistics</strong></h4>
                         <!-- Parte izquierda: tabla de datos -->
-                        <div class="col-md-7 d-flex flex-column justify-content-center align-items-center">
-                            <div class="w-100 d-flex justify-content-center align-items-center">
-                                <canvas id="profileChart" width="400" height="400"></canvas>
-                                <div class="legend">
-                                    <div class="legend-item">
-                                        <div class="color-box" style="background-color: #FF6384;"></div>
-                                        <span>Agreeable</span>
-                                    </div>
-                                    <div class="legend-item">
-                                        <div class="color-box" style="background-color: #36A2EB;"></div>
-                                        <span>Conscientious</span>
-                                    </div>
-                                    <div class="legend-item">
-                                        <div class="color-box" style="background-color: #FFCE56;"></div>
-                                        <span>Open</span>
-                                    </div>
-                                    <div class="legend-item">
-                                        <div class="color-box" style="background-color: #4BC0C0;"></div>
-                                        <span>Extroverted</span>
-                                    </div>
-                                    <div class="legend-item">
-                                        <div class="color-box" style="background-color: #1abc9c;"></div>
-                                        <span>Stable</span>
-                                    </div>
+                        <div class="w-100 d-flex justify-content-center align-items-center">
+                            <canvas id="profileChart" width="400" height="400"></canvas>
+                            <div class="legend">
+                                <div class="legend-item">
+                                    <div class="color-box" style="background-color: #FF6384;"></div>
+                                    <span>Agreeable</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="color-box" style="background-color: #36A2EB;"></div>
+                                    <span>Conscientious</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="color-box" style="background-color: #FFCE56;"></div>
+                                    <span>Open</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="color-box" style="background-color: #4BC0C0;"></div>
+                                    <span>Extroverted</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="color-box" style="background-color: #1abc9c;"></div>
+                                    <span>Stable</span>
                                 </div>
                             </div>
                         </div>
@@ -470,7 +468,7 @@
     <input type="hidden" id="humorCount" value="{{ statistics['humor']['videosWithHumor'] }}">
     <input type="hidden" id="notHumorCount" value="{{ statistics['humor']['videosWithoutHumor'] }}">
 
-    <div class="card shadow p-4" style="background-color: #e6e0f8;; border-radius: 15px; margin-top: 20px; margin-left: 15px; margin-right: 15px; min-height: 750px; height: auto">
+    <div class="card shadow p-4" style="background-color: #e6e0f8;; border-radius: 15px; margin-top: 20px; margin-left: 15px; margin-right: 15px; min-height: 600px; height: auto">
         <h3 class="text-center text-black mb-4">Humor Statistics</h3>
         <div id="dashboard-container" class="container-fluid" style="margin-bottom: 400px;">
             <div class="row">
@@ -525,6 +523,72 @@
             </div>
         </div>
         
+    </div>
+
+    <input type="hidden" id="averageIronic" value="{{ statistics['irony']['averageIronic'] }}">
+    <input type="hidden" id="averageNotIronic" value="{{ statistics['irony']['averageNotIronic'] }}">
+    <input type="hidden" id="averageSarcastic" value="{{ statistics['sarcasm']['averageSarcastic'] }}">
+    <input type="hidden" id="averageNotSarcastic" value="{{ statistics['sarcasm']['averageNotSarcastic'] }}">
+    <input type="hidden" id="averageHate" value="{{ statistics['hate']['averageHate'] }}">
+    <input type="hidden" id="averageNotHate" value="{{ statistics['hate']['averageNotHate'] }}">
+
+    <div id="dashboard-container" class="container-fluid">
+        <div class="card shadow p-6" style="background-color: #e6e0f8; border-radius: 15px; margin-top: 20px; margin-left: 15px; margin-right: 15px;">
+            <div class="row">  
+                <div class="col-md-4 d-flex flex-column justify-content-center align-items-center">
+                    <h4 class="text-center text-black mb-4"><strong>Ironic Stadistics</strong></h4>
+                    <!-- Parte izquierda: tabla de datos -->
+                    <div class="w-100 d-flex justify-content-center align-items-center">
+                        <canvas id="ironyChart" width="400" height="400"></canvas>
+                        <div class="legend">
+                            <div class="legend-item">
+                                <div class="color-box" style="background-color: #FF6384;"></div>
+                                <span>Ironic</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="color-box" style="background-color: #36A2EB;"></div>
+                                <span>Not Ironic</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Parte derecha: gráfico circular -->
+                <div class="col-md-4 d-flex flex-column justify-content-center align-items-center">
+                    <h4 class="text-center text-black mb-4"><strong>Sarcasm Stadistics</strong></h4>
+                    <!-- Parte izquierda: tabla de datos -->
+                    <div class="w-100 d-flex justify-content-center align-items-center">
+                        <canvas id="sarcasmChart" width="400" height="400"></canvas>
+                        <div class="legend">
+                            <div class="legend-item">
+                                <div class="color-box" style="background-color: #FFCE56;"></div>
+                                <span>Sarcastic</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="color-box" style="background-color: #4BC0C0;"></div>
+                                <span>Not Sarcastic</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 d-flex flex-column justify-content-center align-items-center">
+                    <h4 class="text-center text-black mb-4"><strong>Hate Stadistics</strong></h4>
+                    <!-- Parte izquierda: tabla de datos -->
+                    <div class="w-100 d-flex justify-content-center align-items-center">
+                        <canvas id="hateChart" width="400" height="400"></canvas>
+                        <div class="legend">
+                            <div class="legend-item">
+                                <div class="color-box" style="background-color: #1abc9c;"></div>
+                                <span>Hate</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="color-box" style="background-color: #b1ec0f;"></div>
+                                <span>Not Hate</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>  
+        </div>
     </div>
 
     {% if notVideoList %}

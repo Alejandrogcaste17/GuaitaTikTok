@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from celery.exceptions import Ignore
 from mongoConfiguration import tasksCollection, videosCollection, profilesCollection
 from classificationAPI import procces_classification_profile_api
+from pymongo.errors import PyMongoError
 
 # Define las credenciales de la aplicación
 client_key = 'awoy8doraswxa914'
@@ -32,10 +33,16 @@ def videosWithVoiceToText(response, results, taskCollection):
         if "voice_to_text" in video:
             results.append(video)
     
-    taskCollection.update_one(
+    try:
+        # Intentar insertar el documento en la colección
+        tasksCollection.update_one(
             {'_id': taskCollection['_id']},
             {'$set': {'recoveredVideos': len(results)}}
         )
+
+    except PyMongoError as e:
+        # Si ocurre un error, imprimir el mensaje de error
+        print(f"Error al actualizar el documento: {e}")
 
 def videosWithoutVoiceToText(response, results2):
     for video in response["data"]["videos"]:

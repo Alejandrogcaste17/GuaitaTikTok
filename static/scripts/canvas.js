@@ -267,6 +267,150 @@ function drawPieChart(ctx5, data) {
 // Llamada a la función para dibujar el gráfico
 drawPieChart(ctx5, data);
 
+const ctx6 = document.getElementById('ironyChart').getContext('2d');
+
+const averageIronic = parseFloat(document.getElementById('averageIronic').value, 10);
+const averageNotIronic = parseFloat(document.getElementById('averageNotIronic').value, 10);
+
+// Datos del gráfico (ejemplo de porcentajes)
+const dataIronic = {
+    labels: ['Ironic', 'Not Ironic'],
+    values: [averageIronic, averageNotIronic],  // Sumarán el 100%
+    colors: ['#FF6384', '#36A2EB']
+};
+
+// Función para dibujar el gráfico de quesitos
+function drawPieChart(ctx6, dataIronic) {
+    let totalValue = data.values.reduce((acc, val) => acc + val, 0);
+    let startAngle = 0;
+
+    dataIronic.values.forEach((value, index) => {
+        let formattedValue = parseFloat(value.toFixed(2));
+        let sliceAngle = (formattedValue / totalValue) * 2 * Math.PI;
+        ctx6.beginPath();
+        ctx6.moveTo(200, 200);  // Punto central del gráfico (x, y)
+        ctx6.arc(200, 200, 150, startAngle, startAngle + sliceAngle);  // Dibujar el sector
+        ctx6.closePath();
+
+        // Rellenar el sector con su color correspondiente
+        ctx6.fillStyle = dataIronic.colors[index];
+        ctx6.fill();
+
+        // Calcular la posición para el label (en el centro de cada porción)
+        let middleAngle = startAngle + sliceAngle / 2;
+        let labelX = 200 + (Math.cos(middleAngle) * 100);  // Coordenada X del label
+        let labelY = 200 + (Math.sin(middleAngle) * 100);  // Coordenada Y del label
+
+        // Dibujar el texto (label) en el gráfico
+        ctx6.fillStyle = "#000";  // Color del texto
+        ctx6.font = "16px Arial";  // Estilo de la fuente
+        ctx6.textAlign = "center";  // Alinear el texto
+        ctx6.fillText(`${formattedValue}%`, labelX, labelY);  // Dibujar el label
+
+        // Actualizar el ángulo de inicio para el siguiente sector
+        startAngle += sliceAngle;
+    });
+}
+
+// Llamada a la función para dibujar el gráfico
+drawPieChart(ctx6, dataIronic);
+
+const ctx7 = document.getElementById('sarcasmChart').getContext('2d');
+
+const averageSarcastic = parseFloat(document.getElementById('averageSarcastic').value, 10);
+const averageNotSarcastic = parseFloat(document.getElementById('averageNotSarcastic').value, 10);
+
+// Datos del gráfico (ejemplo de porcentajes)
+const dataSarcastic= {
+    labels: ['Sarcastic', 'Not Sarcastic'],
+    values: [averageSarcastic, averageNotSarcastic],  // Sumarán el 100%
+    colors: ['#FFCE56', '#4BC0C0']
+};
+
+// Función para dibujar el gráfico de quesitos
+function drawPieChart(ctx7, dataSarcastic) {
+    let totalValue = data.values.reduce((acc, val) => acc + val, 0);
+    let startAngle = 0;
+
+    dataSarcastic.values.forEach((value, index) => {
+        let formattedValue = parseFloat(value.toFixed(2));
+        let sliceAngle = (formattedValue / totalValue) * 2 * Math.PI;
+        ctx7.beginPath();
+        ctx7.moveTo(200, 200);  // Punto central del gráfico (x, y)
+        ctx7.arc(200, 200, 150, startAngle, startAngle + sliceAngle);  // Dibujar el sector
+        ctx7.closePath();
+
+        // Rellenar el sector con su color correspondiente
+        ctx7.fillStyle = dataSarcastic.colors[index];
+        ctx7.fill();
+
+        // Calcular la posición para el label (en el centro de cada porción)
+        let middleAngle = startAngle + sliceAngle / 2;
+        let labelX = 200 + (Math.cos(middleAngle) * 100);  // Coordenada X del label
+        let labelY = 200 + (Math.sin(middleAngle) * 100);  // Coordenada Y del label
+
+        // Dibujar el texto (label) en el gráfico
+        ctx7.fillStyle = "#000";  // Color del texto
+        ctx7.font = "16px Arial";  // Estilo de la fuente
+        ctx7.textAlign = "center";  // Alinear el texto
+        ctx7.fillText(`${formattedValue}%`, labelX, labelY);  // Dibujar el label
+
+        // Actualizar el ángulo de inicio para el siguiente sector
+        startAngle += sliceAngle;
+    });
+}
+
+// Llamada a la función para dibujar el gráfico
+drawPieChart(ctx7, dataSarcastic);
+
+const ctx8 = document.getElementById('hateChart').getContext('2d');
+
+const averageHate = parseFloat(document.getElementById('averageHate').value, 10);
+const averageNotHate = parseFloat(document.getElementById('averageNotHate').value, 10);
+
+// Datos del gráfico (ejemplo de porcentajes)
+const dataHate= {
+    labels: ['Hate', 'Not Hate'],
+    values: [averageHate, averageNotHate],  // Sumarán el 100%
+    colors: ['#1abc9c', '#b1ec0f']
+};
+
+// Función para dibujar el gráfico de quesitos
+function drawPieChart(ctx8, dataHate) {
+    let totalValue = data.values.reduce((acc, val) => acc + val, 0);
+    let startAngle = 0;
+
+    dataHate.values.forEach((value, index) => {
+        let formattedValue = parseFloat(value.toFixed(2));
+        let sliceAngle = (formattedValue / totalValue) * 2 * Math.PI;
+        ctx8.beginPath();
+        ctx8.moveTo(200, 200);  // Punto central del gráfico (x, y)
+        ctx8.arc(200, 200, 150, startAngle, startAngle + sliceAngle);  // Dibujar el sector
+        ctx8.closePath();
+
+        // Rellenar el sector con su color correspondiente
+        ctx8.fillStyle = dataHate.colors[index];
+        ctx8.fill();
+
+        // Calcular la posición para el label (en el centro de cada porción)
+        let middleAngle = startAngle + sliceAngle / 2;
+        let labelX = 200 + (Math.cos(middleAngle) * 100);  // Coordenada X del label
+        let labelY = 200 + (Math.sin(middleAngle) * 100);  // Coordenada Y del label
+
+        // Dibujar el texto (label) en el gráfico
+        ctx8.fillStyle = "#000";  // Color del texto
+        ctx8.font = "16px Arial";  // Estilo de la fuente
+        ctx8.textAlign = "center";  // Alinear el texto
+        ctx8.fillText(`${formattedValue}%`, labelX, labelY);  // Dibujar el label
+
+        // Actualizar el ángulo de inicio para el siguiente sector
+        startAngle += sliceAngle;
+    });
+}
+
+// Llamada a la función para dibujar el gráfico
+drawPieChart(ctx8, dataHate);
+
 
 function drawFace(humor) {
     const canvas = document.getElementById('humorCanvas');

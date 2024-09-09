@@ -274,7 +274,7 @@ def process_classification_api(taskCollection, current_user):
             result = classificationCollection.insert_one(classification_document)
 
         # Ahora generaremos las estadisticas que se visualizaran en la pagina
-
+        print("nos vamos a analizar")
         process_statistics_api(taskCollection, current_user)
     else:
         print('Error al realizar la solicitud:', response.status_code)

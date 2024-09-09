@@ -553,21 +553,40 @@ def toxicityStatistics(video_data):
 
 def sarcarsmStatistics(video_data):
 
-    SarcasmCount = 0
-    notSarcasmCount = 0
+    averageSarcastic = 0
+    averageNotSarcastic = 0
 
+    numVideos = len(video_data)
     for video in video_data:
         classification = classificationCollection.find_one({'videoId': video['id']})
 
         if classification and 'sarcasm' in classification:
-            if classification['sarcasm'].get('Sarcastic', None) == 1:
-                SarcasmCount += 1
-            else:
-                notSarcasmCount += 1
+            # Obtenemos valores sarcastic
+            sarcasticValue = classification['sarcasm'].get('Sarcastic', None)
+            averageSarcastic += sarcasticValue
+
+            # Obtenemos valores not sarcastic
+            notSarcasticValue = classification['sarcasm'].get('Not sarcastic', None)
+            averageNotSarcastic += notSarcasticValue
+
+    # Calculamos los promedios
+    averageSarcastic /= numVideos
+    averageNotSarcastic /= numVideos
+
+    # Normalizamos los valores para que sumen 1
+    total = (averageSarcastic + averageNotSarcastic)
+
+    # Evitar la división por cero
+    if total > 0:
+        normalizedSarcastic = (averageSarcastic / total) * 100
+        normalizedNotSarcastic = (averageNotSarcastic / total) * 100
+    else:
+        # Si no hay datos válidos, todos son cero
+        normalizedSarcastic = normalizedNotSarcastic = 0
 
     result = {
-        'sarcastic': SarcasmCount,
-        'notSarcastic': notSarcasmCount
+        'averageSarcastic': normalizedSarcastic,
+        'averageNotSarcastic': normalizedNotSarcastic
     }
 
     return result
@@ -637,21 +656,40 @@ def improperLanguageStatistics(video_data):
 
 def ironyStatistics(video_data):
 
-    ironyCount = 0
-    notIrony = 0
+    averageIronic = 0
+    averageNotIronic = 0
 
+    numVideos = len(video_data)
     for video in video_data:
         classification = classificationCollection.find_one({'videoId': video['id']})
 
         if classification and 'irony' in classification:
-            if classification['irony'].get('Ironic', None) == 1:
-                ironyCount += 1
-            else:
-                notIrony += 1
+            # Obtenemos valores ironic
+            ironicValue = classification['irony'].get('Ironic', None)
+            averageIronic += ironicValue
+
+            # Obtenemos valores not ironic
+            notIronicValue = classification['irony'].get('Not ironic', None)
+            averageNotIronic += notIronicValue
+
+    # Calculamos los promedios
+    averageIronic /= numVideos
+    averageNotIronic /= numVideos
+
+    # Normalizamos los valores para que sumen 1
+    total = (averageIronic + averageNotIronic)
+
+    # Evitar la división por cero
+    if total > 0:
+        normalizedIronic = (averageIronic / total) * 100
+        normalizedNotIronic = (averageNotIronic / total) * 100
+    else:
+        # Si no hay datos válidos, todos son cero
+        normalizedIronic = normalizedNotIronic = 0
 
     result = {
-        'irony': ironyCount,
-        'notIrony': notIrony
+        'averageIronic': normalizedIronic,
+        'averageNotIronic': normalizedNotIronic
     }
 
     return result
@@ -753,21 +791,40 @@ def intoleranceStatistics(video_data):
 
 def hateStatistics(video_data):
 
-    notHateCount = 0
-    hateCount = 0
+    averageHate = 0
+    averageNotHate = 0
 
+    numVideos = len(video_data)
     for video in video_data:
         classification = classificationCollection.find_one({'videoId': video['id']})
 
         if classification and 'hate' in classification:
-            if classification['hate'].get('Hate', None) == 1:
-                hateCount += 1
-            else:
-                notHateCount += 1
+            # Obtenemos valores ironic
+            hateValue = classification['hate'].get('Hate', None)
+            averageHate += hateValue
+
+            # Obtenemos valores not ironic
+            notHateValue = classification['hate'].get('Not hate', None)
+            averageNotHate += notHateValue
+
+    # Calculamos los promedios
+    averageHate /= numVideos
+    averageNotHate /= numVideos
+
+    # Normalizamos los valores para que sumen 1
+    total = (averageHate + averageNotHate)
+
+    # Evitar la división por cero
+    if total > 0:
+        normalizedHate = (averageHate / total) * 100
+        normalizedNotHate = (averageNotHate / total) * 100
+    else:
+        # Si no hay datos válidos, todos son cero
+        normalizedHate = normalizedNotHate = 0
 
     result = {
-        'hate': hateCount,
-        'not hate': notHateCount
+        'averageHate': normalizedHate,
+        'averageNotHate': normalizedNotHate
     }
 
     return result
