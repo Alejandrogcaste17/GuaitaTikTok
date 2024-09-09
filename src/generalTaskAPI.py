@@ -6,6 +6,7 @@ from classificationAPI import process_classification_api
 from datetime import datetime, timedelta
 from celery.exceptions import Ignore
 from mongoConfiguration import tasksCollection, videosCollection
+from pymongo.errors import PyMongoError
  
 # Define las credenciales de la aplicación
 client_key = 'awoy8doraswxa914'
@@ -13,10 +14,23 @@ client_secret = 'C1Fq10WTwgYygDlteNj8KDWLZTK5EaRe'
 
 access_token = ''
 
-def videosWithVoiceToText(response, results):
+def videosWithVoiceToText(response, results, taskCollection):
     for video in response["data"]["videos"]:
         if "voice_to_text" in video:
             results.append(video)
+    print("yes")
+    try:
+        # Intentar insertar el documento en la colección
+        tasksCollection.update_one(
+            {'_id': taskCollection['_id']},
+            {'$set': {'recoveredVideos': len(results)}}
+        )
+
+    except PyMongoError as e:
+        # Si ocurre un error, imprimir el mensaje de error
+        print(f"Error al actualizar el documento: {e}")
+    
+    
 
 def getAccessToken(taskCollection):
 
@@ -62,6 +76,11 @@ def dateFormat(results):
         else:
             print(f"El video {video.get('id', 'sin ID')} no tiene 'create_time' válido.")
     return results
+
+def sortVideos(results):
+    # Ordena primero por 'create_time' y luego por 'id' convertido a entero para que la comparación sea numérica
+    sorted_results = sorted(results, key=lambda video: (video['create_time'], int(video['id'])))
+    return sorted_results
 
 
 def getTimeList(startDate, endDate):
@@ -197,14 +216,16 @@ async def process_general_task(taskCollection, current_user):
             if first_response.status_code == 200:
                 goodRequest = True
             count += 1
-            if count == 40:
+            if count == 10:
                 break
             print(count)
         # Procesa la respuesta
         if first_response.status_code == 200:
-
+            print("hey")
             response_data = first_response.json()
-            videosWithVoiceToText(response_data, results)
+            print("hey x2")
+            videosWithVoiceToText(response_data, results, taskCollection)
+            print("hey x2")
 
             # Condicion para el caso en el que encuentre menos de 100 videos en el rango de fechas establecido
             if response_data["data"]["cursor"] < 100 and response_data["data"]["has_more"] == False:
@@ -212,6 +233,7 @@ async def process_general_task(taskCollection, current_user):
                 break
 
             time.sleep(5)
+            print("hey x3")
 
             # Variable para saber cuando la request ha fallado y realizar la peticion otra vez
             request_again = False
@@ -256,7 +278,7 @@ async def process_general_task(taskCollection, current_user):
                 if loop_response.status_code == 200:
                     print("Buena peticion")
                     loop_response_data = loop_response.json()
-                    videosWithVoiceToText(loop_response_data, results)
+                    videosWithVoiceToText(loop_response_data, results, taskCollection)
                     print("Cantidad de videos: ", len(results))
                     print("Cursor: ", loop_response_data["data"]["cursor"])
                     print("Search_id: ", loop_response_data["data"]["search_id"])
@@ -293,6 +315,9 @@ async def process_general_task(taskCollection, current_user):
 
     # Convertimos la variable create_time al formato "YYYYMMDD"
     results = dateFormat(results)
+
+    # Ordenamos los resultados en funcion del dia de subida del video
+    results = sortVideos(results)
 
     # Convertimos los id de los videos a string
     for video in results:

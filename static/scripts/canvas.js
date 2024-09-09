@@ -216,6 +216,57 @@ const emotionChart = new Chart(ctx3, {
     }
 });
 
+const ctx5 = document.getElementById('profileChart').getContext('2d');
+
+const averageAgreeable = parseFloat(document.getElementById('averageAgreeable').value, 10);
+const averageConscientious = parseFloat(document.getElementById('averageConscientious').value, 10);
+const averageOpen = parseFloat(document.getElementById('averageOpen').value, 10);
+const averageExtroverted = parseFloat(document.getElementById('averageExtroverted').value, 10);
+const averageStable = parseFloat(document.getElementById('averageStable').value, 10);
+
+// Datos del gráfico (ejemplo de porcentajes)
+const data = {
+    labels: ['Agreeable', 'Conscientious', 'Open', 'Extroverted', 'Stable'],
+    values: [averageAgreeable, averageConscientious, averageOpen, averageExtroverted, averageStable],  // Sumarán el 100%
+    colors: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#1abc9c']
+};
+
+// Función para dibujar el gráfico de quesitos
+function drawPieChart(ctx5, data) {
+    let totalValue = data.values.reduce((acc, val) => acc + val, 0);
+    let startAngle = 0;
+
+    data.values.forEach((value, index) => {
+        let formattedValue = parseFloat(value.toFixed(2));
+        let sliceAngle = (formattedValue / totalValue) * 2 * Math.PI;
+        ctx5.beginPath();
+        ctx5.moveTo(200, 200);  // Punto central del gráfico (x, y)
+        ctx5.arc(200, 200, 150, startAngle, startAngle + sliceAngle);  // Dibujar el sector
+        ctx5.closePath();
+
+        // Rellenar el sector con su color correspondiente
+        ctx5.fillStyle = data.colors[index];
+        ctx5.fill();
+
+        // Calcular la posición para el label (en el centro de cada porción)
+        let middleAngle = startAngle + sliceAngle / 2;
+        let labelX = 200 + (Math.cos(middleAngle) * 100);  // Coordenada X del label
+        let labelY = 200 + (Math.sin(middleAngle) * 100);  // Coordenada Y del label
+
+        // Dibujar el texto (label) en el gráfico
+        ctx5.fillStyle = "#000";  // Color del texto
+        ctx5.font = "16px Arial";  // Estilo de la fuente
+        ctx5.textAlign = "center";  // Alinear el texto
+        ctx5.fillText(`${formattedValue}%`, labelX, labelY);  // Dibujar el label
+
+        // Actualizar el ángulo de inicio para el siguiente sector
+        startAngle += sliceAngle;
+    });
+}
+
+// Llamada a la función para dibujar el gráfico
+drawPieChart(ctx5, data);
+
 
 function drawFace(humor) {
     const canvas = document.getElementById('humorCanvas');

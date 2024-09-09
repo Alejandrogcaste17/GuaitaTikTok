@@ -113,13 +113,22 @@ def searchVideo(id, taskCollection):
 
     task_videos = videosCollection.find_one({'taskId': taskCollection['_id']})
 
-    # Verificamos que task_videos y list_videos existan
-    if task_videos and 'list_videos' in task_videos:
-        # Iteramos sobre cada video dentro de list_videos
-        for video in task_videos['list_videos']:
-            if video.get('id') == id:
-                result = video
-                break
+    if taskCollection['taskType'] == 'profile':
+        # Verificamos que task_videos y list_videos_with_voice existan
+        if task_videos and 'list_videos_with_voice' in task_videos:
+            # Iteramos sobre cada video dentro de list_videos_with_voice
+            for video in task_videos['list_videos_with_voice']:
+                if video.get('id') == id:
+                    result = video
+                    break
+    else:
+        # Verificamos que task_videos y list_videos existan
+        if task_videos and 'list_videos' in task_videos:
+            # Iteramos sobre cada video dentro de list_videos
+            for video in task_videos['list_videos']:
+                if video.get('id') == id:
+                    result = video
+                    break
     
     return result
 
@@ -247,12 +256,26 @@ def personalityStatistics(video_data):
     averageOpen /= numVideos
     averageStable /= numVideos
 
+    # Normalizamos los valores para que sumen 1
+    total = (averageAgreeable + averageConscientious + averageExtroverted + averageOpen + averageStable)
+
+    # Evitar la división por cero
+    if total > 0:
+        normalizedAgreeable = (averageAgreeable / total) * 100
+        normalizedConscientious = (averageConscientious / total) * 100
+        normalizedExtroverted = (averageExtroverted / total) * 100
+        normalizedOpen = (averageOpen / total) * 100
+        normalizedStable = (averageStable / total) * 100
+    else:
+        # Si no hay datos válidos, todos son cero
+        normalizedAgreeable = normalizedConscientious = normalizedExtroverted = normalizedOpen = normalizedStable = 0
+
     result = {
-        'averageAgreeable': averageAgreeable,
-        'averageConscientious': averageConscientious,
-        'averageExtroverted': averageExtroverted,
-        'averageOpen': averageOpen,
-        'averageStable': averageStable
+        'averageAgreeable': normalizedAgreeable,
+        'averageConscientious': normalizedConscientious,
+        'averageExtroverted': normalizedExtroverted,
+        'averageOpen': normalizedOpen,
+        'averageStable': normalizedStable
     }
 
     return result

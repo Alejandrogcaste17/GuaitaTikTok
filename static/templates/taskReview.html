@@ -52,80 +52,237 @@
         </div>
     </nav>
     {% if task['taskName'] %}
-        <center><h1>{{task['taskName']}} Review </h1></center>
+        <center><h1><strong>{{task['taskName']}} Review </strong></h1></center>
     {% endif %}
-
-    <div id="dashboard-container" class="container-fluid">
-        <div class="row">
-            <div class="col-md-8 d-flex justify-content-center align-items-center">
-                <div class="card shadow p-4" style="background-color: #e6e0f8;; border-radius: 15px; margin-top: 20px; margin-left: 15px; margin-right: 15px;">
-                    <!-- Parte izquierda: tabla de datos -->
-                    <div class="left-half w-100">
-                        <table class="table table-dark table-striped w-100">
-                            <tbody>
-                                <tr>
-                                    <th scope="row">Status</th>
-                                    <td>
-                                        {% if task['state'] == 'In progress' %}
-                                            <i class='bx bx-loader-alt bx-spin' style="color: white;"></i> {{ task['state'] }}
-                                        {% elif task['state'] == 'Finished' %}
-                                            <i class='bx bxs-check-circle' style="color: green;"></i> {{ task['state'] }}
-                                        {% elif task['state'] == 'Stopped' %}
-                                            <i class='bx bxs-error-circle' style="color: red;"></i> {{ task['state'] }}
-                                        {% elif task['state'] == 'Profile Founded' %}
-                                            <i class='bx bx-search-alt bx-tada' style="color: white;"></i> {{ task['state'] }}
-                                        {% elif task['state'] == 'Private' %}
-                                            <i class='bx bx-lock' style="color: white;"></i> {{ task['state'] }}
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">Status Message</th>
-                                    <td>{{ task['state_message'] }}</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">Task Name</th>
-                                    <td>{{ task['taskName'] }}</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">Description</th>
-                                    <td>{{ task['description'] }}</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">Start Date</th>
-                                    <td>{{ task['startDate'] }}</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">End Date</th>
-                                    <td>{{ task['endDate'] }}</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">Language</th>
-                                    <td>{{ task['language'] }}</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">Task Type</th>
-                                    <td>{{ task['taskType'] }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <!-- Parte derecha: gráfico circular -->
+    {% if profile_info %}
+        <div id="dashboard-container" class="container-fluid">
             
-            <div class="col-md-4 d-flex flex-column justify-content-center align-items-center">
-                <div class="card shadow p-4" style="background-color: #e6e0f8;; border-radius: 15px; margin-top: 20px; margin-left: 15px; margin-right: 15px;">
-                    <h4 class="text-center text-black mb-4">Number of Classified Videos</h4>
-                    <div class="right-half w-100 d-flex justify-content-center align-items-center">  
-                        <input type="hidden" id="classifiedVideos" value="{{ videos_list['total_videos'] }}">
-                        <input type="hidden" id="cursor" value="{{ videos_list['cursor'] }}">
-                        <canvas id="videoChart"></canvas>
+            <div class="card shadow p-4" style="background-color: #e6e0f8;; border-radius: 15px; margin-top: 20px; margin-left: 15px; margin-right: 15px;">
+                <div class="row">  
+                    <div class="col-md-6 d-flex flex-column justify-content-center align-items-center">
+                        <h4 class="text-center text-black mb-4"><strong>Task Information</strong></h4>
+                        <!-- Parte izquierda: tabla de datos -->
+                        <div class="left-half w-100 d-flex justify-content-center align-items-center">
+                            <table class="table table-dark table-striped w-100">
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Status</th>
+                                        <td>
+                                            {% if task['state'] == 'In progress' %}
+                                                <i class='bx bx-loader-alt bx-spin' style="color: white;"></i> {{ task['state'] }}
+                                            {% elif task['state'] == 'Finished' %}
+                                                <i class='bx bxs-check-circle' style="color: green;"></i> {{ task['state'] }}
+                                            {% elif task['state'] == 'Stopped' %}
+                                                <i class='bx bxs-error-circle' style="color: red;"></i> {{ task['state'] }}
+                                            {% elif task['state'] == 'Profile Founded' %}
+                                                <i class='bx bx-search-alt bx-tada' style="color: white;"></i> {{ task['state'] }}
+                                            {% elif task['state'] == 'Private' %}
+                                                <i class='bx bx-lock' style="color: white;"></i> {{ task['state'] }}
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Status Message</th>
+                                        <td>{{ task['state_message'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Task Name</th>
+                                        <td>{{ task['taskName'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Description</th>
+                                        <td>{{ task['description'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Start Date</th>
+                                        <td>{{ task['startDate'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">End Date</th>
+                                        <td>{{ task['endDate'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Region</th>
+                                        <td>Spain</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Task Type</th>
+                                        <td>{{ task['taskType'] }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
+                    <!-- Parte derecha: gráfico circular -->
+                
+                    <div class="col-md-3 d-flex flex-column justify-content-center align-items-center">
+                        <h4 class="text-center text-black mb-4"><strong>Number of Classified Videos</strong></h4>
+                        <div class="right-half w-100 d-flex justify-content-center align-items-center"> 
+                            <input type="hidden" id="classifiedVideos" value="{{ videos_list['total_videos_with_voice'] }}">
+                            <input type="hidden" id="cursor" value="{{ videos_list['cursor'] }}">
+                            <canvas id="videoChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-3 d-flex flex-column justify-content-center align-items-center">                       
+                        <h4 class="text-center text-black mb-4"><strong>{{profile_info['data']['display_name']}}</strong></h4>
+                        <div class="right-half w-100">
+                            <img src="{{profile_info['data']['avatar_url']}}" style="margin-bottom: 10px;">   
+                            <p><strong>Username: </strong>{{profile_info['username']}}</p>
+                            <p><strong>Follower Count: </strong>{{profile_info['data']['follower_count']}}</p>
+                            <p><strong>Following Count:</strong> {{profile_info['data']['following_count']}}</p>
+                            <p><strong>Likes Count: </strong>{{profile_info['data']['likes_count']}}</p>
+                            <p><strong>Video Count:</strong> {{profile_info['data']['video_count']}}</p>
+                            <p><strong>Bio Description:</strong> {{profile_info['data']['bio_description']}}</p>
+                        </div>
+                    </div>
+                </div>  
             </div>
         </div>
-    </div>
+        <input type="hidden" id="averageAgreeable" value="{{ statistics['personality']['averageAgreeable'] }}">
+        <input type="hidden" id="averageConscientious" value="{{ statistics['personality']['averageConscientious'] }}">
+        <input type="hidden" id="averageOpen" value="{{ statistics['personality']['averageOpen'] }}">
+        <input type="hidden" id="averageExtroverted" value="{{ statistics['personality']['averageExtroverted'] }}">
+        <input type="hidden" id="averageStable" value="{{ statistics['personality']['averageStable'] }}">
+        <div id="dashboard-container" class="container-fluid">
+            <div class="card shadow p-6" style="background-color: #e6e0f8; border-radius: 15px; margin-top: 20px; margin-left: 15px; margin-right: 15px;">
+                <div class="row">  
+                    <div class="col-md-6 d-flex flex-column justify-content-center align-items-center">
+                        <h4 class="text-center text-black mb-4"><strong>Profile Stadistics</strong></h4>
+                        <!-- Parte izquierda: tabla de datos -->
+                        <div class="col-md-7 d-flex flex-column justify-content-center align-items-center">
+                            <div class="w-100 d-flex justify-content-center align-items-center">
+                                <canvas id="profileChart" width="400" height="400"></canvas>
+                                <div class="legend">
+                                    <div class="legend-item">
+                                        <div class="color-box" style="background-color: #FF6384;"></div>
+                                        <span>Agreeable</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <div class="color-box" style="background-color: #36A2EB;"></div>
+                                        <span>Conscientious</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <div class="color-box" style="background-color: #FFCE56;"></div>
+                                        <span>Open</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <div class="color-box" style="background-color: #4BC0C0;"></div>
+                                        <span>Extroverted</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <div class="color-box" style="background-color: #1abc9c;"></div>
+                                        <span>Stable</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Parte derecha: gráfico circular -->
+                    <div class="col-md-3 d-flex flex-column justify-content-center align-items-center">
+                        <div class="card shadow p-4" style="background-color: #fff; border-radius: 10px; width: 100%; margin-top: 20px; margin-right: 20px;">
+                            <h4 class="text-center text-black mb-4"><strong>{{profile_info['data']['display_name']}}</strong></h4>
+                            <!-- Género -->
+                            <div class="d-flex align-items-center mb-3">
+                                <i class='bx bx-female bx-lg' style="color:#FF69B4; margin-right: 10px;"></i>
+                                <div>
+                                    <p style="margin: 0; font-size: 18px;"><strong>Gender:</strong> {{statistics['gender']['gender']}}</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Bot -->
+                            <div class="d-flex align-items-center mb-3">
+                                <i class='bx bx-bot bx-lg' style="color:#5A5A5A; margin-right: 10px;"></i>
+                                <div>
+                                    <p style="margin: 0; font-size: 18px;"><strong>Bot:</strong> {{statistics['bot']['bot']}}</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Edad -->
+                            <div class="d-flex align-items-center mb-3">
+                                <i class='bx bx-cake bx-lg' style="color:#F4A460; margin-right: 10px;"></i>
+                                <div>
+                                    <p style="margin: 0; font-size: 18px;"><strong>Age:</strong> {{statistics['age']['age']}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>  
+            </div>
+        </div>
+    {% else %}
+        <div id="dashboard-container" class="container-fluid">
+                
+            <div class="card shadow p-4" style="background-color: #e6e0f8;; border-radius: 15px; margin-top: 20px; margin-left: 15px; margin-right: 15px;">
+                <div class="row">  
+                    <div class="col-md-8 d-flex flex-column justify-content-center align-items-center">
+                        <h4 class="text-center text-black mb-4"><strong>Task Information</strong></h4>
+                        <!-- Parte izquierda: tabla de datos -->
+                        <div class="left-half w-100 d-flex justify-content-center align-items-center">
+                            <table class="table table-dark table-striped w-100">
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Status</th>
+                                        <td>
+                                            {% if task['state'] == 'In progress' %}
+                                                <i class='bx bx-loader-alt bx-spin' style="color: white;"></i> {{ task['state'] }}
+                                            {% elif task['state'] == 'Finished' %}
+                                                <i class='bx bxs-check-circle' style="color: green;"></i> {{ task['state'] }}
+                                            {% elif task['state'] == 'Stopped' %}
+                                                <i class='bx bxs-error-circle' style="color: red;"></i> {{ task['state'] }}
+                                            {% elif task['state'] == 'Profile Founded' %}
+                                                <i class='bx bx-search-alt bx-tada' style="color: white;"></i> {{ task['state'] }}
+                                            {% elif task['state'] == 'Private' %}
+                                                <i class='bx bx-lock' style="color: white;"></i> {{ task['state'] }}
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Status Message</th>
+                                        <td>{{ task['state_message'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Task Name</th>
+                                        <td>{{ task['taskName'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Description</th>
+                                        <td>{{ task['description'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Start Date</th>
+                                        <td>{{ task['startDate'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">End Date</th>
+                                        <td>{{ task['endDate'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Region</th>
+                                        <td>Spain</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Task Type</th>
+                                        <td>{{ task['taskType'] }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- Parte derecha: gráfico circular -->
+                
+                    <div class="col-md-4 d-flex flex-column justify-content-center align-items-center">
+                        <h4 class="text-center text-black mb-4"><strong>Number of Classified Videos</strong></h4>
+                        <div class="right-half w-100 d-flex justify-content-center align-items-center"> 
+                            <input type="hidden" id="classifiedVideos" value="{{ videos_list['total_videos'] }}">
+                            <input type="hidden" id="cursor" value="{{ videos_list['cursor'] }}">
+                            <canvas id="videoChart"></canvas>
+                        </div>
+                    </div>
+                </div>  
+            </div>
+        </div>
+    {% endif %}
     <input type="hidden" id="averagePositive" value="{{ statistics['sentiments']['averagePositive'] }}">
     <input type="hidden" id="averageNegative" value="{{ statistics['sentiments']['averageNegative'] }}">
     <input type="hidden" id="averageNeutral" value="{{ statistics['sentiments']['averageNeutral'] }}">
@@ -144,7 +301,7 @@
                 <div class="col-md-5 d-flex flex-column justify-content-center align-items-center">
                     <h4 class="text-center text-black mb-4">Best Videos</h4>
                     <div id="bestSentimentsVideosCarousel" class="carousel slide" data-bs-ride="false">
-                        <div class="carousel-inner">
+                        <div class="carousel-inner" style="max-height: 400px; overflow-y: auto;">
                             <!-- Video 1 Information -->
                             <div class="carousel-item active">
                                 <div class="info-box d-block w-100">
@@ -211,14 +368,15 @@
     <input type="hidden" id="averageSadness" value="{{ statistics['emotion']['averageSadness'] }}">
     <input type="hidden" id="averageSurprise" value="{{ statistics['emotion']['averageSurprise'] }}">
 
-    <div class="card shadow p-4" style="background-color: #e6e0f8;; border-radius: 15px; margin-top: 20px; margin-left: 15px; margin-right: 15px; min-height: 600px; height: auto">
+    <div class="card shadow p-4" style="background-color: #e6e0f8; border-radius: 15px; margin-top: 20px; margin-left: 15px; margin-right: 15px; min-height: 600px; height: auto">
         <h3 class="text-center text-black mb-4">Emotion Statistics</h3>
         <div id="dashboard-container" class="container-fluid" style="margin-bottom: 400px;">
             <div class="row">
+                <!-- Parte de Best Videos -->
                 <div class="col-md-5 d-flex flex-column justify-content-center align-items-center">
                     <h4 class="text-center text-black mb-4">Best Videos</h4>
                     <div id="bestEmotionsVideosCarousel" class="carousel slide" data-bs-ride="false">
-                        <div class="carousel-inner">
+                        <div class="carousel-inner" style="max-height: 400px; overflow-y: auto;"> <!-- Limita la altura -->
                             <!-- Video 1 Information -->
                             <div class="carousel-item active">
                                 <div class="info-box d-block w-100">
@@ -230,7 +388,7 @@
                                     <p><strong>Anger Value:</strong> {{statistics['emotion']['bestAnger']}}</p>
                                 </div>
                             </div>
-                            <!-- Video 2 Information -->
+                            <!-- Video 2 Information -->>
                             <div class="carousel-item">
                                 <div class="info-box d-block w-100">
                                     <h5>Best Disgust Video</h5>
@@ -239,7 +397,6 @@
                                     <p><strong>Text of the video:</strong> {{statistics['emotion']['disgustId']['voice_to_text']}}</p>
                                     <p><strong>Date Creation:</strong> {{statistics['emotion']['disgustId']['create_time']}}</p>
                                     <p><strong>Disgust Value:</strong> {{statistics['emotion']['bestDisgust']}}</p>
-
                                 </div>
                             </div>
                             <!-- Video 3 Information -->
@@ -298,6 +455,7 @@
                         </a>
                     </div>
                 </div>
+                <!-- Parte de Emotions -->
                 <div class="col-md-7 d-flex flex-column justify-content-center align-items-center">
                     <h4 class="text-center text-black mb-4">Emotions</h4>
                     <div class="w-100 d-flex justify-content-center">
@@ -307,6 +465,7 @@
             </div>
         </div>
     </div>
+    
 
     <input type="hidden" id="humorCount" value="{{ statistics['humor']['videosWithHumor'] }}">
     <input type="hidden" id="notHumorCount" value="{{ statistics['humor']['videosWithoutHumor'] }}">
@@ -327,7 +486,7 @@
                 <div class="col-md-8 d-flex flex-column justify-content-center align-items-center">
                     <h4 class="text-center text-black mb-4">Best Videos</h4>
                     <div id="bestHumorVideosCarousel" class="carousel slide" data-bs-ride="false">
-                        <div class="carousel-inner">
+                        <div class="carousel-inner" style="max-height: 400px; overflow-y: auto;">
                             <!-- Video 1 Information -->
                             <div class="carousel-item active">
                                 <div class="info-box d-block w-100">

@@ -39,6 +39,23 @@ body{
     pointer-events: none; /* Para que el label no interfiera con el cursor */
 }
 
+.legend {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start; /* Centramos la leyenda verticalmente */
+}
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+.color-box {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+}
+
 h1 {
     align-items: center;
     justify-content: center;

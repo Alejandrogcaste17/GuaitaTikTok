@@ -136,6 +136,7 @@ def procces_classification_profile_api(taskCollection, current_user):
             for i in range(num_videos):
                 classification_document = {
                     'videoId': video_data[i]['id'],
+                    'taskId': taskCollection['_id'],
                     'voice_to_text': video_data[i]['voice_to_text'],
                     'age': age[i],
                     'bot': bot[i],

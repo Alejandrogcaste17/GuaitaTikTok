@@ -204,6 +204,24 @@ a {
     cursor: pointer;
 }
 
+.delete-btn, .cancel-btn {
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+}
+
+.delete-btn {
+    background-color: red;
+    color: white;
+}
+
+.cancel-btn {
+    background-color: gray;
+    color: white;
+}
+
 .taskButton {
     background-color: orange;
     color: #fff;
@@ -221,6 +239,20 @@ a {
 
 .taskReview {
     background-color: rgb(77, 25, 221);
+    color: #fff;
+    font-size: 15px;
+    padding: 10px 45px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+.taskDelete {
+    background-color: rgb(223, 25, 11);
     color: #fff;
     font-size: 15px;
     padding: 10px 45px;

@@ -3,11 +3,12 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from bson.objectid import ObjectId
 from generalTaskAPI import process_general_task
 from profileTaskAPI import process_profile_task
-from mongoConfiguration import usersCollection, tasksCollection, videosCollection, statisticsCollection
+from mongoConfiguration import usersCollection, tasksCollection, videosCollection, statisticsCollection, profilesCollection, classificationCollection
 from hashlib import sha256
 import asyncio
 import threading
 from concurrent.futures import ThreadPoolExecutor
+from pymongo.errors import PyMongoError
 
 
 app = Flask(__name__, template_folder='../static/templates', static_folder='../static')
@@ -224,6 +225,7 @@ def newTaskGeneral():
             'endDate': endDate,
             'language': language,
             'userId': current_user.id,
+            'recoveredVideos': 0,
             'taskType': 'general'
         }
 
@@ -248,26 +250,115 @@ def newTaskGeneral():
     else:    
         return render_template('newTask.html',  username=current_user.username)
 
-@app.route('/tasksView')
+@app.route('/tasksView', defaults={'task_id': None, 'option': None})
+@app.route('/tasksView/<task_id>/<option>')
 @login_required
-def tasksView():
+def tasksView(task_id, option):
 
-    # Verificar si el usuario ya existe en la base de datos
-    existing_user_tasks = tasksCollection.find({'userId': current_user.id})
-    
-    # Convertir el cursor a una lista
-    tasks_list = list(existing_user_tasks)
+    if task_id and option == 'delete':
+        # Convertir task_id a ObjectId
+        task_id = ObjectId(task_id)
 
-    if tasks_list:
-        return render_template('tasksView.html', tasks_list=tasks_list, username=current_user.username)
+        # Verificar si el usuario ya existe en la base de datos
+        existing_task = tasksCollection.find_one({'_id': task_id})
+
+        # Verificar si el usuario ya existe en la base de datos
+        existing_user_tasks = tasksCollection.find({'userId': current_user.id})
+        
+        # Convertir el cursor a una lista
+        tasks_list = list(existing_user_tasks)
+
+        if tasks_list:
+            return render_template('tasksView.html', tasks_list=tasks_list, username=current_user.username, task_id=existing_task, option=option)
+        else:
+            # Mostrar un mensaje de informacion de que no tiene tareas todavia creadas
+            notTask = "Sorry, you don't have any tasks created yet, please go to the ""New Task"" section and start one."
+            return render_template('tasksView.html', notTask=notTask, username=current_user.username)
     else:
-        # Mostrar un mensaje de informacion de que no tiene tareas todavia creadas
-        notTask = "Sorry, you don't have any tasks created yet, please go to the ""New Task"" section and start one."
-        return render_template('tasksView.html', notTask=notTask, username=current_user.username)
+        # Verificar si el usuario ya existe en la base de datos
+        existing_user_tasks = tasksCollection.find({'userId': current_user.id})
+        
+        # Convertir el cursor a una lista
+        tasks_list = list(existing_user_tasks)
+
+        if tasks_list:
+            return render_template('tasksView.html', tasks_list=tasks_list, username=current_user.username)
+        else:
+            # Mostrar un mensaje de informacion de que no tiene tareas todavia creadas
+            notTask = "Sorry, you don't have any tasks created yet, please go to the ""New Task"" section and start one."
+            return render_template('tasksView.html', notTask=notTask, username=current_user.username)
+
+@app.route('/taskDelete/<task_id>')
+@login_required
+def taskDelete(task_id):
     
+    try:
+        existing_task = tasksCollection.find_one({'_id': ObjectId(task_id)})
+
+        # Borramos las estadisticas generadas para la tarea
+        stadistics = tasksCollection.delete_one({'taskId': ObjectId(task_id)})
+
+        if stadistics.deleted_count > 0:
+            print("borrado estadisticas")
+        else:
+            print("no se encontraron estadisticas que borrar")
+
+        # Borramos las clasificaciones generadas para la tarea
+        classification = classificationCollection.delete_many({'taskId': ObjectId(task_id)})
+
+        if classification.deleted_count > 0:
+            print("borrado clasificaciones")
+        else:
+            print("no se encontraron documentos de clasificacion")
+
+        # Borramos los videos generadas para la tarea
+        videos = videosCollection.delete_one({'taskId': ObjectId(task_id)})
+
+        if videos.deleted_count > 0:
+            print("borrado videos")
+        else:
+            print("no se encontraron documentos de videos")
+
+        if existing_task['taskType'] == 'profile':
+            # Borramos los perfiles de usuario generadas para la tarea
+            profile = profilesCollection.delete_one({'taskId': ObjectId(task_id)})
+
+            if profile.deleted_count > 0:
+                print("borrado perfil")
+            else:
+                print("no se encontraron documentos de perfil")
+
+        # Borramos la tarea
+        task = tasksCollection.delete_one({'_id': ObjectId(task_id)})
+
+        if task.deleted_count > 0:
+            print("borrado tarea")
+        else:
+            print("no se encontraron documentos de tarea")
+
+        # Verificar si el usuario ya existe en la base de datos
+        existing_user_tasks = tasksCollection.find({'userId': current_user.id})
+        
+        # Convertir el cursor a una lista
+        tasks_list = list(existing_user_tasks)
+
+        if tasks_list:
+            deleted = "The task was successfully deleted"
+            return render_template('tasksView.html', tasks_list=tasks_list, username=current_user.username, deleted=deleted)
+        else:
+            # Mostrar un mensaje de informacion de que no tiene tareas todavia creadas
+            notTask = "Sorry, you don't have any tasks created yet, please go to the ""New Task"" section and start one."
+            return render_template('tasksView.html', notTask=notTask, username=current_user.username)
+
+    except PyMongoError as e:
+        # Si ocurre un error, imprimir el mensaje de error
+        print(f"Error al eliminar el documento: {e}")
+
+
 @app.route('/taskReview/<task_id>')
 @login_required
 def taskReview(task_id):
+    print("estamos aqui")
     # Convertir task_id a ObjectId
     task_id = ObjectId(task_id)
 
@@ -293,10 +384,15 @@ def taskReview(task_id):
     # Buscamos los videos relacionados con esa tarea
     videos = videosCollection.find_one({'taskId': task_id})
 
+    # Buscamos las estadisticas de los videos
     statistics = statisticsCollection.find_one({'taskId': task_id})
 
     if videos:
-        return render_template('taskReview.html', task=existing_task, videos_list=videos, statistics=statistics, username=current_user.username)
+        if existing_task['taskType'] == 'profile':
+            profile_info = profilesCollection.find_one({'taskId': task_id})
+            return render_template('taskReview.html', task=existing_task, videos_list=videos, statistics=statistics, profile_info = profile_info, username=current_user.username)
+        else:
+            return render_template('taskReview.html', task=existing_task, videos_list=videos, statistics=statistics, username=current_user.username)
     else:
         # Mostrar un mensaje de informacion de que no tiene tareas todavia creadas
         notVideoList = "I'm sorry, but there was a problem submitting the review request, please try again later."

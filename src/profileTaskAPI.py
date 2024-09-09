@@ -13,6 +13,11 @@ client_secret = 'C1Fq10WTwgYygDlteNj8KDWLZTK5EaRe'
 
 access_token = ''
 
+def sortVideos(results):
+    # Ordena primero por 'create_time' y luego por 'id' convertido a entero para que la comparación sea numérica
+    sorted_results = sorted(results, key=lambda video: (video['create_time'], int(video['id'])))
+    return sorted_results
+
 def dateFormat(results):   
     for video in results:
         if 'create_time' in video and isinstance(video['create_time'], int):
@@ -22,10 +27,15 @@ def dateFormat(results):
             print(f"El video {video.get('id', 'sin ID')} no tiene 'create_time' válido.")
     return results
 
-def videosWithVoiceToText(response, results):
+def videosWithVoiceToText(response, results, taskCollection):
     for video in response["data"]["videos"]:
         if "voice_to_text" in video:
             results.append(video)
+    
+    taskCollection.update_one(
+            {'_id': taskCollection['_id']},
+            {'$set': {'recoveredVideos': len(results)}}
+        )
 
 def videosWithoutVoiceToText(response, results2):
     for video in response["data"]["videos"]:
@@ -190,90 +200,104 @@ async def process_profile_task(taskCollection, current_user):
                 "end_date": end_date
                 
             }
+            print(start_date)
+            print(end_date)
+            time.sleep(5)
+            goodRequest = False
+            count = 0
 
-            # Realiza la solicitud POST
-            first_response = requests.post(url, json=data, headers=headers)
+            while goodRequest == False:
+
+                # Realiza la solicitud POST
+                first_response = requests.post(url, json=data, headers=headers)
+
+                if first_response.status_code == 200:
+                    goodRequest = True
+                count += 1
+                if count == 40:
+                    break
+                print(count)
 
             # Procesa la respuesta
             if first_response.status_code == 200:
 
                 response_data = first_response.json()
 
-                videosWithVoiceToText(response_data, results)
+                videosWithVoiceToText(response_data, results, taskCollection)
                 videosWithoutVoiceToText(response_data, results2)
                 
                 # Condicion para el caso en el que encuentre menos de 100 videos en el rango de fechas establecido
                 if response_data["data"]["cursor"] < 100 and response_data["data"]["has_more"] == False:
-                    break
-                
-                time.sleep(5)
+                    print("No se encontraron mas de 100 videos")
+                else:
+                    time.sleep(5)
 
-                # Variable para saber cuando la request ha fallado y realizar la peticion otra vez
-                request_again = False
+                    # Variable para saber cuando la request ha fallado y realizar la peticion otra vez
+                    request_again = False
 
-                # Variable para saber si es la primera iteracion del loop
-                first_iteration = True
+                    # Variable para saber si es la primera iteracion del loop
+                    first_iteration = True
 
-                # Cursor condicion
-                data["cursor"] = response_data["data"]["cursor"]
-                data["search_id"] = response_data["data"]["search_id"]
+                    # Cursor condicion
+                    data["cursor"] = response_data["data"]["cursor"]
+                    data["search_id"] = response_data["data"]["search_id"]
 
-                while data["cursor"] < 1000 and data["cursor"] % 100 == 0:
-                    # Comprobamos si se puede seguir realizando paginacion
-                    if not first_iteration and loop_response_data["data"]["has_more"] == False:
-                        print("No hay mas videos")
-                        print(loop_response_data["data"]["has_more"])
-                        break
-                    print("Empezamos bucle")
-                    
-                    if request_again == False:
-                        if not first_iteration:
-                            data["cursor"] = loop_response_data["data"]["cursor"]
-                            data["search_id"] = loop_response_data["data"]["search_id"]
+                    while data["cursor"] < 1000 and data["cursor"] % 100 == 0:
+                        # Comprobamos si se puede seguir realizando paginacion
+                        if not first_iteration and loop_response_data["data"]["has_more"] == False:
+                            print("No hay mas videos")
+                            print(loop_response_data["data"]["has_more"])
+                            break
+                        print("Empezamos bucle")
+                        
+                        if request_again == False:
+                            if not first_iteration:
+                                data["cursor"] = loop_response_data["data"]["cursor"]
+                                data["search_id"] = loop_response_data["data"]["search_id"]
+                            else:
+                                first_iteration = False
+
+                            # Realiza la solicitud POST
+                            print("realizamos peticion")
+                            print("Cursor: ", data["cursor"])
+                            print("Search_id: ", data["search_id"])
+                            time.sleep(5)
+                            loop_response = requests.post(url, json=data, headers=headers)
                         else:
-                            first_iteration = False
+                            # Realiza la solicitud POST
+                            print("realizamos peticion 2.0")
+                            print("Cursor: ", data["cursor"])
+                            print("Search_id: ", data["search_id"])
+                            time.sleep(5)
+                            loop_response = requests.post(url, json=data, headers=headers)
+                            request_again = False
 
-                        # Realiza la solicitud POST
-                        print("realizamos peticion")
-                        print("Cursor: ", data["cursor"])
-                        print("Search_id: ", data["search_id"])
-                        time.sleep(5)
-                        loop_response = requests.post(url, json=data, headers=headers)
-                    else:
-                        # Realiza la solicitud POST
-                        print("realizamos peticion 2.0")
-                        print("Cursor: ", data["cursor"])
-                        print("Search_id: ", data["search_id"])
-                        time.sleep(5)
-                        loop_response = requests.post(url, json=data, headers=headers)
-                        request_again = False
-
-                    if loop_response.status_code == 200:
-                        print("Buena peticion")
-                        loop_response_data = loop_response.json()
-                        videosWithVoiceToText(loop_response_data, results)
-                        videosWithoutVoiceToText(loop_response_data, results2)
-                        print("Cantidad de videos: ", len(results))
-                    else:
-                        if loop_response.status_code == 500:
-                            print("Mala peticion")
-                            request_again = True
+                        if loop_response.status_code == 200:
+                            print("Buena peticion")
+                            loop_response_data = loop_response.json()
+                            videosWithVoiceToText(loop_response_data, results, taskCollection)
+                            videosWithoutVoiceToText(loop_response_data, results2)
                             print("Cantidad de videos: ", len(results))
-                            print(loop_response.text)
-
                         else:
-                            loop_response_data2 = loop_response.json()
-                            if loop_response_data2["error"]["message"] == "Invalid count or cursor":
+                            if loop_response.status_code == 500:
                                 print("Mala peticion")
                                 request_again = True
                                 print("Cantidad de videos: ", len(results))
                                 print(loop_response.text)
+
                             else:
-                                print('Error al realizar la solicitud:', loop_response.status_code)
-                                print(loop_response.text)
-                                print("Cursor: ", data["cursor"])
-                                print("Search_id: ", data["search_id"])
-                                break
+                                loop_response_data2 = loop_response.json()
+                                if loop_response_data2["error"]["message"] == "Invalid count or cursor":
+                                    print("Mala peticion")
+                                    request_again = True
+                                    print("Cantidad de videos: ", len(results))
+                                    print(loop_response.text)
+                                else:
+                                    print('Error al realizar la solicitud:', loop_response.status_code)
+                                    print(loop_response.text)
+                                    print("Cursor: ", data["cursor"])
+                                    print("Search_id: ", data["search_id"])
+                                    break
 
             else:
                 print('Error al realizar la solicitud:', first_response.status_code)
@@ -285,6 +309,9 @@ async def process_profile_task(taskCollection, current_user):
                 
         # Convertimos la variable create_time al formato "YYYYMMDD"
         results = dateFormat(results)
+
+        # Ordenamos los videos por la fecha de subida
+        results = sortVideos(results)
 
         # Convertimos los id de los videos a string
         for video in results:
