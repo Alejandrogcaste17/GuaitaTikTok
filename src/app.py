@@ -7,6 +7,7 @@ from mongoConfiguration import usersCollection, tasksCollection, videosCollectio
 from hashlib import sha256
 import asyncio
 import threading
+import json
 from concurrent.futures import ThreadPoolExecutor
 from pymongo.errors import PyMongoError
 
@@ -358,7 +359,6 @@ def taskDelete(task_id):
 @app.route('/taskReview/<task_id>')
 @login_required
 def taskReview(task_id):
-    print("estamos aqui")
     # Convertir task_id a ObjectId
     task_id = ObjectId(task_id)
 
@@ -390,9 +390,13 @@ def taskReview(task_id):
     if videos:
         if existing_task['taskType'] == 'profile':
             profile_info = profilesCollection.find_one({'taskId': task_id})
+            
             return render_template('taskReview.html', task=existing_task, videos_list=videos, statistics=statistics, profile_info = profile_info, username=current_user.username)
         else:
-            return render_template('taskReview.html', task=existing_task, videos_list=videos, statistics=statistics, username=current_user.username)
+            daysDivision = json.dumps(statistics['dateDivision'].get('days', None), indent=4)
+            weeksDivision = json.dumps(statistics['dateDivision'].get('weeks', None), indent=4)
+            monthsDivision = json.dumps(statistics['dateDivision'].get('months', None), indent=4)
+            return render_template('taskReview.html', task=existing_task, videos_list=videos, statistics=statistics, daysDivision=daysDivision, weeksDivision=weeksDivision, monthsDivision=monthsDivision, username=current_user.username)
     else:
         # Mostrar un mensaje de informacion de que no tiene tareas todavia creadas
         notVideoList = "I'm sorry, but there was a problem submitting the review request, please try again later."

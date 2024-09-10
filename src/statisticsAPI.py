@@ -3,6 +3,7 @@ import json
 import time
 import asyncio
 import sys
+import calendar
 from datetime import datetime, timedelta
 from celery.exceptions import Ignore
 from mongoConfiguration import tasksCollection, videosCollection, classificationCollection, statisticsCollection
@@ -73,9 +74,10 @@ def process_statistics_api(taskCollection, current_user):
             # Extraemos el id y el voice_to_text, si existen
             video_id = video.get('id')
             voice_to_text = video.get('voice_to_text')
+            create_time = video.get('create_time')
             
             # Añadimos el par (id, voice_to_text) al array
-            video_data.append({'id': video_id, 'voice_to_text': voice_to_text})
+            video_data.append({'id': video_id, 'voice_to_text': voice_to_text, 'create_time': create_time})
 
     statistic_document = {
         'taskId': taskCollection['_id'],
@@ -94,7 +96,8 @@ def process_statistics_api(taskCollection, current_user):
         'aggressive': aggressiveStatistics(video_data),
         'mockery': mockeryStatistics(video_data),
         'argumentative': argumentativeStatistics(video_data),
-        'emotion': emotionStatistics(video_data, taskCollection)
+        'emotion': emotionStatistics(video_data, taskCollection),
+        'dateDivision': splitDates(video_data, taskCollection)
     }
     
     try:
@@ -105,7 +108,117 @@ def process_statistics_api(taskCollection, current_user):
     except PyMongoError as e:
         # Si ocurre un error, imprimir el mensaje de error
         print(f"Error al insertar el documento: {e}")
+
+def getFormatDate(date):
+    # Eliminar los guiones "-" de la fecha original
+    result = date.replace("-", "")
+    result = datetime.strptime(result, '%Y%m%d')
+    return result
+
+def splitDates(video_data, taskCollection):
+    print("Empiezan la division por fechas")
+    daysDivision = []
+    weeksDivision = []
+    monthsDivision = []
+
+    startDate = getFormatDate(taskCollection['startDate'])
+    endDate = getFormatDate(taskCollection['endDate'])
+
+    currentDate = startDate
+    while currentDate <= endDate:
+        daysDivision.append({'day': currentDate.strftime('%Y-%m-%d')})
+        currentDate +=  timedelta(days=1)
+    print("Empiezan la division por fechas x2")
+    currentDate = startDate
+     # Mueve la fecha al lunes más cercano o al mismo lunes
+    currentDate += timedelta(days=(7 - currentDate.weekday()) % 7)
+
+    while currentDate <= endDate:
+        weeksDivision.append({
+            'week_start': currentDate.strftime('%Y-%m-%d')  # Guardamos solo el lunes de cada semana
+        })
+        currentDate += timedelta(weeks=1)  # Avanzamos una semana
+    print("Empiezan la division por fechas x3")
+    # Para las divisiones por meses
+    currentDate = startDate
+    while currentDate <= endDate:
+        monthsDivision.append({
+            'month': currentDate.strftime('%Y-%m')  # Solo el mes en formato YYYY-MM
+        })
+        # Ir al próximo mes
+        next_month = currentDate.month % 12 + 1
+        next_year = currentDate.year + (currentDate.month // 12)
+        currentDate = currentDate.replace(year=next_year, month=next_month, day=1)
+    print("Empiezan la division por fechas x5")
+    result = {
+        'days': daysDivision,
+        'weeks': weeksDivision,
+        'months': monthsDivision
+    }
+    print("Acaba la division por fechas")
+    return assignVideos(result, video_data)
+
+def assignVideos(divisions, video_data):
+    print("Empieza la asignación por fechas")
     
+    for video in video_data: 
+        
+        if video and 'create_time' in video:
+            print("Empieza la asignación por fechas x2")
+            # Convertir el create_time del video en un objeto datetime
+            videoDate = getFormatDate(video['create_time'])
+            videoDate = videoDate.date()
+            print("Empieza la asignación por fechas x3")
+            # Asignar el video a la división por días
+            for day_division in divisions['days']:
+                day_date = datetime.strptime(day_division['day'], '%Y-%m-%d').date()
+                print("Comparo")
+                print(day_date)
+                print(videoDate)
+                # Inicializar 'list_videos' como una lista si no existe
+                if 'list_videos' not in day_division:
+                    day_division['list_videos'] = []
+                if day_date == videoDate:
+                    print("Entro")
+                    print(video)
+                    day_division['list_videos'].append(video)
+                    break
+            print("Empieza la asignación por fechas x4")
+            # Asignar el video a la división por semanas (solo lunes)
+            for week_division in divisions['weeks']:
+                print("Comparo")
+                print(week_division['week_start'])
+                
+                week_start_date = datetime.strptime(week_division['week_start'], '%Y-%m-%d').date()
+                week_end_date = week_start_date + timedelta(days=6)
+                print(week_start_date)
+                print(week_end_date)
+                # Inicializar 'list_videos' como una lista si no existe
+                if 'list_videos' not in week_division:
+                    week_division['list_videos'] = []
+                if week_start_date <= videoDate <= week_end_date:
+                    print("Entro")
+                    week_division['list_videos'].append(video)
+                    break
+            print("Empieza la asignación por fechas x5")
+            # Asignar el video a la división por meses
+            for month_division in divisions['months']:
+                print("Comparo")
+                print(month_division['month'])
+                
+                month_date = datetime.strptime(month_division['month'], '%Y-%m').date()
+                print(month_date)
+                # Inicializar 'list_videos' como una lista si no existe
+                if 'list_videos' not in month_division:
+                    month_division['list_videos'] = []
+                if month_date.year == videoDate.year and month_date.month == videoDate.month:
+                    print("Entro")
+                    month_division['list_videos'].append(video)
+                    break
+    
+    print("Acaba la asignación por fechas")
+    print(json.dumps(divisions, indent=4))
+    return divisions
 
 def searchVideo(id, taskCollection):
 

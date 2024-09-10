@@ -142,6 +142,8 @@ const sentimentChart = new Chart(ctx2, {
     }
 });
 
+
+
 const ctx3 = document.getElementById('emotionChart').getContext('2d');
 
 const averageAnger = parseFloat(document.getElementById('averageAnger').value, 10);
@@ -216,56 +218,128 @@ const emotionChart = new Chart(ctx3, {
     }
 });
 
-const ctx5 = document.getElementById('profileChart').getContext('2d');
+    const listDaysString = document.getElementById('listDays').value;
+    const listDays = JSON.parse(listDaysString);
+    console.log(listDays)
+    
+    const listWeeksString = document.getElementById('listWeeks').value;
+    const listWeeks = JSON.parse(listWeeksString);
+    console.log(listDays)
 
-const averageAgreeable = parseFloat(document.getElementById('averageAgreeable').value, 10);
-const averageConscientious = parseFloat(document.getElementById('averageConscientious').value, 10);
-const averageOpen = parseFloat(document.getElementById('averageOpen').value, 10);
-const averageExtroverted = parseFloat(document.getElementById('averageExtroverted').value, 10);
-const averageStable = parseFloat(document.getElementById('averageStable').value, 10);
+    const listMonthsString = document.getElementById('listMonths').value;
+    const listMonths = JSON.parse(listMonthsString);
+    console.log(listDays)
 
-// Datos del gráfico (ejemplo de porcentajes)
-const data = {
-    labels: ['Agreeable', 'Conscientious', 'Open', 'Extroverted', 'Stable'],
-    values: [averageAgreeable, averageConscientious, averageOpen, averageExtroverted, averageStable],  // Sumarán el 100%
-    colors: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#1abc9c']
-};
+    // Extraer las etiquetas y datos de cada división
+    const daysLabels = [];
+    const daysVideosCounts = [];
 
-// Función para dibujar el gráfico de quesitos
-function drawPieChart(ctx5, data) {
-    let totalValue = data.values.reduce((acc, val) => acc + val, 0);
-    let startAngle = 0;
+    // Recorre la lista de días
+    listDays.forEach(dayEntry => {
+        // Almacena el label (día)
+        daysLabels.push(dayEntry.day);
 
-    data.values.forEach((value, index) => {
-        let formattedValue = parseFloat(value.toFixed(2));
-        let sliceAngle = (formattedValue / totalValue) * 2 * Math.PI;
-        ctx5.beginPath();
-        ctx5.moveTo(200, 200);  // Punto central del gráfico (x, y)
-        ctx5.arc(200, 200, 150, startAngle, startAngle + sliceAngle);  // Dibujar el sector
-        ctx5.closePath();
-
-        // Rellenar el sector con su color correspondiente
-        ctx5.fillStyle = data.colors[index];
-        ctx5.fill();
-
-        // Calcular la posición para el label (en el centro de cada porción)
-        let middleAngle = startAngle + sliceAngle / 2;
-        let labelX = 200 + (Math.cos(middleAngle) * 100);  // Coordenada X del label
-        let labelY = 200 + (Math.sin(middleAngle) * 100);  // Coordenada Y del label
-
-        // Dibujar el texto (label) en el gráfico
-        ctx5.fillStyle = "#000";  // Color del texto
-        ctx5.font = "16px Arial";  // Estilo de la fuente
-        ctx5.textAlign = "center";  // Alinear el texto
-        ctx5.fillText(`${formattedValue}%`, labelX, labelY);  // Dibujar el label
-
-        // Actualizar el ángulo de inicio para el siguiente sector
-        startAngle += sliceAngle;
+        // Almacena la cantidad de videos en list_videos
+        daysVideosCounts.push(dayEntry.list_videos.length);
     });
-}
 
-// Llamada a la función para dibujar el gráfico
-drawPieChart(ctx5, data);
+    const weeksLabels = [];
+    const weeksVideosCounts = [];
+
+    // Recorre la lista de semanas
+    listWeeks.forEach(weekEntry => {
+        // Almacena el label (semanas)
+        weeksLabels.push(weekEntry.week_start);
+
+        // Almacena la cantidad de videos en list_videos
+        weeksVideosCounts.push(weekEntry.list_videos.length);
+    });
+
+    const monthsLabels = [];
+    const monthsVideosCounts = [];
+
+    // Recorre la lista de meses
+    listMonths.forEach(monthEntry => {
+        // Almacena el label (meses)
+        monthsLabels.push(monthEntry.month);
+
+        // Almacena la cantidad de videos en list_videos
+        monthsVideosCounts.push(monthEntry.list_videos.length);
+    });
+
+    // Crear el gráfico inicial con los datos de días
+    const ctx10 = document.getElementById('timelineChart').getContext('2d');
+    let timelineChart = new Chart(ctx10, {
+        type: 'line',
+        data: {
+            labels: daysLabels,  // Usamos los días como etiquetas
+            datasets: [{
+                label: 'Videos per day',
+                data: daysVideosCounts,  // Número de videos por día
+                borderColor: 'rgba(255, 99, 132, 1)', // Color de la línea
+                backgroundColor: 'rgba(255, 99, 132, 0.2)', // Color de fondo de los puntos
+                borderWidth: 1, // Grosor de la línea
+                pointStyle: 'circle', // Estilo de los puntos
+                pointRadius: 5, // Tamaño de los puntos
+                fill: false // No rellenar debajo de la línea
+            }]
+        },
+        options: {
+            responsive: true,
+            title: {
+                display: true,
+                text: 'Time line per days'
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Dates'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Count of videos'
+                    },
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Función para actualizar la gráfica según la opción seleccionada
+    document.getElementById('timeSelector').addEventListener('change', function() {
+        const selectedOption = this.value;
+
+        if (selectedOption === 'days') {
+            timelineChart.data.labels = daysLabels;
+            timelineChart.data.datasets[0].data = daysVideosCounts;
+            timelineChart.data.datasets[0].label = 'Videos per days';
+            timelineChart.data.datasets[0].borderColor = 'rgba(255, 99, 132, 1)';
+            timelineChart.data.datasets[0].backgroundColor = 'rgba(255, 99, 132, 0.2)';
+            timelineChart.data.datasets[0].borderWidth = 1;
+            timelineChart.data.datasets[0].pointStyle = 'circle';
+        } else if (selectedOption === 'weeks') {
+            timelineChart.data.labels = weeksLabels;
+            timelineChart.data.datasets[0].data = weeksVideosCounts;
+            timelineChart.data.datasets[0].label = 'Videos per weeks';
+            timelineChart.data.datasets[0].borderColor = 'rgba(54, 162, 235, 1)';
+            timelineChart.data.datasets[0].backgroundColor = 'rgba(54, 162, 235, 0.2)';
+            timelineChart.data.datasets[0].borderWidth = 1;
+            timelineChart.data.datasets[0].pointStyle = 'rect';
+        } else if (selectedOption === 'months') {
+            timelineChart.data.labels = monthsLabels;
+            timelineChart.data.datasets[0].data = monthsVideosCounts;
+            timelineChart.data.datasets[0].label = 'Videos per months';
+            timelineChart.data.datasets[0].borderColor = 'rgba(153, 102, 255, 1)';
+            timelineChart.data.datasets[0].backgroundColor = 'rgba(153, 102, 255, 0.2)';
+            timelineChart.data.datasets[0].borderWidth = 1;
+            timelineChart.data.datasets[0].pointStyle = 'triangle';
+        }
+
+        timelineChart.update();  // Actualizar la gráfica con los nuevos datos
+    });
 
 const ctx6 = document.getElementById('ironyChart').getContext('2d');
 
@@ -411,6 +485,73 @@ function drawPieChart(ctx8, dataHate) {
 // Llamada a la función para dibujar el gráfico
 drawPieChart(ctx8, dataHate);
 
+const ctx9 = document.getElementById('myLineChart').getContext('2d');
+
+    const myLineChart = new Chart(ctx9, {
+        type: 'line', // Tipo de gráfico
+        data: {
+            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'], // Las etiquetas del eje X
+            datasets: [
+                {
+                    label: 'Agressiveness',
+                    data: [10, 30, 50, 20, 25, 44, 60], // Datos de la primera línea
+                    borderColor: 'rgba(255, 99, 132, 1)', // Color de la línea
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)', // Color de fondo de los puntos
+                    borderWidth: 1, // Grosor de la línea
+                    pointStyle: 'circle', // Estilo de los puntos
+                    pointRadius: 5, // Tamaño de los puntos
+                    fill: false // No rellenar debajo de la línea
+                },
+                {
+                    label: 'Argumentative',
+                    data: [20, 40, 35, 50, 40, 70, 90], // Datos de la segunda línea
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderWidth: 1,
+                    pointStyle: 'rect', // Estilo de los puntos (cuadrados)
+                    pointRadius: 5,
+                    fill: false
+                },
+                {
+                    label: 'Offensiveness',
+                    data: [30, 50, 45, 60, 50, 80, 100], // Datos de la tercera línea
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderWidth: 1,
+                    pointStyle: 'triangle', // Estilo de los puntos (triángulos)
+                    pointRadius: 5,
+                    fill: false
+                },
+                {
+                    label: 'Constructiveness',
+                    data: [40, 60, 55, 70, 60, 90, 110], // Datos de la cuarta línea
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                    borderWidth: 1,
+                    pointStyle: 'rectRot', // Estilo de los puntos (rectángulos rotados)
+                    pointRadius: 5,
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top', // Posición de la leyenda
+                },
+            },
+            scales: {
+                x: {
+                    beginAtZero: true, // Comienza desde 0 en el eje X
+                },
+                y: {
+                    beginAtZero: true // Comienza desde 0 en el eje Y
+                }
+            }
+        }
+    });
+
 
 function drawFace(humor) {
     const canvas = document.getElementById('humorCanvas');
@@ -482,3 +623,53 @@ canvas.addEventListener('mouseout', function() {
     hoverLabel.style.visibility = 'hidden';
 });
 
+const ctx5 = document.getElementById('profileChart').getContext('2d');
+
+const averageAgreeable = parseFloat(document.getElementById('averageAgreeable').value, 10);
+const averageConscientious = parseFloat(document.getElementById('averageConscientious').value, 10);
+const averageOpen = parseFloat(document.getElementById('averageOpen').value, 10);
+const averageExtroverted = parseFloat(document.getElementById('averageExtroverted').value, 10);
+const averageStable = parseFloat(document.getElementById('averageStable').value, 10);
+
+// Datos del gráfico (ejemplo de porcentajes)
+const data = {
+    labels: ['Agreeable', 'Conscientious', 'Open', 'Extroverted', 'Stable'],
+    values: [averageAgreeable, averageConscientious, averageOpen, averageExtroverted, averageStable],  // Sumarán el 100%
+    colors: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#1abc9c']
+};
+
+// Función para dibujar el gráfico de quesitos
+function drawPieChart(ctx5, data) {
+    let totalValue = data.values.reduce((acc, val) => acc + val, 0);
+    let startAngle = 0;
+
+    data.values.forEach((value, index) => {
+        let formattedValue = parseFloat(value.toFixed(2));
+        let sliceAngle = (formattedValue / totalValue) * 2 * Math.PI;
+        ctx5.beginPath();
+        ctx5.moveTo(200, 200);  // Punto central del gráfico (x, y)
+        ctx5.arc(200, 200, 150, startAngle, startAngle + sliceAngle);  // Dibujar el sector
+        ctx5.closePath();
+
+        // Rellenar el sector con su color correspondiente
+        ctx5.fillStyle = data.colors[index];
+        ctx5.fill();
+
+        // Calcular la posición para el label (en el centro de cada porción)
+        let middleAngle = startAngle + sliceAngle / 2;
+        let labelX = 200 + (Math.cos(middleAngle) * 100);  // Coordenada X del label
+        let labelY = 200 + (Math.sin(middleAngle) * 100);  // Coordenada Y del label
+
+        // Dibujar el texto (label) en el gráfico
+        ctx5.fillStyle = "#000";  // Color del texto
+        ctx5.font = "16px Arial";  // Estilo de la fuente
+        ctx5.textAlign = "center";  // Alinear el texto
+        ctx5.fillText(`${formattedValue}%`, labelX, labelY);  // Dibujar el label
+
+        // Actualizar el ángulo de inicio para el siguiente sector
+        startAngle += sliceAngle;
+    });
+}
+
+// Llamada a la función para dibujar el gráfico
+drawPieChart(ctx5, data);

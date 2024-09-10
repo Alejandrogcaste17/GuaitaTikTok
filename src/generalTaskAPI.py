@@ -216,7 +216,7 @@ async def process_general_task(taskCollection, current_user):
             if first_response.status_code == 200:
                 goodRequest = True
             count += 1
-            if count == 10:
+            if count == 6:
                 break
             print(count)
         # Procesa la respuesta
@@ -245,7 +245,7 @@ async def process_general_task(taskCollection, current_user):
             data["cursor"] = response_data["data"]["cursor"]
             data["search_id"] = response_data["data"]["search_id"]
 
-            while data['cursor'] < 2000:
+            while data['cursor'] < 7000:
                 # Comprobamos si se puede seguir realizando paginacion
                 if not first_iteration and loop_response_data["data"]["has_more"] == False:
                     print("No hay mas videos")
@@ -282,7 +282,7 @@ async def process_general_task(taskCollection, current_user):
                     print("Cantidad de videos: ", len(results))
                     print("Cursor: ", loop_response_data["data"]["cursor"])
                     print("Search_id: ", loop_response_data["data"]["search_id"])
-                    print("Cursor: ", loop_response_data["data"]["has_more"])
+                    print("Has more?: ", loop_response_data["data"]["has_more"])
                 else:
                     if loop_response.status_code == 500:
                         print("Mala peticion")
@@ -344,7 +344,7 @@ async def process_general_task(taskCollection, current_user):
             {'_id': taskCollection['_id']},
             {'$set': {'state_message': 'The classification is being carried out'}}
         )
-
+        print("nos vamos a clasificar")
         process_classification_api(taskCollection, current_user)
 
         tasksCollection.update_one(
