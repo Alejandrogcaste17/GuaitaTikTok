@@ -345,7 +345,8 @@ def taskDelete(task_id):
 
         if tasks_list:
             deleted = "The task was successfully deleted"
-            return render_template('tasksView.html', tasks_list=tasks_list, username=current_user.username, deleted=deleted)
+            # Redirigir a la vista de tareas con un mensaje
+            return redirect(url_for('tasksView'))
         else:
             # Mostrar un mensaje de informacion de que no tiene tareas todavia creadas
             notTask = "Sorry, you don't have any tasks created yet, please go to the ""New Task"" section and start one."
