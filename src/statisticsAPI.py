@@ -219,6 +219,8 @@ def assignVideos(divisions, video_data):
         day_division['constructiveness'].append(constructiveStatistics(day_division['list_videos']))
         day_division['intolerance'] = []
         day_division['intolerance'].append(intoleranceStatistics(day_division['list_videos']))
+        day_division['stereotype'] = []
+        day_division['stereotype'].append(stereotypeStatistics(day_division['list_videos']))
 
     for week_division in divisions['weeks']:
         # Calculamos algunas estadisticas por semana
@@ -232,6 +234,8 @@ def assignVideos(divisions, video_data):
         week_division['constructiveness'].append(constructiveStatistics(week_division['list_videos']))
         week_division['intolerance'] = []
         week_division['intolerance'].append(intoleranceStatistics(week_division['list_videos']))
+        week_division['stereotype'] = []
+        week_division['stereotype'].append(stereotypeStatistics(week_division['list_videos']))
 
     for month_division in divisions['months']:
         # Calculamos algunas estadisticas por mes
@@ -245,6 +249,8 @@ def assignVideos(divisions, video_data):
         month_division['constructiveness'].append(constructiveStatistics(month_division['list_videos']))
         month_division['intolerance'] = []
         month_division['intolerance'].append(intoleranceStatistics(month_division['list_videos']))
+        month_division['stereotype'] = []
+        month_division['stereotype'].append(stereotypeStatistics(month_division['list_videos']))
 
     print("Acaba la asignación por fechas")
     return divisions
@@ -804,7 +810,6 @@ def offensiveStatistics(video_data):
 
 def insultStatistics(video_data, taskCollection):
 
-    print("empezamos insult")
     insultCount = 0
     notInsultCount = 0
 
@@ -853,11 +858,10 @@ def insultStatistics(video_data, taskCollection):
         'videosWithInsult': insultCount,
         'videosWithoutInsult': notInsultCount
     }
-    print("acabamos insult")
+
     return result
 
 def improperLanguageStatistics(video_data, taskCollection):
-    print("empezamos improper")
 
     improperCount = 0
     withoutImproperCount = 0
@@ -907,7 +911,7 @@ def improperLanguageStatistics(video_data, taskCollection):
         'videosWithImproper': improperCount,
         'videosWithoutImproper': withoutImproperCount
     }
-    print("acabamos improper")
+
     return result
 
 def ironyStatistics(video_data):
@@ -1140,22 +1144,38 @@ def hateStatistics(video_data):
     return result
 
 def stereotypeStatistics(video_data):
+    stereotypesCount = 0
+    notStereotypesCount = 0
 
-    withStereotypeCount = 0
-    withoutStereotypeCount = 0
+    totalStereotypes = 0
+    totalNotStereotypes = 0
 
     for video in video_data:
         classification = classificationCollection.find_one({'videoId': video['id']})
 
         if classification and 'stereotype' in classification:
-            if classification['stereotype'].get('With stereotypes', None) == 1:
-                withStereotypeCount += 1
+            stereotypesValue = classification['stereotype'].get('With stereotypes', 0.0)
+            notStereotypesValue = classification['stereotype'].get('Without stereotypes', 0.0)
+
+            # Sumar los valores para calcular promedios luego
+            totalStereotypes += stereotypesValue
+            totalNotStereotypes += notStereotypesValue
+
+            # Contar cuántos videos tienen estereotipos o no
+            if stereotypesValue > 0.5:
+                stereotypesCount += 1
             else:
-                withoutStereotypeCount += 1
+                notStereotypesCount += 1
+
+    # Calcular promedios
+    averageStereotypes = totalStereotypes / len(video_data)
+    averageNotStereotypes = totalNotStereotypes / len(video_data)
 
     result = {
-        'withStereotypes': withStereotypeCount,
-        'withoutStereotypes': withoutStereotypeCount
+        'averageStereotypes': averageStereotypes,
+        'averageNotStereotypes': averageNotStereotypes,
+        'videosWithStereotypes': stereotypesCount,
+        'videosWithoutStereotypes': notStereotypesCount
     }
 
     return result

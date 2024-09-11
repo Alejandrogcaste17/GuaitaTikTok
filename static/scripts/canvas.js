@@ -568,6 +568,9 @@ const emotionChart = new Chart(ctx3, {
     const averageIntolerantDays = [];
     const averageTolerantDays = [];
 
+    const averageStereotypeDays = [];
+    const averageNotStereotypeDays = []
+
     // Recorre la lista de días
     listDays.forEach(dayEntry => {
         // Almacena el label (día)
@@ -605,6 +608,12 @@ const emotionChart = new Chart(ctx3, {
             averageIntolerantDays.push(intolerance.averageIntolerant);
             averageTolerantDays.push(intolerance.averageTolerant);
         });
+
+        aux = dayEntry.stereotype;
+        aux.forEach(stereotype => {
+            averageStereotypeDays.push(stereotype.averageStereotypes);
+            averageNotStereotypeDays.push(stereotype.averageNotStereotypes);
+        });
     });
 
     const weeksLabels = [];
@@ -624,6 +633,9 @@ const emotionChart = new Chart(ctx3, {
 
     const averageIntolerantWeeks = [];
     const averageTolerantWeeks = [];
+
+    const averageStereotypeWeeks = [];
+    const averageNotStereotypeWeeks = [];
 
     // Recorre la lista de semanas
     listWeeks.forEach(weekEntry => {
@@ -662,6 +674,12 @@ const emotionChart = new Chart(ctx3, {
             averageIntolerantWeeks.push(intolerance.averageIntolerant);
             averageTolerantWeeks.push(intolerance.averageTolerant);
         });
+
+        aux = weekEntry.stereotype;
+        aux.forEach(stereotype => {
+            averageStereotypeWeeks.push(stereotype.averageStereotypes);
+            averageNotStereotypeWeeks.push(stereotype.averageNotStereotypes);
+        });
     });
 
     const monthsLabels = [];
@@ -681,6 +699,9 @@ const emotionChart = new Chart(ctx3, {
 
     const averageIntolerantMonths = [];
     const averageTolerantMonths = [];
+
+    const averageStereotypeMonths = [];
+    const averageNotStereotypeMonths = [];
 
     // Recorre la lista de meses
     listMonths.forEach(monthEntry => {
@@ -716,8 +737,14 @@ const emotionChart = new Chart(ctx3, {
 
         aux = monthEntry.intolerance;
         aux.forEach(intolerance => {
-            averageIntolerantMonths.push(intolerance.averageIntolerant);
-            averageTolerantMonths.push(intolerance.averageTolerant);
+            averageIntolerantWeeks.push(intolerance.averageIntolerant);
+            averageTolerantWeeks.push(intolerance.averageTolerant);
+        });
+
+        aux = monthEntry.stereotype;
+        aux.forEach(stereotype => {
+            averageStereotypeMonths.push(stereotype.averageStereotypes);
+            averageNotStereotypeMonths.push(stereotype.averageNotStereotypes);
         });
     });
 
@@ -1063,6 +1090,11 @@ document.getElementById('classSelector').addEventListener('change', function() {
         myLineChart.data.datasets[1].data = averageIntolerantDays;
         myLineChart.data.datasets[0].label = 'Tolerant';
         myLineChart.data.datasets[1].label = 'Intolerant';
+    } else if (selectedOption === 'stereotype') {
+        myLineChart.data.datasets[0].data = averageStereotypeDays;
+        myLineChart.data.datasets[1].data = averageNotStereotypeDays;
+        myLineChart.data.datasets[0].label = 'Stereotypes';
+        myLineChart.data.datasets[1].label = 'Not Stereotypes';
     }
 
     myLineChart.update();  // Actualizar la gráfica con los nuevos datos
@@ -1086,6 +1118,9 @@ document.getElementById('timeSelector2').addEventListener('change', function() {
         } else if (myLineChart.data.datasets[0] == 'Constructive') {
             myLineChart.data.datasets[0].data = averageConstructiveDays;
             myLineChart.data.datasets[1].data = averageNotConstructiveDays;
+        } else if (myLineChart.data.datasets[0] == 'Stereotype') {
+            myLineChart.data.datasets[0].data = averageStereotypeDays;
+            myLineChart.data.datasets[1].data = averageNotStereotypeDays;
         } else {
             myLineChart.data.datasets[0].data = averageTolerantDays;
             myLineChart.data.datasets[1].data = averageIntolerantDays;
@@ -1105,6 +1140,9 @@ document.getElementById('timeSelector2').addEventListener('change', function() {
         } else if (myLineChart.data.datasets[0] == 'Constructive'){
             myLineChart.data.datasets[0].data = averageConstructiveWeeks;
             myLineChart.data.datasets[1].data = averageNotConstructiveWeeks;
+        } else if (myLineChart.data.datasets[0] == 'Stereotypes') {
+            myLineChart.data.datasets[0].data = averageStereotypeWeeks;
+            myLineChart.data.datasets[1].data = averageNotStereotypeWeeks;
         } else {
             myLineChart.data.datasets[0].data = averageTolerantWeeks;
             myLineChart.data.datasets[1].data = averageIntolerantWeeks;
@@ -1123,6 +1161,9 @@ document.getElementById('timeSelector2').addEventListener('change', function() {
         } else if (myLineChart.data.datasets[0] == 'Constructive') {
             myLineChart.data.datasets[0].data = averageConstructiveMonths;
             myLineChart.data.datasets[1].data = averageNotConstructiveMonths;
+        } else if (myLineChart.data.datasets[0] == 'Stereotypes') {
+            myLineChart.data.datasets[0].data = averageStereotypeMonths;
+            myLineChart.data.datasets[1].data = averageNotStereotypeMonths;
         } else {
             myLineChart.data.datasets[0].data = averageTolerantMonths;
             myLineChart.data.datasets[1].data = averageIntolerantMonths;
