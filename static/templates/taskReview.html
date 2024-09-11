@@ -119,7 +119,7 @@
                         <h4 class="text-center text-black mb-4"><strong>Number of Classified Videos</strong></h4>
                         <div class="right-half w-100 d-flex justify-content-center align-items-center"> 
                             <input type="hidden" id="classifiedVideos" value="{{ videos_list['total_videos_with_voice'] }}">
-                            <input type="hidden" id="cursor" value="{{ videos_list['cursor'] }}">
+                            <input type="hidden" id="notClassifiedVideos" value="{{ videos_list['total_videos_without_voice'] }}">
                             <canvas id="videoChart"></canvas>
                         </div>
                     </div>
@@ -143,36 +143,15 @@
         <input type="hidden" id="averageOpen" value="{{ statistics['personality']['averageOpen'] }}">
         <input type="hidden" id="averageExtroverted" value="{{ statistics['personality']['averageExtroverted'] }}">
         <input type="hidden" id="averageStable" value="{{ statistics['personality']['averageStable'] }}">
+        <input type="hidden" id="profileName" value="{{ profile_info['data']['display_name'] }}">
         <div id="dashboard-container" class="container-fluid">
             <div class="card shadow p-6" style="background-color: #e6e0f8; border-radius: 15px; margin-top: 20px; margin-left: 15px; margin-right: 15px;">
                 <div class="row">  
                     <div class="col-md-6 d-flex flex-column justify-content-center align-items-center">
-                        <h4 class="text-center text-black mb-4"><strong>Profile Stadistics</strong></h4>
+                        <h4 class="text-center text-black mb-4"><strong>Profile Statistics</strong></h4>
                         <!-- Parte izquierda: tabla de datos -->
                         <div class="w-100 d-flex justify-content-center align-items-center">
-                            <canvas id="profileChart" width="400" height="400"></canvas>
-                            <div class="legend">
-                                <div class="legend-item">
-                                    <div class="color-box" style="background-color: #FF6384;"></div>
-                                    <span>Agreeable</span>
-                                </div>
-                                <div class="legend-item">
-                                    <div class="color-box" style="background-color: #36A2EB;"></div>
-                                    <span>Conscientious</span>
-                                </div>
-                                <div class="legend-item">
-                                    <div class="color-box" style="background-color: #FFCE56;"></div>
-                                    <span>Open</span>
-                                </div>
-                                <div class="legend-item">
-                                    <div class="color-box" style="background-color: #4BC0C0;"></div>
-                                    <span>Extroverted</span>
-                                </div>
-                                <div class="legend-item">
-                                    <div class="color-box" style="background-color: #1abc9c;"></div>
-                                    <span>Stable</span>
-                                </div>
-                            </div>
+                            <canvas id="marksChart" width="600" height="400"></canvas>
                         </div>
                     </div>
                     <!-- Parte derecha: gráfico circular -->
@@ -181,7 +160,11 @@
                             <h4 class="text-center text-black mb-4"><strong>{{profile_info['data']['display_name']}}</strong></h4>
                             <!-- Género -->
                             <div class="d-flex align-items-center mb-3">
-                                <i class='bx bx-female bx-lg' style="color:#FF69B4; margin-right: 10px;"></i>
+                                {% if statistics['gender']['gender'] == 'female' %}
+                                    <i class='bx bx-female bx-lg' style="color:#FF69B4; margin-right: 10px;"></i>
+                                {% else %}
+                                    <i class='bx bx-male bx-lg' style="color:#3a0be2; margin-right: 10px;"></i>
+                                {% endif %}
                                 <div>
                                     <p style="margin: 0; font-size: 18px;"><strong>Gender:</strong> {{statistics['gender']['gender']}}</p>
                                 </div>
@@ -189,7 +172,11 @@
                             
                             <!-- Bot -->
                             <div class="d-flex align-items-center mb-3">
-                                <i class='bx bx-bot bx-lg' style="color:#5A5A5A; margin-right: 10px;"></i>
+                                {% if statistics['bot']['bot'] == 'bot' %}
+                                    <i class='bx bx-bot bx-lg' style="color:#5A5A5A; margin-right: 10px;"></i>
+                                {% else %}
+                                    <i class='bx bxs-face bx-lg' style="color:#e2730b; margin-right: 10px;"></i>
+                                {% endif %}
                                 <div>
                                     <p style="margin: 0; font-size: 18px;"><strong>Bot:</strong> {{statistics['bot']['bot']}}</p>
                                 </div>
@@ -272,8 +259,8 @@
                     <div class="col-md-4 d-flex flex-column justify-content-center align-items-center">
                         <h4 class="text-center text-black mb-4"><strong>Number of Classified Videos</strong></h4>
                         <div class="right-half w-100 d-flex justify-content-center align-items-center"> 
-                            <input type="hidden" id="classifiedVideos" value="{{ videos_list['total_videos'] }}">
-                            <input type="hidden" id="cursor" value="{{ videos_list['cursor'] }}">
+                            <input type="hidden" id="classifiedVideos" value="{{ videos_list['total_videos_with_voice'] }}">
+                            <input type="hidden" id="notClassifiedVideos" value="{{ videos_list['total_videos_without_voice'] }}">
                             <canvas id="videoChart"></canvas>
                         </div>
                     </div>
@@ -297,7 +284,7 @@
                     <div class="chart-container"></div>
                         <!-- Selector de días, semanas, meses -->
                         <label for="timeSelector">Select filter:</label>
-                        <select id="timeSelector" width="100" height="50">
+                        <select id="timeSelector">
                             <option value="days">Days</option>
                             <option value="weeks">Weeks</option>
                             <option value="months">Months</option>
@@ -570,7 +557,7 @@
         <div class="card shadow p-6" style="background-color: #e6e0f8; border-radius: 15px; margin-top: 20px; margin-left: 15px; margin-right: 15px;">
             <div class="row">  
                 <div class="col-md-4 d-flex flex-column justify-content-center align-items-center">
-                    <h4 class="text-center text-black mb-4"><strong>Ironic Stadistics</strong></h4>
+                    <h4 class="text-center text-black mb-4"><strong>Ironic Statistics</strong></h4>
                     <!-- Parte izquierda: tabla de datos -->
                     <div class="w-100 d-flex justify-content-center align-items-center">
                         <canvas id="ironyChart" width="400" height="400"></canvas>
@@ -588,7 +575,7 @@
                 </div>
                 <!-- Parte derecha: gráfico circular -->
                 <div class="col-md-4 d-flex flex-column justify-content-center align-items-center">
-                    <h4 class="text-center text-black mb-4"><strong>Sarcasm Stadistics</strong></h4>
+                    <h4 class="text-center text-black mb-4"><strong>Sarcasm Statistics</strong></h4>
                     <!-- Parte izquierda: tabla de datos -->
                     <div class="w-100 d-flex justify-content-center align-items-center">
                         <canvas id="sarcasmChart" width="400" height="400"></canvas>
@@ -605,7 +592,7 @@
                     </div>
                 </div>
                 <div class="col-md-4 d-flex flex-column justify-content-center align-items-center">
-                    <h4 class="text-center text-black mb-4"><strong>Hate Stadistics</strong></h4>
+                    <h4 class="text-center text-black mb-4"><strong>Hate Statistics</strong></h4>
                     <!-- Parte izquierda: tabla de datos -->
                     <div class="w-100 d-flex justify-content-center align-items-center">
                         <canvas id="hateChart" width="400" height="400"></canvas>
@@ -633,10 +620,23 @@
             <!-- Parte derecha: gráfico circular -->
             <div class="col-md-8 d-flex flex-column justify-content-center align-items-center">
                 <div class="card shadow p-6" style="background-color: #e6e0f8; border-radius: 15px; margin-top: 20px; margin-left: 15px; margin-right: 15px;">
-                    <h4 class="text-center text-black mb-4"><strong>Other Stadistics</strong></h4>
+                    <h4 class="text-center text-black mb-4"><strong>Other Statistics</strong></h4>
+                    <label for="timeSelector2">Select filter:</label>
+                        <select id="timeSelector2" width="100" height="50">
+                            <option value="days">Days</option>
+                            <option value="weeks">Weeks</option>
+                            <option value="months">Months</option>
+                        </select>
+                    <label for="classSelector">Select classification:</label>
+                        <select id="classSelector" width="100" height="50">
+                            <option value="aggressive">Aggressive</option>
+                            <option value="offensive">Offensive</option>
+                            <option value="constructive">Constructive</option>
+                            <option value="argumentative">Argumentative</option>
+                        </select>
                     <!-- Parte izquierda: tabla de datos -->
                     <div class="w-100 d-flex justify-content-center align-items-center">
-                        <canvas id="myLineChart" width="900" height="500"></canvas>
+                        <canvas id="myLineChart" width="1200" height="500"></canvas>
                     </div>
                 </div>
             </div>

@@ -41,7 +41,7 @@ def procces_classification_profile_api(taskCollection, current_user):
     headers = {
         'Content-Type': 'application/json'
     }
-
+    print("empezamos")
     task_videos = videosCollection.find_one({'taskId': taskCollection['_id']})
 
     # Array para almacenar los valores id y voice_to_text de cada video en list_videos
@@ -90,6 +90,7 @@ def procces_classification_profile_api(taskCollection, current_user):
             response_data2 = response2.json()
 
             #Extraemos todos los datos obtenidos de cada video
+            print("continuamos")
 
             age = response_data['Age']['pan15_age']
 
@@ -164,7 +165,7 @@ def procces_classification_profile_api(taskCollection, current_user):
                 result = classificationCollection.insert_one(classification_document)
 
             # Ahora generaremos las estadisticas que se visualizaran en la pagina
-
+            print("acabamos")
             process_statistics_profile_api(taskCollection, current_user)
         else:
             print('Error al realizar la solicitud:', response.status_code)

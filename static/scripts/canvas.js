@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-const totalVideos = parseInt(document.getElementById('cursor').value, 10);; // Número total de videos (puedes cargar este valor dinámicamente)
+const notClassifiedVideos = parseInt(document.getElementById('notClassifiedVideos').value, 10);; // Número total de videos (puedes cargar este valor dinámicamente)
 const classifiedVideos = parseInt(document.getElementById('classifiedVideos').value, 10); // Número de videos almacenados para la tarea actual
 
 const humorCount = parseInt(document.getElementById('humorCount').value, 10);; // Número total de videos (puedes cargar este valor dinámicamente)
@@ -59,9 +59,9 @@ const ctx = document.getElementById('videoChart').getContext('2d');
 const videoChart = new Chart(ctx, {
     type: 'doughnut', // Gráfico circular de tipo 'doughnut'
     data: {
-        labels: ['Number of classified videos', 'Videos found without transcription to text'],
+        labels: ['Number of classified videos', 'Number of not classified videos'],
         datasets: [{
-            data: [classifiedVideos, totalVideos - classifiedVideos],
+            data: [classifiedVideos, notClassifiedVideos],
             backgroundColor: ['#28a745', '#6c757d'], // Verde para videos almacenados, gris para videos restantes
             hoverBackgroundColor: ['#218838', '#5a6268'], // Colores de hover
             borderWidth: 1,
@@ -234,6 +234,18 @@ const emotionChart = new Chart(ctx3, {
     const daysLabels = [];
     const daysVideosCounts = [];
 
+    const averageAggressiveDays = [];
+    const averageNotAggressiveDays = [];
+
+    const averageArgumentativeDays = [];
+    const averageNotArgumentativeDays = [];
+
+    const averageOffensiveDays = [];
+    const averageNotOffensiveDays = [];
+
+    const averageConstructiveDays = [];
+    const averageNotConstructiveDays = [];
+
     // Recorre la lista de días
     listDays.forEach(dayEntry => {
         // Almacena el label (día)
@@ -241,10 +253,46 @@ const emotionChart = new Chart(ctx3, {
 
         // Almacena la cantidad de videos en list_videos
         daysVideosCounts.push(dayEntry.list_videos.length);
+
+        let aux = dayEntry.aggressiveness;
+        aux.forEach(aggressive => { 
+            averageAggressiveDays.push(aggressive.averageAggressive);
+            averageNotAggressiveDays.push(aggressive.averageNotAggressive);
+        });
+
+        aux = dayEntry.argumentative;
+        aux.forEach(argumentative => {
+            averageArgumentativeDays.push(argumentative.averageArgumentative);
+            averageNotArgumentativeDays.push(argumentative.averageNotArgumentative);
+        });
+
+        aux = dayEntry.offensiveness;
+        aux.forEach(offensive => {
+            averageOffensiveDays.push(offensive.averageOffensive);
+            averageNotOffensiveDays.push(offensive.averageNotOffensive);
+        });
+
+        aux = dayEntry.constructiveness;
+        aux.forEach(constructive => {
+            averageConstructiveDays.push(constructive.averageConstructive);
+            averageNotConstructiveDays.push(constructive.averageNotConstructive);
+        });
     });
 
     const weeksLabels = [];
     const weeksVideosCounts = [];
+
+    const averageAggressiveWeeks = [];
+    const averageNotAggressiveWeeks = [];
+
+    const averageArgumentativeWeeks = [];
+    const averageNotArgumentativeWeeks = [];
+
+    const averageOffensiveWeeks = [];
+    const averageNotOffensiveWeeks = [];
+
+    const averageConstructiveWeeks = [];
+    const averageNotConstructiveWeeks = [];
 
     // Recorre la lista de semanas
     listWeeks.forEach(weekEntry => {
@@ -253,10 +301,46 @@ const emotionChart = new Chart(ctx3, {
 
         // Almacena la cantidad de videos en list_videos
         weeksVideosCounts.push(weekEntry.list_videos.length);
+
+        let aux = weekEntry.aggressiveness;
+        aux.forEach(aggressive => { 
+            averageAggressiveWeeks.push(aggressive.averageAggressive);
+            averageNotAggressiveWeeks.push(aggressive.averageNotAggressive);
+        });
+
+        aux = weekEntry.argumentative;
+        aux.forEach(argumentative => {
+            averageArgumentativeWeeks.push(argumentative.averageArgumentative);
+            averageNotArgumentativeWeeks.push(argumentative.averageNotArgumentative);
+        });
+
+        aux = weekEntry.offensiveness;
+        aux.forEach(offensive => {
+            averageOffensiveWeeks.push(offensive.averageOffensive);
+            averageNotOffensiveWeeks.push(offensive.averageNotOffensive);
+        });
+
+        aux = weekEntry.constructiveness;
+        aux.forEach(constructive => {
+            averageConstructiveWeeks.push(constructive.averageConstructive);
+            averageNotConstructiveWeeks.push(constructive.averageNotConstructive);
+        });
     });
 
     const monthsLabels = [];
     const monthsVideosCounts = [];
+
+    const averageAggressiveMonths= [];
+    const averageNotAggressiveMonths = [];
+
+    const averageArgumentativeMonths = [];
+    const averageNotArgumentativeMonths = [];
+
+    const averageOffensiveMonths = [];
+    const averageNotOffensiveMonths = [];
+
+    const averageConstructiveMonths = [];
+    const averageNotConstructiveMonths = [];
 
     // Recorre la lista de meses
     listMonths.forEach(monthEntry => {
@@ -265,6 +349,30 @@ const emotionChart = new Chart(ctx3, {
 
         // Almacena la cantidad de videos en list_videos
         monthsVideosCounts.push(monthEntry.list_videos.length);
+
+        let aux = monthEntry.aggressiveness;
+        aux.forEach(aggressive => { 
+            averageAggressiveMonths.push(aggressive.averageAggressive);
+            averageNotAggressiveMonths.push(aggressive.averageNotAggressive);
+        });
+
+        aux = monthEntry.argumentative;
+        aux.forEach(argumentative => {
+            averageArgumentativeMonths.push(argumentative.averageArgumentative);
+            averageNotArgumentativeMonths.push(argumentative.averageNotArgumentative);
+        });
+
+        aux = monthEntry.offensiveness;
+        aux.forEach(offensive => {
+            averageOffensiveMonths.push(offensive.averageOffensive);
+            averageNotOffensiveMonths.push(offensive.averageNotOffensive);
+        });
+
+        aux = monthEntry.constructiveness;
+        aux.forEach(constructive => {
+            averageConstructiveMonths.push(constructive.averageConstructive);
+            averageNotConstructiveMonths.push(constructive.averageNotConstructive);
+        });
     });
 
     // Crear el gráfico inicial con los datos de días
@@ -451,7 +559,7 @@ const dataHate= {
 
 // Función para dibujar el gráfico de quesitos
 function drawPieChart(ctx8, dataHate) {
-    let totalValue = data.values.reduce((acc, val) => acc + val, 0);
+    let totalValue = dataHate.values.reduce((acc, val) => acc + val, 0);
     let startAngle = 0;
 
     dataHate.values.forEach((value, index) => {
@@ -490,11 +598,11 @@ const ctx9 = document.getElementById('myLineChart').getContext('2d');
     const myLineChart = new Chart(ctx9, {
         type: 'line', // Tipo de gráfico
         data: {
-            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'], // Las etiquetas del eje X
+            labels: daysLabels, // Las etiquetas del eje X
             datasets: [
                 {
-                    label: 'Agressiveness',
-                    data: [10, 30, 50, 20, 25, 44, 60], // Datos de la primera línea
+                    label: 'Agressive',
+                    data: averageAggressiveDays, // Datos de la primera línea
                     borderColor: 'rgba(255, 99, 132, 1)', // Color de la línea
                     backgroundColor: 'rgba(255, 99, 132, 0.2)', // Color de fondo de los puntos
                     borderWidth: 1, // Grosor de la línea
@@ -503,32 +611,12 @@ const ctx9 = document.getElementById('myLineChart').getContext('2d');
                     fill: false // No rellenar debajo de la línea
                 },
                 {
-                    label: 'Argumentative',
-                    data: [20, 40, 35, 50, 40, 70, 90], // Datos de la segunda línea
+                    label: 'Not Agressive',
+                    data: averageNotAggressiveDays, // Datos de la segunda línea
                     borderColor: 'rgba(54, 162, 235, 1)',
                     backgroundColor: 'rgba(54, 162, 235, 0.2)',
                     borderWidth: 1,
                     pointStyle: 'rect', // Estilo de los puntos (cuadrados)
-                    pointRadius: 5,
-                    fill: false
-                },
-                {
-                    label: 'Offensiveness',
-                    data: [30, 50, 45, 60, 50, 80, 100], // Datos de la tercera línea
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderWidth: 1,
-                    pointStyle: 'triangle', // Estilo de los puntos (triángulos)
-                    pointRadius: 5,
-                    fill: false
-                },
-                {
-                    label: 'Constructiveness',
-                    data: [40, 60, 55, 70, 60, 90, 110], // Datos de la cuarta línea
-                    borderColor: 'rgba(153, 102, 255, 1)',
-                    backgroundColor: 'rgba(153, 102, 255, 0.2)',
-                    borderWidth: 1,
-                    pointStyle: 'rectRot', // Estilo de los puntos (rectángulos rotados)
                     pointRadius: 5,
                     fill: false
                 }
@@ -552,86 +640,164 @@ const ctx9 = document.getElementById('myLineChart').getContext('2d');
         }
     });
 
+// Función para actualizar la gráfica según la opción seleccionada
+document.getElementById('classSelector').addEventListener('change', function() {
+    const selectedOption = this.value;
 
-function drawFace(humor) {
-    const canvas = document.getElementById('humorCanvas');
-    const ctx = canvas.getContext('2d');
+    if (selectedOption === 'aggressive') {
+        myLineChart.data.datasets[0].data = averageAggressiveDays;
+        myLineChart.data.datasets[1].data = averageNotAggressiveDays;
+        myLineChart.data.datasets[0].label = 'Aggressive';
+        myLineChart.data.datasets[1].label = 'Not Aggresive';
+    } else if (selectedOption === 'argumentative') {
+        myLineChart.data.datasets[0].data = averageArgumentativeDays;
+        myLineChart.data.datasets[1].data = averageNotArgumentativeDays;
+        myLineChart.data.datasets[0].label = 'Argumentative';
+        myLineChart.data.datasets[1].label = 'Not Argumentative';
+    } else if (selectedOption === 'offensive') {
+        myLineChart.data.datasets[0].data = averageOffensiveDays;
+        myLineChart.data.datasets[1].data = averageNotOffensiveDays;
+        myLineChart.data.datasets[0].label = 'Offensive';
+        myLineChart.data.datasets[1].label = 'Not Offensive';
+    } else if (selectedOption === 'constructive') {
+        myLineChart.data.datasets[0].data = averageConstructiveDays;
+        myLineChart.data.datasets[1].data = averageNotConstructiveDays;
+        myLineChart.data.datasets[0].label = 'Constructive';
+        myLineChart.data.datasets[1].label = 'Not Constructive';
+    }
 
-    // Limpiar el canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Dibujar la cara
-    // Dibuja el círculo exterior de la cara (fondo sin relleno)
-    ctx.beginPath();
-    ctx.arc(100, 100, 80, 0, Math.PI * 2, true); // Círculo exterior
-    ctx.lineWidth = 5;
-    ctx.strokeStyle = '#000000';
-    ctx.stroke();
-
-    // Crear una máscara circular
-    ctx.save();  // Guardar el contexto actual
-    ctx.beginPath();
-    ctx.arc(100, 100, 80, 0, Math.PI * 2, true);  // Definir el área circular
-    ctx.clip();  // Aplicar la máscara circular
-
-    // Calcular el relleno en función del valor de humor
-    const fillHeight = 160 * humor; // Proporcional al valor de humor (0.0 - 1.0)
-    ctx.fillStyle = 'yellow';
-    ctx.fillRect(20, 180 - fillHeight, 160, fillHeight);  // Rellenar desde la parte inferior
-
-    ctx.restore();  // Restaurar el contexto sin el clip
-
-    // Dibuja los ojos
-    ctx.beginPath();
-    ctx.arc(70, 80, 10, 0, Math.PI * 2, true);  // Ojo izquierdo
-    ctx.arc(130, 80, 10, 0, Math.PI * 2, true); // Ojo derecho
-    ctx.fillStyle = '#000000';
-    ctx.fill();
-
-    // Dibuja la boca sonriente
-    ctx.beginPath();
-    ctx.arc(100, 130, 50, 0, Math.PI, false);  // Boca (arco)
-    ctx.lineWidth = 5;
-    ctx.stroke();
-}
-
-// Valor fijo de humor (valor entre 0.0 y 1.0)
-const humorLevel = 0.75;
-
-// Mostrar el valor de humor
-document.getElementById('humorValue').innerText = humorLevel.toFixed(2);
-
-// Llamar a la función para dibujar la cara y el relleno según el humor
-drawFace(humorLevel);
-
-// Mostrar un label cuando el ratón esté sobre el canvas
-const canvas = document.getElementById('humorCanvas');
-const hoverLabel = document.getElementById('hoverLabel');
-
-canvas.addEventListener('mousemove', function(event) {
-    // Mostrar el valor de humor en la etiqueta
-    hoverLabel.innerText = `Humor: ${humorLevel.toFixed(2)}`;
-    hoverLabel.style.visibility = 'visible';
-
-    // Posicionar la etiqueta justo donde está el ratón
-    hoverLabel.style.top = event.clientY + 'px'; // Posición Y exacta del ratón
-    hoverLabel.style.left = event.clientX + 'px'; // Posición X exacta del ratón
+    myLineChart.update();  // Actualizar la gráfica con los nuevos datos
 });
 
-// Ocultar la etiqueta cuando el ratón sale del canvas
-canvas.addEventListener('mouseout', function() {
-    hoverLabel.style.visibility = 'hidden';
+// Función para actualizar la gráfica según la opción seleccionada
+document.getElementById('timeSelector2').addEventListener('change', function() {
+    const selectedOption = this.value;
+
+    if (selectedOption === 'days') {
+        myLineChart.data.labels = daysLabels;
+        if(myLineChart.data.datasets[0] == 'Aggressive') {
+            myLineChart.data.datasets[0].data = averageAggressiveDays;
+            myLineChart.data.datasets[1].data = averageNotAggressiveDays;
+        } else if (myLineChart.data.datasets[0] == 'Argumentative') {
+            myLineChart.data.datasets[0].data = averageArgumentativeDays;
+            myLineChart.data.datasets[1].data = averageNotArgumentativeDays;
+        } else if (myLineChart.data.datasets[0] == 'Offensive') {
+            myLineChart.data.datasets[0].data = averageOffensiveDays;
+            myLineChart.data.datasets[1].data = averageNotOffensiveDays;
+        } else {
+            myLineChart.data.datasets[0].data = averageConstructiveDays;
+            myLineChart.data.datasets[1].data = averageNotConstructiveDays;
+        }
+        
+    } else if (selectedOption === 'weeks') {
+        myLineChart.data.labels = weeksLabels;
+        if(myLineChart.data.datasets[0] == 'Aggressive') {
+            myLineChart.data.datasets[0].data = averageAggressiveWeeks;
+            myLineChart.data.datasets[1].data = averageNotAggressiveWeeks;
+        } else if (myLineChart.data.datasets[0] == 'Argumentative') {
+            myLineChart.data.datasets[0].data = averageArgumentativeWeeks;
+            myLineChart.data.datasets[1].data = averageNotArgumentativeWeeks;
+        } else if (myLineChart.data.datasets[0] == 'Offensive') {
+            myLineChart.data.datasets[0].data = averageOffensiveWeeks;
+            myLineChart.data.datasets[1].data = averageNotOffensiveWeeks;
+        } else {
+            myLineChart.data.datasets[0].data = averageConstructiveWeeks;
+            myLineChart.data.datasets[1].data = averageNotConstructiveWeeks;
+        }
+    } else if (selectedOption === 'months') {
+        myLineChart.data.labels = monthsLabels;
+        if(myLineChart.data.datasets[0] == 'Aggressive') {
+            myLineChart.data.datasets[0].data = averageAggressiveMonths;
+            myLineChart.data.datasets[1].data = averageNotAggressiveMonths;
+        } else if (myLineChart.data.datasets[0] == 'Argumentative') {
+            myLineChart.data.datasets[0].data = averageArgumentativeMonths;
+            myLineChart.data.datasets[1].data = averageNotArgumentativeMonths;
+        } else if (myLineChart.data.datasets[0] == 'Offensive') {
+            myLineChart.data.datasets[0].data = averageOffensiveMonths;
+            myLineChart.data.datasets[1].data = averageNotOffensiveMonths;
+        } else {
+            myLineChart.data.datasets[0].data = averageConstructiveMonths;
+            myLineChart.data.datasets[1].data = averageNotConstructiveMonths;
+        }
+    }
+
+    myLineChart.update();  // Actualizar la gráfica con los nuevos datos
 });
 
-const ctx5 = document.getElementById('profileChart').getContext('2d');
+//const ctx5 = document.getElementById('profileChart').getContext('2d');
 
 const averageAgreeable = parseFloat(document.getElementById('averageAgreeable').value, 10);
 const averageConscientious = parseFloat(document.getElementById('averageConscientious').value, 10);
 const averageOpen = parseFloat(document.getElementById('averageOpen').value, 10);
 const averageExtroverted = parseFloat(document.getElementById('averageExtroverted').value, 10);
 const averageStable = parseFloat(document.getElementById('averageStable').value, 10);
+const profileName = document.getElementById('profileName').value
 
-// Datos del gráfico (ejemplo de porcentajes)
+const marksCanvas = document.getElementById("marksChart");
+
+const marksData = {
+  labels: ["Agreeable", "Conscientious", "Open", "Extroverted", "Stable"],
+  datasets: [{
+    label: profileName,
+    backgroundColor: "rgba(255, 99, 132, 0.2)",  // Fondo del área
+    borderColor: "rgba(255, 99, 132, 1)",  // Color del borde
+    pointBackgroundColor: "rgba(255, 99, 132, 1)",  // Color de los puntos
+    pointBorderColor: "#fff",  // Bordes de los puntos
+    pointHoverBackgroundColor: "#fff",  // Color de los puntos al pasar el mouse
+    pointHoverBorderColor: "rgba(255, 99, 132, 1)",  // Bordes de los puntos al pasar el mouse
+    data: [averageAgreeable, averageConscientious, averageOpen, averageExtroverted, averageStable],
+    fontSize: 40,
+    borderWidth: 2  // Grosor de las líneas
+  }]
+};
+
+const radarChart = new Chart(marksCanvas, {
+  type: 'radar',
+  data: marksData,
+  options: {
+    responsive: true,
+    scale: {
+      ticks: {
+        beginAtZero: true,  // Comenzar desde 0
+        max: 100,  // Límite máximo en el gráfico
+        backdropColor: 'rgba(255, 255, 255, 0.1)',  // Fondo detrás de los valores
+        fontSize: 12,  // Tamaño de la fuente
+        fontColor: 'rgba(0, 0, 0, 0.7)'  // Color de la fuente
+      },
+      pointLabels: {
+        fontSize: 100,  // Aumentar el tamaño de las etiquetas
+        fontStyle: 'bold',  // Estilo de la fuente
+        fontColor: 'rgba(0, 0, 0, 0.9)'  // Color de las etiquetas
+      },
+      angleLines: {
+        color: 'rgba(128, 128, 128, 0.5)',  // Color de las líneas angulares
+        lineWidth: 1  // Grosor de las líneas angulares
+      },
+      gridLines: {
+        color: 'rgba(128, 128, 128, 0.5)',  // Color de las líneas del eje
+      }
+    },
+    legend: {
+      display: true,
+      position: 'top',  // Colocar la leyenda en la parte superior
+      labels: {
+        fontColor: '#000',  // Color del texto de la leyenda
+        fontSize: 14  // Tamaño de la fuente de la leyenda
+      }
+    },
+    title: {
+      display: true,
+      text: 'User Personality Profile',
+      fontSize: 18,
+      fontColor: '#000',
+      fontStyle: 'monserrat'
+    }
+  }
+});
+
+
+
+/*// Datos del gráfico (ejemplo de porcentajes)
 const data = {
     labels: ['Agreeable', 'Conscientious', 'Open', 'Extroverted', 'Stable'],
     values: [averageAgreeable, averageConscientious, averageOpen, averageExtroverted, averageStable],  // Sumarán el 100%
@@ -672,4 +838,4 @@ function drawPieChart(ctx5, data) {
 }
 
 // Llamada a la función para dibujar el gráfico
-drawPieChart(ctx5, data);
+drawPieChart(ctx5, data);*/

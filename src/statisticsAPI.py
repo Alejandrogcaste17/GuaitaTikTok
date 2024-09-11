@@ -11,6 +11,7 @@ from pymongo.errors import PyMongoError
 
 def process_statistics_profile_api(taskCollection, current_user):
 
+    print('Empezamos analisis')
     task_videos = videosCollection.find_one({'taskId': taskCollection['_id']})
 
     # Array para almacenar los valores id y voice_to_text de cada video en list_videos
@@ -23,9 +24,10 @@ def process_statistics_profile_api(taskCollection, current_user):
             # Extraemos el id y el voice_to_text, si existen
             video_id = video.get('id')
             voice_to_text = video.get('voice_to_text')
+            create_time = video.get('create_time')
             
             # Añadimos el par (id, voice_to_text) al array
-            video_data.append({'id': video_id, 'voice_to_text': voice_to_text})
+            video_data.append({'id': video_id, 'voice_to_text': voice_to_text, 'create_time': create_time})
 
     statistic_document = {
         'taskId': taskCollection['_id'],
@@ -48,7 +50,8 @@ def process_statistics_profile_api(taskCollection, current_user):
         'aggressive': aggressiveStatistics(video_data),
         'mockery': mockeryStatistics(video_data),
         'argumentative': argumentativeStatistics(video_data),
-        'emotion': emotionStatistics(video_data, taskCollection)
+        'emotion': emotionStatistics(video_data, taskCollection),
+        'dateDivision': splitDates(video_data, taskCollection)
     }
     
     try:
@@ -128,7 +131,6 @@ def splitDates(video_data, taskCollection):
     while currentDate <= endDate:
         daysDivision.append({'day': currentDate.strftime('%Y-%m-%d')})
         currentDate +=  timedelta(days=1)
-    print("Empiezan la division por fechas x2")
     currentDate = startDate
      # Mueve la fecha al lunes más cercano o al mismo lunes
     currentDate += timedelta(days=(7 - currentDate.weekday()) % 7)
@@ -138,7 +140,6 @@ def splitDates(video_data, taskCollection):
             'week_start': currentDate.strftime('%Y-%m-%d')  # Guardamos solo el lunes de cada semana
         })
         currentDate += timedelta(weeks=1)  # Avanzamos una semana
-    print("Empiezan la division por fechas x3")
     # Para las divisiones por meses
     currentDate = startDate
     while currentDate <= endDate:
@@ -149,7 +150,6 @@ def splitDates(video_data, taskCollection):
         next_month = currentDate.month % 12 + 1
         next_year = currentDate.year + (currentDate.month // 12)
         currentDate = currentDate.replace(year=next_year, month=next_month, day=1)
-    print("Empiezan la division por fechas x5")
     result = {
         'days': daysDivision,
         'weeks': weeksDivision,
@@ -164,60 +164,82 @@ def assignVideos(divisions, video_data):
     for video in video_data: 
         
         if video and 'create_time' in video:
-            print("Empieza la asignación por fechas x2")
             # Convertir el create_time del video en un objeto datetime
             videoDate = getFormatDate(video['create_time'])
             videoDate = videoDate.date()
-            print("Empieza la asignación por fechas x3")
             # Asignar el video a la división por días
             for day_division in divisions['days']:
                 day_date = datetime.strptime(day_division['day'], '%Y-%m-%d').date()
-                print("Comparo")
-                print(day_date)
-                print(videoDate)
                 # Inicializar 'list_videos' como una lista si no existe
                 if 'list_videos' not in day_division:
                     day_division['list_videos'] = []
                 if day_date == videoDate:
-                    print("Entro")
-                    print(video)
                     day_division['list_videos'].append(video)
                     break
-            print("Empieza la asignación por fechas x4")
+
             # Asignar el video a la división por semanas (solo lunes)
             for week_division in divisions['weeks']:
-                print("Comparo")
-                print(week_division['week_start'])
                 
                 week_start_date = datetime.strptime(week_division['week_start'], '%Y-%m-%d').date()
                 week_end_date = week_start_date + timedelta(days=6)
-                print(week_start_date)
-                print(week_end_date)
+
                 # Inicializar 'list_videos' como una lista si no existe
                 if 'list_videos' not in week_division:
                     week_division['list_videos'] = []
                 if week_start_date <= videoDate <= week_end_date:
-                    print("Entro")
                     week_division['list_videos'].append(video)
                     break
-            print("Empieza la asignación por fechas x5")
+        
             # Asignar el video a la división por meses
             for month_division in divisions['months']:
-                print("Comparo")
-                print(month_division['month'])
                 
                 month_date = datetime.strptime(month_division['month'], '%Y-%m').date()
-                print(month_date)
+                
                 # Inicializar 'list_videos' como una lista si no existe
                 if 'list_videos' not in month_division:
                     month_division['list_videos'] = []
                 if month_date.year == videoDate.year and month_date.month == videoDate.month:
-                    print("Entro")
                     month_division['list_videos'].append(video)
                     break
-    
+    # Comprobamos si hay dias, semanas o meses vacios, para eliminarlos
+    divisions['days'] = [entry for entry in divisions['days'] if len(entry.get('list_videos', [])) > 0]
+    divisions['weeks'] = [entry for entry in divisions['weeks'] if len(entry.get('list_videos', [])) > 0]
+    divisions['months'] = [entry for entry in divisions['months'] if len(entry.get('list_videos', [])) > 0]
+
+
+    for day_division in divisions['days']:
+        # Calculamos algunas estadisticas por dia
+        day_division['aggressiveness'] = []
+        day_division['aggressiveness'].append(aggressiveStatistics(day_division['list_videos']))  
+        day_division['argumentative'] = []
+        day_division['argumentative'].append(argumentativeStatistics(day_division['list_videos']))    
+        day_division['offensiveness'] = []
+        day_division['offensiveness'].append(offensiveStatistics(day_division['list_videos']))   
+        day_division['constructiveness'] = []
+        day_division['constructiveness'].append(constructiveStatistics(day_division['list_videos']))
+
+    for week_division in divisions['weeks']:
+        # Calculamos algunas estadisticas por semana
+        week_division['aggressiveness'] = []
+        week_division['aggressiveness'].append(aggressiveStatistics(week_division['list_videos']))
+        week_division['argumentative'] = []
+        week_division['argumentative'].append(argumentativeStatistics(week_division['list_videos']))
+        week_division['offensiveness'] = []
+        week_division['offensiveness'].append(offensiveStatistics(week_division['list_videos']))
+        week_division['constructiveness'] = []
+        week_division['constructiveness'].append(constructiveStatistics(week_division['list_videos']))
+
+    for month_division in divisions['months']:
+        # Calculamos algunas estadisticas por mes
+        month_division['aggressiveness'] = []
+        month_division['aggressiveness'].append(aggressiveStatistics(month_division['list_videos']))
+        month_division['argumentative'] = []
+        month_division['argumentative'].append(argumentativeStatistics(month_division['list_videos']))
+        month_division['offensiveness'] = []
+        month_division['offensiveness'].append(offensiveStatistics(month_division['list_videos']))
+        month_division['constructiveness'] = []
+        month_division['constructiveness'].append(constructiveStatistics(month_division['list_videos']))
     print("Acaba la asignación por fechas")
-    print(json.dumps(divisions, indent=4))
     return divisions
 
 def searchVideo(id, taskCollection):
@@ -253,7 +275,7 @@ def botStatistics(video_data):
     for video in video_data:
         classification = classificationCollection.find_one({'videoId': video['id']})
         if classification and 'bot' in classification:
-            if classification['bot'].get('bot', None) == 1.0:
+            if classification['bot'].get('bot', None) == 1:
                 botCount += 1
             else:
                 humanCount += 1
@@ -278,11 +300,11 @@ def ageStatistics(video_data):
         classification = classificationCollection.find_one({'videoId': video['id']})
         if classification and 'age' in classification:
             # Obtenemos valores anger
-            if classification['age'].get('18-24', None) == 1.0:
+            if classification['age'].get('18-24', None) == 1:
                 count1 += 1
-            elif classification['age'].get('25-34', None) == 1.0:
+            elif classification['age'].get('25-34', None) == 1:
                 count2 += 1
-            elif classification['age'].get('35-49', None) == 1.0:
+            elif classification['age'].get('35-49', None) == 1:
                 count3 += 1
             else:
                 count4 += 1
@@ -314,7 +336,7 @@ def genderStatistics(video_data):
         classification = classificationCollection.find_one({'videoId': video['id']})
         if classification and 'gender' in classification:
             # Obtenemos valores anger
-            if classification['gender'].get('Male', None) == 1.0:
+            if classification['gender'].get('male', None) == 1:
                 maleCount += 1
             else:
                 femaleCount += 1
@@ -330,7 +352,7 @@ def genderStatistics(video_data):
     return result
 
 def personalityStatistics(video_data):
-
+    # Inicializamos las variables para sumar las características
     averageAgreeable = 0
     averageConscientious = 0
     averageExtroverted = 0
@@ -338,28 +360,26 @@ def personalityStatistics(video_data):
     averageStable = 0
 
     numVideos = len(video_data)
+
     for video in video_data:
+        # Buscamos la clasificación en la colección
         classification = classificationCollection.find_one({'videoId': video['id']})
 
         if classification and 'personality' in classification:
-            # Obtenemos valores Agreeable
-            agreeableValue = classification['personality'].get('Agreeable', None)
+            # Obtenemos los valores de cada característica y los sumamos
+            agreeableValue = classification['personality'].get('Agreeable', 0)
             averageAgreeable += agreeableValue
 
-            # Obtenemos valores disgust
-            conscientiousValue = classification['personality'].get('Conscientious', None)
+            conscientiousValue = classification['personality'].get('Conscientious', 0)
             averageConscientious += conscientiousValue
 
-            # Obtenemos valores fear
-            extrovertedValue = classification['personality'].get('Extroverted', None)
+            extrovertedValue = classification['personality'].get('Extroverted', 0)
             averageExtroverted += extrovertedValue
 
-            # Obtenemos valores joy
-            openValue = classification['personality'].get('Open', None)
+            openValue = classification['personality'].get('Open', 0)
             averageOpen += openValue
 
-            # Obtenemos valores sadness
-            stableValue = classification['personality'].get('Stable', None)
+            stableValue = classification['personality'].get('Stable', 0)
             averageStable += stableValue
 
     # Calculamos los promedios
@@ -369,20 +389,14 @@ def personalityStatistics(video_data):
     averageOpen /= numVideos
     averageStable /= numVideos
 
-    # Normalizamos los valores para que sumen 1
-    total = (averageAgreeable + averageConscientious + averageExtroverted + averageOpen + averageStable)
+    # Normalizamos los valores para que estén entre 0 y 100
+    normalizedAgreeable = ((averageAgreeable + 0.5) / 1) * 100
+    normalizedConscientious = ((averageConscientious + 0.5) / 1) * 100
+    normalizedExtroverted = ((averageExtroverted + 0.5) / 1) * 100
+    normalizedOpen = ((averageOpen + 0.5) / 1) * 100
+    normalizedStable = ((averageStable + 0.5) / 1) * 100
 
-    # Evitar la división por cero
-    if total > 0:
-        normalizedAgreeable = (averageAgreeable / total) * 100
-        normalizedConscientious = (averageConscientious / total) * 100
-        normalizedExtroverted = (averageExtroverted / total) * 100
-        normalizedOpen = (averageOpen / total) * 100
-        normalizedStable = (averageStable / total) * 100
-    else:
-        # Si no hay datos válidos, todos son cero
-        normalizedAgreeable = normalizedConscientious = normalizedExtroverted = normalizedOpen = normalizedStable = 0
-
+    # Devolvemos los resultados como un diccionario
     result = {
         'averageAgreeable': normalizedAgreeable,
         'averageConscientious': normalizedConscientious,
@@ -536,9 +550,20 @@ def argumentativeStatistics(video_data):
     averageArgumentative /= len(video_data)
     averageNotArgumentative /= len(video_data)
 
+    # Normalizamos los valores para que sumen 1
+    total = (averageArgumentative + averageNotArgumentative)
+
+    # Evitar la división por cero
+    if total > 0:
+        normalizedArgumentative = (averageArgumentative / total) * 100
+        normalizedNotArgumentative = (averageNotArgumentative / total) * 100
+    else:
+        # Si no hay datos válidos, todos son cero
+        normalizedArgumentative = normalizedNotArgumentative = 0
+
     result = {
-        'averageArgumentative': averageArgumentative,
-        'averageNotArgumentative': averageNotArgumentative,
+        'averageArgumentative': normalizedArgumentative,
+        'averageNotArgumentative': normalizedNotArgumentative,
         'mostArgumentative': mostArgumentative,
         'mostArgumentativeVideo': mostArgumentativeVideo
     }
@@ -610,9 +635,20 @@ def aggressiveStatistics(video_data):
     averageAggressive /= len(video_data)
     averageNotAggressive /= len(video_data)
 
+    # Normalizamos los valores para que sumen 1
+    total = (averageAggressive + averageNotAggressive)
+
+    # Evitar la división por cero
+    if total > 0:
+        normalizedAgressive = (averageAggressive / total) * 100
+        normalizedNotAgressive = (averageNotAggressive / total) * 100
+    else:
+        # Si no hay datos válidos, todos son cero
+        normalizedAgressive = normalizedNotAgressive = 0
+
     result = {
-        'averageAggressive': averageAggressive,
-        'averageNotAggressive': averageNotAggressive,
+        'averageAggressive': normalizedAgressive,
+        'averageNotAggressive': normalizedNotAgressive,
         'mostAggressive': mostAggressive,
         'mostAggressiveVideo': mostAggressiveVideo
     }
@@ -706,21 +742,48 @@ def sarcarsmStatistics(video_data):
 
 def offensiveStatistics(video_data):
 
-    offensiveCount = 0
-    notOffensiveCount = 0
+    averageNotOffensive = 0
+    averageOffensive = 0
+    mostOffensive = -1
+    mostOffensiveVideo = None
 
     for video in video_data:
         classification = classificationCollection.find_one({'videoId': video['id']})
 
         if classification and 'offensiveness' in classification:
-            if classification['offensiveness'].get('Offensive', None) == 1:
-                offensiveCount += 1
-            else:
-                notOffensiveCount += 1
+            # Obtenemos el valor de agressive
+            offensiveValue = classification['offensiveness'].get('Offensive', None)
+
+            averageOffensive += offensiveValue
+
+            # Obtenemos el valor de not agressive
+            notOffensiveValue = classification['offensiveness'].get('Not offensive', None)
+
+            averageNotOffensive +=  notOffensiveValue
+
+            if mostOffensive < offensiveValue:
+                mostOffensive = offensiveValue
+                mostOffensiveVideo = video['id']
+
+    averageOffensive /= len(video_data)
+    averageNotOffensive /= len(video_data)
+
+    # Normalizamos los valores para que sumen 1
+    total = (averageOffensive + averageNotOffensive)
+
+    # Evitar la división por cero
+    if total > 0:
+        normalizedOffensive = (averageOffensive / total) * 100
+        normalizedNotOffensive = (averageNotOffensive / total) * 100
+    else:
+        # Si no hay datos válidos, todos son cero
+        normalizedOffensive = normalizedNotOffensive = 0
 
     result = {
-        'offensive': offensiveCount,
-        'notOffensive': notOffensiveCount
+        'averageOffensive': normalizedOffensive,
+        'averageNotOffensive': normalizedNotOffensive,
+        'mostOffensive': mostOffensive,
+        'mostOffensiveVideo': mostOffensiveVideo
     }
 
     return result
@@ -862,24 +925,51 @@ def humorStatistics(video_data, taskCollection):
 
 def constructiveStatistics(video_data):
 
-    constructiveCount = 0
-    notConstructiveCount = 0
+    averageNotConstructive = 0
+    averageConstructive = 0
+    mostConstructive = -1
+    mostConstructiveVideo = None
 
     for video in video_data:
         classification = classificationCollection.find_one({'videoId': video['id']})
 
         if classification and 'constructiveness' in classification:
-            if classification['constructiveness'].get('Constructive', None) == 1:
-                constructiveCount += 1
-            else:
-                notConstructiveCount += 1
+            # Obtenemos el valor de constructive
+            constructiveValue = classification['constructiveness'].get('Constructive', None)
 
-    result = {
-        'Constructive': constructiveCount,
-        'notConstructive': notConstructiveCount
-    }
+            averageConstructive += constructiveValue
 
-    return result
+            # Obtenemos el valor de not constructive
+            notConstructiveValue = classification['constructiveness'].get('Not constructive', None)
+
+            averageNotConstructive += notConstructiveValue
+
+            if mostConstructive < constructiveValue:
+                mostConstructive = constructiveValue
+                mostConstructiveVideo = video['id']
+
+        averageConstructive /= len(video_data)
+        averageNotConstructive /= len(video_data)
+
+        # Normalizamos los valores para que sumen 1
+        total = (averageConstructive + averageNotConstructive)
+
+        # Evitar la división por cero
+        if total > 0:
+            normalizedConstructive = (averageConstructive / total) * 100
+            normalizedNotConstructive = (averageNotConstructive / total) * 100
+        else:
+            # Si no hay datos válidos, todos son cero
+            normalizedConstructive = normalizedNotConstructive = 0
+
+        result = {
+            'averageConstructive': normalizedConstructive,
+            'averageNotConstructive': normalizedNotConstructive,
+            'mostConstructive': mostConstructive,
+            'mostConstructiveVideo': mostConstructiveVideo
+        }
+
+        return result
 
 def intoleranceStatistics(video_data):
 

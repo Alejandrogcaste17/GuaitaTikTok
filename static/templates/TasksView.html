@@ -155,13 +155,7 @@
                         <td>Spain</td>
                         <td>{{ task['taskType'] }}</td>
                         <td><a class="taskReview" href="{{ url_for('taskReview', task_id=task['_id']) }}">Review</a></td>
-                        <td>{{ task['recoveredVideos'] }} /  
-                            {% if task['state'] == 'Finished' %}
-                                {{ task['recoveredVideos'] }}
-                            {% else %}
-                                ?
-                            {% endif %}
-                        </td>
+                        <td>{{ task['recoveredVideos'] }} </td>
                         <td>
                             <a href="{{ url_for('tasksView', task_id=task['_id'], option='delete') }}">
                                 <i class="fas fa-trash-alt" style="color: red;"></i>

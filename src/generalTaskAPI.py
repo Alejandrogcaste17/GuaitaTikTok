@@ -29,7 +29,11 @@ def videosWithVoiceToText(response, results, taskCollection):
     except PyMongoError as e:
         # Si ocurre un error, imprimir el mensaje de error
         print(f"Error al actualizar el documento: {e}")
-    
+
+def videosWithoutVoiceToText(response, results2):
+    for video in response["data"]["videos"]:
+        if not "voice_to_text" in video:
+            results2.append(video)
     
 
 def getAccessToken(taskCollection):
@@ -186,6 +190,7 @@ async def process_general_task(taskCollection, current_user):
     time_list = getTimeList(startDate, endDate)
 
     results = []
+    results2 = []
 
     # Define los encabezados de la solicitud
     headers = {
@@ -225,6 +230,7 @@ async def process_general_task(taskCollection, current_user):
             response_data = first_response.json()
             print("hey x2")
             videosWithVoiceToText(response_data, results, taskCollection)
+            videosWithoutVoiceToText(response_data, results2)
             print("hey x2")
 
             # Condicion para el caso en el que encuentre menos de 100 videos en el rango de fechas establecido
@@ -279,6 +285,7 @@ async def process_general_task(taskCollection, current_user):
                     print("Buena peticion")
                     loop_response_data = loop_response.json()
                     videosWithVoiceToText(loop_response_data, results, taskCollection)
+                    videosWithoutVoiceToText(response_data, results2)
                     print("Cantidad de videos: ", len(results))
                     print("Cursor: ", loop_response_data["data"]["cursor"])
                     print("Search_id: ", loop_response_data["data"]["search_id"])
@@ -328,10 +335,11 @@ async def process_general_task(taskCollection, current_user):
         'taskId': taskCollection['_id'],
         'userId': current_user,
         'tags': tags_list,
-        'total_videos': len(results),
+        'total_videos_with_voice': len(results),
+        'total_videos_without_voice': len(results2),
         'list_videos': results,
-        'cursor': loop_response_data["data"]["cursor"],
-        'search_id': loop_response_data["data"]["search_id"]
+        'cursor': loop_response_data["data"].get('cursor', 0),
+        'search_id': loop_response_data["data"].get('search_id', 0)
     }
 
     # Insertar el documento en la colección de videos

@@ -390,8 +390,10 @@ def taskReview(task_id):
     if videos:
         if existing_task['taskType'] == 'profile':
             profile_info = profilesCollection.find_one({'taskId': task_id})
-            
-            return render_template('taskReview.html', task=existing_task, videos_list=videos, statistics=statistics, profile_info = profile_info, username=current_user.username)
+            daysDivision = json.dumps(statistics['dateDivision'].get('days', None), indent=4)
+            weeksDivision = json.dumps(statistics['dateDivision'].get('weeks', None), indent=4)
+            monthsDivision = json.dumps(statistics['dateDivision'].get('months', None), indent=4)
+            return render_template('taskReview.html', task=existing_task, videos_list=videos, statistics=statistics, profile_info = profile_info, daysDivision=daysDivision, weeksDivision=weeksDivision, monthsDivision=monthsDivision, username=current_user.username)
         else:
             daysDivision = json.dumps(statistics['dateDivision'].get('days', None), indent=4)
             weeksDivision = json.dumps(statistics['dateDivision'].get('weeks', None), indent=4)

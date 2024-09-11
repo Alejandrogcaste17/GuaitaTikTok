@@ -229,6 +229,7 @@ async def process_profile_task(taskCollection, current_user):
             if first_response.status_code == 200:
 
                 response_data = first_response.json()
+                print(json.dumps(response_data, indent=4))
 
                 videosWithVoiceToText(response_data, results, taskCollection)
                 videosWithoutVoiceToText(response_data, results2)
@@ -313,7 +314,7 @@ async def process_profile_task(taskCollection, current_user):
                     {'_id': taskCollection['_id']},
                     {'$set': {'state': 'Stopped', 'state_message': 'Error when making the first request, please try again later, or try the task again'}}
             )
-                
+     
         # Convertimos la variable create_time al formato "YYYYMMDD"
         results = dateFormat(results)
 
@@ -322,7 +323,7 @@ async def process_profile_task(taskCollection, current_user):
 
         # Convertimos los id de los videos a string
         for video in results:
-            video['id'] = str(video['id'])
+            video['id'] = str(video['id'])  
 
         # Creamos nuestro documento a insertar en la base de datos
         video_document = {
@@ -333,12 +334,13 @@ async def process_profile_task(taskCollection, current_user):
             'total_videos_without_voice': len(results2),
             'list_videos_with_voice': results,
             'list_videos_without_voice': results2,
-            'cursor': response_data["data"]["cursor"],
-            'search_id': response_data["data"]["search_id"]
+            'cursor': response_data["data"].get('cursor', 0),
+            'search_id': response_data["data"].get('search_id', 0)
         }
-
         # Insertar el documento en la colección de videos
         result = videosCollection.insert_one(video_document)
+
+        print("Insertamos los videos en la base de datos")  
 
         # Verificar si la inserción fue exitosa
         if result.inserted_id:
@@ -346,12 +348,18 @@ async def process_profile_task(taskCollection, current_user):
                 {'_id': taskCollection['_id']},
                 {'$set': {'state_message': 'The classification is being carried out'}}
             )
-            print("nos vamos a clasificar")
-            procces_classification_profile_api(taskCollection, current_user)
-            tasksCollection.update_one(
+            if len(results) == 0:
+                tasksCollection.update_one(
                 {'_id': taskCollection['_id']},
-                {'$set': {'state': 'Finished', 'state_message': 'The task has been completed successfully'}}
+                {'$set': {'state': 'Stopped', 'state_message': 'No videos were found for this assignment, videos are probably not in region code ES'}}
             )
+            else:
+                print("nos vamos a clasificar")
+                procces_classification_profile_api(taskCollection, current_user)
+                tasksCollection.update_one(
+                    {'_id': taskCollection['_id']},
+                    {'$set': {'state': 'Finished', 'state_message': 'The task has been completed successfully'}}
+                )
         else:
             tasksCollection.update_one(
                 {'_id': taskCollection['_id']},
