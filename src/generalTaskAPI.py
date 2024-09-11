@@ -251,7 +251,7 @@ async def process_general_task(taskCollection, current_user):
             data["cursor"] = response_data["data"]["cursor"]
             data["search_id"] = response_data["data"]["search_id"]
 
-            while data['cursor'] < 7000:
+            while data['cursor'] < 4000:
                 # Comprobamos si se puede seguir realizando paginacion
                 if not first_iteration and loop_response_data["data"]["has_more"] == False:
                     print("No hay mas videos")

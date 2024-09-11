@@ -115,24 +115,12 @@
                     </div>
                     <!-- Parte derecha: gráfico circular -->
                 
-                    <div class="col-md-3 d-flex flex-column justify-content-center align-items-center">
+                    <div class="col-md-6 d-flex flex-column justify-content-center align-items-center">
                         <h4 class="text-center text-black mb-4"><strong>Number of Classified Videos</strong></h4>
                         <div class="right-half w-100 d-flex justify-content-center align-items-center"> 
                             <input type="hidden" id="classifiedVideos" value="{{ videos_list['total_videos_with_voice'] }}">
                             <input type="hidden" id="notClassifiedVideos" value="{{ videos_list['total_videos_without_voice'] }}">
                             <canvas id="videoChart"></canvas>
-                        </div>
-                    </div>
-                    <div class="col-md-3 d-flex flex-column justify-content-center align-items-center">                       
-                        <h4 class="text-center text-black mb-4"><strong>{{profile_info['data']['display_name']}}</strong></h4>
-                        <div class="right-half w-100">
-                            <img src="{{profile_info['data']['avatar_url']}}" style="margin-bottom: 10px;">   
-                            <p><strong>Username: </strong>{{profile_info['username']}}</p>
-                            <p><strong>Follower Count: </strong>{{profile_info['data']['follower_count']}}</p>
-                            <p><strong>Following Count:</strong> {{profile_info['data']['following_count']}}</p>
-                            <p><strong>Likes Count: </strong>{{profile_info['data']['likes_count']}}</p>
-                            <p><strong>Video Count:</strong> {{profile_info['data']['video_count']}}</p>
-                            <p><strong>Bio Description:</strong> {{profile_info['data']['bio_description']}}</p>
                         </div>
                     </div>
                 </div>  
@@ -146,8 +134,20 @@
         <input type="hidden" id="profileName" value="{{ profile_info['data']['display_name'] }}">
         <div id="dashboard-container" class="container-fluid">
             <div class="card shadow p-6" style="background-color: #e6e0f8; border-radius: 15px; margin-top: 20px; margin-left: 15px; margin-right: 15px;">
-                <div class="row">  
-                    <div class="col-md-6 d-flex flex-column justify-content-center align-items-center">
+                <div class="row">
+                    <div class="col-md-4 d-flex flex-column justify-content-center align-items-center">
+                        <h4 class="text-center text-black mb-4"><strong>{{profile_info['data']['display_name']}}</strong></h4>
+                        <div class="right-half w-100">
+                            <img src="{{profile_info['data']['avatar_url']}}" style="margin-bottom: 10px;">   
+                            <p><strong>Username: </strong>{{profile_info['username']}}</p>
+                            <p><strong>Follower Count: </strong>{{profile_info['data']['follower_count']}}</p>
+                            <p><strong>Following Count:</strong> {{profile_info['data']['following_count']}}</p>
+                            <p><strong>Likes Count: </strong>{{profile_info['data']['likes_count']}}</p>
+                            <p><strong>Video Count:</strong> {{profile_info['data']['video_count']}}</p>
+                            <p><strong>Bio Description:</strong> {{profile_info['data']['bio_description']}}</p>
+                        </div>
+                    </div>  
+                    <div class="col-md-4 d-flex flex-column justify-content-center align-items-center">
                         <h4 class="text-center text-black mb-4"><strong>Profile Statistics</strong></h4>
                         <!-- Parte izquierda: tabla de datos -->
                         <div class="w-100 d-flex justify-content-center align-items-center">
@@ -155,7 +155,7 @@
                         </div>
                     </div>
                     <!-- Parte derecha: gráfico circular -->
-                    <div class="col-md-3 d-flex flex-column justify-content-center align-items-center">
+                    <div class="col-md-4 d-flex flex-column justify-content-center align-items-center">
                         <div class="card shadow p-4" style="background-color: #fff; border-radius: 10px; width: 100%; margin-top: 20px; margin-right: 20px;">
                             <h4 class="text-center text-black mb-4"><strong>User Profile: {{profile_info['data']['display_name']}}</strong></h4>
                             <!-- Género -->
@@ -191,7 +191,6 @@
                             </div>
                         </div>
                     </div>
-                    
                 </div>  
             </div>
         </div>
