@@ -157,7 +157,7 @@
                     <!-- Parte derecha: gráfico circular -->
                     <div class="col-md-3 d-flex flex-column justify-content-center align-items-center">
                         <div class="card shadow p-4" style="background-color: #fff; border-radius: 10px; width: 100%; margin-top: 20px; margin-right: 20px;">
-                            <h4 class="text-center text-black mb-4"><strong>{{profile_info['data']['display_name']}}</strong></h4>
+                            <h4 class="text-center text-black mb-4"><strong>User Profile: {{profile_info['data']['display_name']}}</strong></h4>
                             <!-- Género -->
                             <div class="d-flex align-items-center mb-3">
                                 {% if statistics['gender']['gender'] == 'female' %}
@@ -178,7 +178,7 @@
                                     <i class='bx bxs-face bx-lg' style="color:#e2730b; margin-right: 10px;"></i>
                                 {% endif %}
                                 <div>
-                                    <p style="margin: 0; font-size: 18px;"><strong>Bot:</strong> {{statistics['bot']['bot']}}</p>
+                                    <p style="margin: 0; font-size: 18px;"><strong>Bot or Human:</strong> {{statistics['bot']['bot']}}</p>
                                 </div>
                             </div>
                             
@@ -493,11 +493,6 @@
         <h3 class="text-center text-black mb-4">Humor Statistics</h3>
         <div id="dashboard-container" class="container-fluid" style="margin-bottom: 400px;">
             <div class="row">
-                <!--<div class="col-md-4 d-flex flex-column justify-content-center align-items-center">
-                    <h2>Humor Level: <span id="humorValue">0.75</span></h2>
-                    <canvas id="humorCanvas" width="200" height="200"></canvas>
-                    <div id="hoverLabel"></div>
-                </div>-->
                 <div class="col-md-4 d-flex flex-column justify-content-center align-items-center">
                     <h4 class="text-center text-black mb-4">Humor Videos</h4>
                     <canvas id="videoChart2"></canvas>
@@ -546,21 +541,59 @@
         
     </div>
 
+    <input type="hidden" id="insultCount" value="{{ statistics['insult']['videosWithInsult'] }}">
+    <input type="hidden" id="notInsultCount" value="{{ statistics['insult']['videosWithoutInsult'] }}">
+    <input type="hidden" id="improperCount" value="{{ statistics['improperLanguage']['videosWithImproper'] }}">
+    <input type="hidden" id="notImproperCount" value="{{ statistics['improperLanguage']['videosWithoutImproper'] }}">
+    <input type="hidden" id="toxicity0Count" value="{{ statistics['toxicity']['toxicityLevel0'] }}">
+    <input type="hidden" id="toxicity1Count" value="{{ statistics['toxicity']['toxicityLevel1'] }}">
+    <input type="hidden" id="toxicity2Count" value="{{ statistics['toxicity']['toxicityLevel2'] }}">
+    <input type="hidden" id="toxicity3Count" value="{{ statistics['toxicity']['toxicityLevel3'] }}">
+
+    <div class="card shadow p-4" style="background-color: #e6e0f8; border-radius: 15px; margin-top: 20px; margin-left: 15px; margin-right: 15px; min-height: 600px;">
+        <h3 class="text-center text-black mb-4">Insult, Improper Language and Toxicity Statistics</h3>
+        <div id="dashboard-container" class="container-fluid">
+            <div class="row">
+                <!-- Gráfico de Insultos -->
+                <div class="col-md-4 d-flex flex-column justify-content-center align-items-center" style="padding-bottom: 20px;">
+                    <h4 class="text-center text-black mb-4">Insult Videos</h4>
+                    <canvas id="insultChart" style="max-width: 100%; height: 250px;"></canvas>
+                </div>
+                
+                <!-- Gráfico de Lenguaje Inapropiado -->
+                <div class="col-md-4 d-flex flex-column justify-content-center align-items-center" style="padding-bottom: 20px;">
+                    <h4 class="text-center text-black mb-4">Improper Language Videos</h4>
+                    <canvas id="improperChart" style="max-width: 100%; height: 250px;"></canvas>
+                </div>
+                
+                <!-- Gráfico de Toxicidad -->
+                <div class="col-md-4 d-flex flex-column justify-content-center align-items-center" style="padding-bottom: 20px;">
+                    <h4 class="text-center text-black mb-4">Toxicity Levels Videos</h4>
+                    <canvas id="toxicityChart" style="max-width: 100%; height: 250px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+
     <input type="hidden" id="averageIronic" value="{{ statistics['irony']['averageIronic'] }}">
     <input type="hidden" id="averageNotIronic" value="{{ statistics['irony']['averageNotIronic'] }}">
     <input type="hidden" id="averageSarcastic" value="{{ statistics['sarcasm']['averageSarcastic'] }}">
     <input type="hidden" id="averageNotSarcastic" value="{{ statistics['sarcasm']['averageNotSarcastic'] }}">
     <input type="hidden" id="averageHate" value="{{ statistics['hate']['averageHate'] }}">
     <input type="hidden" id="averageNotHate" value="{{ statistics['hate']['averageNotHate'] }}">
+    <input type="hidden" id="averageMockery" value="{{ statistics['mockery']['averageMockery'] }}">
+    <input type="hidden" id="averageNotMockery" value="{{ statistics['mockery']['averageNotMockery'] }}">
 
     <div id="dashboard-container" class="container-fluid">
-        <div class="card shadow p-6" style="background-color: #e6e0f8; border-radius: 15px; margin-top: 20px; margin-left: 15px; margin-right: 15px;">
+        <div class="card shadow p-4" style="background-color: #e6e0f8; border-radius: 15px; margin-top: 20px; margin-left: 15px; margin-right: 15px;">
             <div class="row">  
-                <div class="col-md-4 d-flex flex-column justify-content-center align-items-center">
-                    <h4 class="text-center text-black mb-4"><strong>Ironic Statistics</strong></h4>
+                <div class="col-md-3 d-flex flex-column justify-content-center align-items-center">
+                    <h3 class="text-center text-black mb-4">Ironic Statistics</h3>
                     <!-- Parte izquierda: tabla de datos -->
                     <div class="w-100 d-flex justify-content-center align-items-center">
-                        <canvas id="ironyChart" width="400" height="400"></canvas>
+                        <canvas id="ironyChart" width="350" height="350"></canvas>
                         <div class="legend">
                             <div class="legend-item">
                                 <div class="color-box" style="background-color: #FF6384;"></div>
@@ -574,11 +607,11 @@
                     </div>
                 </div>
                 <!-- Parte derecha: gráfico circular -->
-                <div class="col-md-4 d-flex flex-column justify-content-center align-items-center">
-                    <h4 class="text-center text-black mb-4"><strong>Sarcasm Statistics</strong></h4>
+                <div class="col-md-3 d-flex flex-column justify-content-center align-items-center">
+                    <h3 class="text-center text-black mb-4">Sarcasm Statistics</h3>
                     <!-- Parte izquierda: tabla de datos -->
                     <div class="w-100 d-flex justify-content-center align-items-center">
-                        <canvas id="sarcasmChart" width="400" height="400"></canvas>
+                        <canvas id="sarcasmChart" width="350" height="350"></canvas>
                         <div class="legend">
                             <div class="legend-item">
                                 <div class="color-box" style="background-color: #FFCE56;"></div>
@@ -591,11 +624,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4 d-flex flex-column justify-content-center align-items-center">
-                    <h4 class="text-center text-black mb-4"><strong>Hate Statistics</strong></h4>
+                <div class="col-md-3 d-flex flex-column justify-content-center align-items-center">
+                    <h3 class="text-center text-black mb-4">Hate Statistics</h3>
                     <!-- Parte izquierda: tabla de datos -->
                     <div class="w-100 d-flex justify-content-center align-items-center">
-                        <canvas id="hateChart" width="400" height="400"></canvas>
+                        <canvas id="hateChart" width="350" height="350"></canvas>
                         <div class="legend">
                             <div class="legend-item">
                                 <div class="color-box" style="background-color: #1abc9c;"></div>
@@ -608,7 +641,24 @@
                         </div>
                     </div>
                 </div>
-            </div>  
+                <div class="col-md-3 d-flex flex-column justify-content-center align-items-center">
+                    <h3 class="text-center text-black mb-4">Mockery Statistics</h3>
+                    <!-- Parte izquierda: tabla de datos -->
+                    <div class="w-100 d-flex justify-content-center align-items-center">
+                        <canvas id="mockeryChart" width="350" height="350"></canvas>
+                        <div class="legend">
+                            <div class="legend-item">
+                                <div class="color-box" style="background-color: #ecb008;"></div>
+                                <span>Mockery</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="color-box" style="background-color: #44be0c;"></div>
+                                <span>Not Mockery</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -619,8 +669,8 @@
             </div>
             <!-- Parte derecha: gráfico circular -->
             <div class="col-md-8 d-flex flex-column justify-content-center align-items-center">
-                <div class="card shadow p-6" style="background-color: #e6e0f8; border-radius: 15px; margin-top: 20px; margin-left: 15px; margin-right: 15px;">
-                    <h4 class="text-center text-black mb-4"><strong>Other Statistics</strong></h4>
+                <div class="card shadow p-4" style="background-color: #e6e0f8; border-radius: 15px; margin-top: 20px; margin-left: 15px; margin-right: 15px;">
+                    <h3 class="text-center text-black mb-4">Aggressive, Offensive, Constructive, Argumentative, Intolerance Statistics</h3>
                     <label for="timeSelector2">Select filter:</label>
                         <select id="timeSelector2" width="100" height="50">
                             <option value="days">Days</option>
@@ -633,6 +683,7 @@
                             <option value="offensive">Offensive</option>
                             <option value="constructive">Constructive</option>
                             <option value="argumentative">Argumentative</option>
+                            <option value="intolerance">Intolerance</option>
                         </select>
                     <!-- Parte izquierda: tabla de datos -->
                     <div class="w-100 d-flex justify-content-center align-items-center">

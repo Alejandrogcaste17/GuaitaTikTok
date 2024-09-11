@@ -31,24 +31,68 @@ const videoChart2 = new Chart(ctx4, {
         labels: ['Number of videos with humor', 'Number of videos without humor'],
         datasets: [{
             data: [humorCount, notHumorCount],
-            backgroundColor: ['#28a745', '#6c757d'], // Verde para videos almacenados, gris para videos restantes
-            hoverBackgroundColor: ['#218838', '#5a6268'], // Colores de hover
+            backgroundColor: ['#FFD700', '#1E90FF'], // Amarillo (Alegría) para el primer valor, Azul (Tristeza) para el segundo valor
+            hoverBackgroundColor: ['#FFC300', '#187bcd'],
             borderWidth: 1,
+            borderColor: '#f1f1f1',
+            borderWidth: 3,
+            hoverBorderWidth: 4
         }]
     },
     options: {
         responsive: true,
         maintainAspectRatio: false,
-        cutout: '70%', // Hace que sea un gráfico tipo doughnut con un corte en el centro
+        cutout: '70%',
+        layout: {
+            padding: {
+                top: 10,
+                bottom: 10,
+                left: 10,
+                right: 10
+            }
+        },
         plugins: {
             legend: {
-                display: false // Ocultar leyenda si no es necesaria
+                display: true,
+                position: 'top',
+                labels: {
+                    font: {
+                        size: 14,
+                        weight: 'bold',
+                    },
+                    boxWidth: 15,
+                    boxHeight: 15,
+                    padding: 20,  // Más espacio entre leyenda y gráfico
+                    usePointStyle: true,  // Usar punto en vez de cuadro en la leyenda
+                    textAlign: 'left',  // Alineación de las leyendas
+                }
+            },
+            tooltip: {
+                backgroundColor: '#fff',
+                titleColor: '#333',
+                bodyColor: '#333',
+                borderColor: '#ddd',
+                borderWidth: 1,
+                bodyFont: {
+                    size: 14,
+                },
+                callbacks: {
+                    label: function(tooltipItem) {
+                        // Esto ajusta el contenido del tooltip mostrando la etiqueta y el valor
+                        let label = tooltipItem.label || '';
+                        if (label) {
+                            label += ': ';
+                        }
+                        label += tooltipItem.raw;  // Mostrar el valor real del gráfico
+                        return label;
+                    }
+                }
             }
         },
         animation: {
-            animateRotate: true, // Animación rotativa
-            duration: 2000, // Duración de la animación (2 segundos)
-            easing: 'easeInOutCubic' // Efecto de suavizado
+            animateRotate: true,
+            duration: 1500,
+            easing: 'easeInOutQuart'
         }
     }
 });
@@ -65,21 +109,299 @@ const videoChart = new Chart(ctx, {
             backgroundColor: ['#28a745', '#6c757d'], // Verde para videos almacenados, gris para videos restantes
             hoverBackgroundColor: ['#218838', '#5a6268'], // Colores de hover
             borderWidth: 1,
+            borderColor: '#f1f1f1',
+            borderWidth: 3,
+            hoverBorderWidth: 4
         }]
     },
     options: {
         responsive: true,
         maintainAspectRatio: false,
-        cutout: '70%', // Hace que sea un gráfico tipo doughnut con un corte en el centro
+        cutout: '70%',
+        layout: {
+            padding: {
+                top: 10,
+                bottom: 10,
+                left: 10,
+                right: 10
+            }
+        },
         plugins: {
             legend: {
-                display: false // Ocultar leyenda si no es necesaria
+                display: true,
+                position: 'top',
+                labels: {
+                    font: {
+                        size: 14,
+                        weight: 'bold',
+                    },
+                    boxWidth: 15,
+                    boxHeight: 15,
+                    padding: 20,  // Más espacio entre leyenda y gráfico
+                    usePointStyle: true,  // Usar punto en vez de cuadro en la leyenda
+                    textAlign: 'left',  // Alineación de las leyendas
+                }
+            },
+            tooltip: {
+                backgroundColor: '#fff',
+                titleColor: '#333',
+                bodyColor: '#333',
+                borderColor: '#ddd',
+                borderWidth: 1,
+                bodyFont: {
+                    size: 14,
+                },
+                callbacks: {
+                    label: function(tooltipItem) {
+                        // Esto ajusta el contenido del tooltip mostrando la etiqueta y el valor
+                        let label = tooltipItem.label || '';
+                        if (label) {
+                            label += ': ';
+                        }
+                        label += tooltipItem.raw;  // Mostrar el valor real del gráfico
+                        return label;
+                    }
+                }
             }
         },
         animation: {
-            animateRotate: true, // Animación rotativa
-            duration: 2000, // Duración de la animación (2 segundos)
-            easing: 'easeInOutCubic' // Efecto de suavizado
+            animateRotate: true,
+            duration: 1500,
+            easing: 'easeInOutQuart'
+        }
+    }
+});
+
+const insultCount = parseInt(document.getElementById('insultCount').value, 10);; // Número total de videos (puedes cargar este valor dinámicamente)
+const notInsultCount = parseInt(document.getElementById('notInsultCount').value, 10); // Número de videos almacenados para la tarea actual
+
+const ctxInsult = document.getElementById('insultChart').getContext('2d');
+
+// Crear el gráfico circular (doughnut)
+const insultChart = new Chart(ctxInsult, {
+    type: 'doughnut',
+    data: {
+        labels: ['Videos that do not contain insults', 'Videos containing insults'],
+        datasets: [{
+            data: [notInsultCount, insultCount],
+            backgroundColor: ['#8e44ad', '#e74c3c'], // Morado para sin lenguaje inapropiado, Rojo para con lenguaje inapropiado
+            hoverBackgroundColor: ['#71368a', '#c0392b'], // Tonos más oscuros para hover
+            borderColor: '#f1f1f1',
+            borderWidth: 3,
+            hoverBorderWidth: 4,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '70%',
+        layout: {
+            padding: {
+                top: 10,
+                bottom: 10,
+                left: 10,
+                right: 10
+            }
+        },
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top',
+                labels: {
+                    font: {
+                        size: 14,
+                        weight: 'bold',
+                    },
+                    boxWidth: 15,
+                    boxHeight: 15,
+                    padding: 20,  // Más espacio entre leyenda y gráfico
+                    usePointStyle: true,  // Usar punto en vez de cuadro en la leyenda
+                    textAlign: 'left',  // Alineación de las leyendas
+                }
+            },
+            tooltip: {
+                backgroundColor: '#fff',
+                titleColor: '#333',
+                bodyColor: '#333',
+                borderColor: '#ddd',
+                borderWidth: 1,
+                bodyFont: {
+                    size: 14,
+                },
+                callbacks: {
+                    label: function(tooltipItem) {
+                        // Esto ajusta el contenido del tooltip mostrando la etiqueta y el valor
+                        let label = tooltipItem.label || '';
+                        if (label) {
+                            label += ': ';
+                        }
+                        label += tooltipItem.raw;  // Mostrar el valor real del gráfico
+                        return label;
+                    }
+                }
+            }
+        },
+        animation: {
+            animateRotate: true,
+            duration: 1500,
+            easing: 'easeInOutQuart'
+        }
+    }
+});
+
+
+const improperCount = parseInt(document.getElementById('improperCount').value, 10);; // Número total de videos (puedes cargar este valor dinámicamente)
+const notImproperCount = parseInt(document.getElementById('notImproperCount').value, 10); // Número de videos almacenados para la tarea actual
+
+const ctxImproper = document.getElementById('improperChart').getContext('2d');
+
+// Crear el gráfico circular (doughnut)
+const improperChart = new Chart(ctxImproper, {
+    type: 'doughnut', // Gráfico circular de tipo 'doughnut'
+    data: {
+        labels: ['Videos without improper language', 'Videos with improper language'],
+        datasets: [{
+            data: [notImproperCount, improperCount],
+            backgroundColor: ['#3498db', '#e74c3c'], // Azul para sin insultos, Rojo para con insultos
+            hoverBackgroundColor: ['#2980b9', '#c0392b'], // Tonos más oscuros para hover
+            borderColor: '#f1f1f1',
+            borderWidth: 3,
+            hoverBorderWidth: 4,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '70%',
+        layout: {
+            padding: {
+                top: 10,
+                bottom: 10,
+                left: 10,
+                right: 10
+            }
+        },
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top',
+                labels: {
+                    font: {
+                        size: 14,
+                        weight: 'bold',
+                    },
+                    boxWidth: 15,
+                    boxHeight: 15,
+                    padding: 20,  // Más espacio entre leyenda y gráfico
+                    usePointStyle: true,  // Usar punto en vez de cuadro en la leyenda
+                    textAlign: 'left',  // Alineación de las leyendas
+                }
+            },
+            tooltip: {
+                backgroundColor: '#fff',
+                titleColor: '#333',
+                bodyColor: '#333',
+                borderColor: '#ddd',
+                borderWidth: 1,
+                bodyFont: {
+                    size: 14,
+                },
+                callbacks: {
+                    label: function(tooltipItem) {
+                        // Esto ajusta el contenido del tooltip mostrando la etiqueta y el valor
+                        let label = tooltipItem.label || '';
+                        if (label) {
+                            label += ': ';
+                        }
+                        label += tooltipItem.raw;  // Mostrar el valor real del gráfico
+                        return label;
+                    }
+                }
+            }
+        },
+        animation: {
+            animateRotate: true,
+            duration: 1500,
+            easing: 'easeInOutQuart'
+        }
+    }
+});
+
+const toxicity0Count = parseInt(document.getElementById('toxicity0Count').value, 10); 
+const toxicity1Count = parseInt(document.getElementById('toxicity1Count').value, 10);
+const toxicity2Count = parseInt(document.getElementById('toxicity2Count').value, 10); 
+const toxicity3Count = parseInt(document.getElementById('toxicity3Count').value, 10); 
+
+const ctxToxicity = document.getElementById('toxicityChart').getContext('2d');
+
+// Crear el gráfico circular (doughnut)
+const toxicityChart = new Chart(ctxToxicity, {
+    type: 'doughnut', // Gráfico circular de tipo 'doughnut'
+    data: {
+        labels: ['Videos in toxicity level 0', 'Videos in toxicity level 1', 'Videos in toxicity level 2', 'Videos in toxicity level 3'],
+        datasets: [{
+            data: [toxicity0Count, toxicity1Count, toxicity2Count, toxicity3Count],
+            backgroundColor: ['#2ecc71', '#f1c40f', '#e67e22', '#e74c3c'], // Verde para nivel 0, amarillo nivel 1, naranja nivel 2, rojo nivel 3
+            hoverBackgroundColor: ['#27ae60', '#f39c12', '#d35400', '#c0392b'], // Tonos más oscuros para hover
+            borderColor: '#f1f1f1',
+            borderWidth: 3,
+            hoverBorderWidth: 4,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '70%',
+        layout: {
+            padding: {
+                top: 10,
+                bottom: 10,
+                left: 10,
+                right: 10
+            }
+        },
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top',
+                labels: {
+                    font: {
+                        size: 14,
+                        weight: 'bold',
+                    },
+                    boxWidth: 15,
+                    boxHeight: 15,
+                    padding: 20,  // Más espacio entre leyenda y gráfico
+                    usePointStyle: true,  // Usar punto en vez de cuadro en la leyenda
+                    textAlign: 'left',  // Alineación de las leyendas
+                }
+            },
+            tooltip: {
+                backgroundColor: '#fff',
+                titleColor: '#333',
+                bodyColor: '#333',
+                borderColor: '#ddd',
+                borderWidth: 1,
+                bodyFont: {
+                    size: 14,
+                },
+                callbacks: {
+                    label: function(tooltipItem) {
+                        // Esto ajusta el contenido del tooltip mostrando la etiqueta y el valor
+                        let label = tooltipItem.label || '';
+                        if (label) {
+                            label += ': ';
+                        }
+                        label += tooltipItem.raw;  // Mostrar el valor real del gráfico
+                        return label;
+                    }
+                }
+            }
+        },
+        animation: {
+            animateRotate: true,
+            duration: 1500,
+            easing: 'easeInOutQuart'
         }
     }
 });
@@ -220,15 +542,12 @@ const emotionChart = new Chart(ctx3, {
 
     const listDaysString = document.getElementById('listDays').value;
     const listDays = JSON.parse(listDaysString);
-    console.log(listDays)
     
     const listWeeksString = document.getElementById('listWeeks').value;
     const listWeeks = JSON.parse(listWeeksString);
-    console.log(listDays)
 
     const listMonthsString = document.getElementById('listMonths').value;
     const listMonths = JSON.parse(listMonthsString);
-    console.log(listDays)
 
     // Extraer las etiquetas y datos de cada división
     const daysLabels = [];
@@ -245,6 +564,9 @@ const emotionChart = new Chart(ctx3, {
 
     const averageConstructiveDays = [];
     const averageNotConstructiveDays = [];
+
+    const averageIntolerantDays = [];
+    const averageTolerantDays = [];
 
     // Recorre la lista de días
     listDays.forEach(dayEntry => {
@@ -277,6 +599,12 @@ const emotionChart = new Chart(ctx3, {
             averageConstructiveDays.push(constructive.averageConstructive);
             averageNotConstructiveDays.push(constructive.averageNotConstructive);
         });
+
+        aux = dayEntry.intolerance;
+        aux.forEach(intolerance => {
+            averageIntolerantDays.push(intolerance.averageIntolerant);
+            averageTolerantDays.push(intolerance.averageTolerant);
+        });
     });
 
     const weeksLabels = [];
@@ -293,6 +621,9 @@ const emotionChart = new Chart(ctx3, {
 
     const averageConstructiveWeeks = [];
     const averageNotConstructiveWeeks = [];
+
+    const averageIntolerantWeeks = [];
+    const averageTolerantWeeks = [];
 
     // Recorre la lista de semanas
     listWeeks.forEach(weekEntry => {
@@ -325,6 +656,12 @@ const emotionChart = new Chart(ctx3, {
             averageConstructiveWeeks.push(constructive.averageConstructive);
             averageNotConstructiveWeeks.push(constructive.averageNotConstructive);
         });
+
+        aux = weekEntry.intolerance;
+        aux.forEach(intolerance => {
+            averageIntolerantWeeks.push(intolerance.averageIntolerant);
+            averageTolerantWeeks.push(intolerance.averageTolerant);
+        });
     });
 
     const monthsLabels = [];
@@ -341,6 +678,9 @@ const emotionChart = new Chart(ctx3, {
 
     const averageConstructiveMonths = [];
     const averageNotConstructiveMonths = [];
+
+    const averageIntolerantMonths = [];
+    const averageTolerantMonths = [];
 
     // Recorre la lista de meses
     listMonths.forEach(monthEntry => {
@@ -372,6 +712,12 @@ const emotionChart = new Chart(ctx3, {
         aux.forEach(constructive => {
             averageConstructiveMonths.push(constructive.averageConstructive);
             averageNotConstructiveMonths.push(constructive.averageNotConstructive);
+        });
+
+        aux = monthEntry.intolerance;
+        aux.forEach(intolerance => {
+            averageIntolerantMonths.push(intolerance.averageIntolerant);
+            averageTolerantMonths.push(intolerance.averageTolerant);
         });
     });
 
@@ -593,6 +939,54 @@ function drawPieChart(ctx8, dataHate) {
 // Llamada a la función para dibujar el gráfico
 drawPieChart(ctx8, dataHate);
 
+const ctx11 = document.getElementById('mockeryChart').getContext('2d');
+
+const averageMockery = parseFloat(document.getElementById('averageMockery').value, 10);
+const averageNotMockery = parseFloat(document.getElementById('averageNotMockery').value, 10);
+
+// Datos del gráfico (ejemplo de porcentajes)
+const dataMockery= {
+    labels: ['Mockery', 'Not Mockery'],
+    values: [averageMockery, averageNotMockery],  // Sumarán el 100%
+    colors: ['#ecb008', '#44be0c']
+};
+
+// Función para dibujar el gráfico de quesitos
+function drawPieChart(ctx11, dataMockery) {
+    let totalValue = dataMockery.values.reduce((acc, val) => acc + val, 0);
+    let startAngle = 0;
+
+    dataMockery.values.forEach((value, index) => {
+        let formattedValue = parseFloat(value.toFixed(2));
+        let sliceAngle = (formattedValue / totalValue) * 2 * Math.PI;
+        ctx11.beginPath();
+        ctx11.moveTo(200, 200);  // Punto central del gráfico (x, y)
+        ctx11.arc(200, 200, 150, startAngle, startAngle + sliceAngle);  // Dibujar el sector
+        ctx11.closePath();
+
+        // Rellenar el sector con su color correspondiente
+        ctx11.fillStyle = dataMockery.colors[index];
+        ctx11.fill();
+
+        // Calcular la posición para el label (en el centro de cada porción)
+        let middleAngle = startAngle + sliceAngle / 2;
+        let labelX = 200 + (Math.cos(middleAngle) * 100);  // Coordenada X del label
+        let labelY = 200 + (Math.sin(middleAngle) * 100);  // Coordenada Y del label
+
+        // Dibujar el texto (label) en el gráfico
+        ctx11.fillStyle = "#000";  // Color del texto
+        ctx11.font = "16px Arial";  // Estilo de la fuente
+        ctx11.textAlign = "center";  // Alinear el texto
+        ctx11.fillText(`${formattedValue}%`, labelX, labelY);  // Dibujar el label
+
+        // Actualizar el ángulo de inicio para el siguiente sector
+        startAngle += sliceAngle;
+    });
+}
+
+// Llamada a la función para dibujar el gráfico
+drawPieChart(ctx11, dataMockery);
+
 const ctx9 = document.getElementById('myLineChart').getContext('2d');
 
     const myLineChart = new Chart(ctx9, {
@@ -664,6 +1058,11 @@ document.getElementById('classSelector').addEventListener('change', function() {
         myLineChart.data.datasets[1].data = averageNotConstructiveDays;
         myLineChart.data.datasets[0].label = 'Constructive';
         myLineChart.data.datasets[1].label = 'Not Constructive';
+    } else if (selectedOption === 'intolerance') {
+        myLineChart.data.datasets[0].data = averageTolerantDays;
+        myLineChart.data.datasets[1].data = averageIntolerantDays;
+        myLineChart.data.datasets[0].label = 'Tolerant';
+        myLineChart.data.datasets[1].label = 'Intolerant';
     }
 
     myLineChart.update();  // Actualizar la gráfica con los nuevos datos
@@ -684,9 +1083,12 @@ document.getElementById('timeSelector2').addEventListener('change', function() {
         } else if (myLineChart.data.datasets[0] == 'Offensive') {
             myLineChart.data.datasets[0].data = averageOffensiveDays;
             myLineChart.data.datasets[1].data = averageNotOffensiveDays;
-        } else {
+        } else if (myLineChart.data.datasets[0] == 'Constructive') {
             myLineChart.data.datasets[0].data = averageConstructiveDays;
             myLineChart.data.datasets[1].data = averageNotConstructiveDays;
+        } else {
+            myLineChart.data.datasets[0].data = averageTolerantDays;
+            myLineChart.data.datasets[1].data = averageIntolerantDays;
         }
         
     } else if (selectedOption === 'weeks') {
@@ -700,9 +1102,12 @@ document.getElementById('timeSelector2').addEventListener('change', function() {
         } else if (myLineChart.data.datasets[0] == 'Offensive') {
             myLineChart.data.datasets[0].data = averageOffensiveWeeks;
             myLineChart.data.datasets[1].data = averageNotOffensiveWeeks;
-        } else {
+        } else if (myLineChart.data.datasets[0] == 'Constructive'){
             myLineChart.data.datasets[0].data = averageConstructiveWeeks;
             myLineChart.data.datasets[1].data = averageNotConstructiveWeeks;
+        } else {
+            myLineChart.data.datasets[0].data = averageTolerantWeeks;
+            myLineChart.data.datasets[1].data = averageIntolerantWeeks;
         }
     } else if (selectedOption === 'months') {
         myLineChart.data.labels = monthsLabels;
@@ -715,9 +1120,12 @@ document.getElementById('timeSelector2').addEventListener('change', function() {
         } else if (myLineChart.data.datasets[0] == 'Offensive') {
             myLineChart.data.datasets[0].data = averageOffensiveMonths;
             myLineChart.data.datasets[1].data = averageNotOffensiveMonths;
-        } else {
+        } else if (myLineChart.data.datasets[0] == 'Constructive') {
             myLineChart.data.datasets[0].data = averageConstructiveMonths;
             myLineChart.data.datasets[1].data = averageNotConstructiveMonths;
+        } else {
+            myLineChart.data.datasets[0].data = averageTolerantMonths;
+            myLineChart.data.datasets[1].data = averageIntolerantMonths;
         }
     }
 
@@ -794,48 +1202,3 @@ const radarChart = new Chart(marksCanvas, {
     }
   }
 });
-
-
-
-/*// Datos del gráfico (ejemplo de porcentajes)
-const data = {
-    labels: ['Agreeable', 'Conscientious', 'Open', 'Extroverted', 'Stable'],
-    values: [averageAgreeable, averageConscientious, averageOpen, averageExtroverted, averageStable],  // Sumarán el 100%
-    colors: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#1abc9c']
-};
-
-// Función para dibujar el gráfico de quesitos
-function drawPieChart(ctx5, data) {
-    let totalValue = data.values.reduce((acc, val) => acc + val, 0);
-    let startAngle = 0;
-
-    data.values.forEach((value, index) => {
-        let formattedValue = parseFloat(value.toFixed(2));
-        let sliceAngle = (formattedValue / totalValue) * 2 * Math.PI;
-        ctx5.beginPath();
-        ctx5.moveTo(200, 200);  // Punto central del gráfico (x, y)
-        ctx5.arc(200, 200, 150, startAngle, startAngle + sliceAngle);  // Dibujar el sector
-        ctx5.closePath();
-
-        // Rellenar el sector con su color correspondiente
-        ctx5.fillStyle = data.colors[index];
-        ctx5.fill();
-
-        // Calcular la posición para el label (en el centro de cada porción)
-        let middleAngle = startAngle + sliceAngle / 2;
-        let labelX = 200 + (Math.cos(middleAngle) * 100);  // Coordenada X del label
-        let labelY = 200 + (Math.sin(middleAngle) * 100);  // Coordenada Y del label
-
-        // Dibujar el texto (label) en el gráfico
-        ctx5.fillStyle = "#000";  // Color del texto
-        ctx5.font = "16px Arial";  // Estilo de la fuente
-        ctx5.textAlign = "center";  // Alinear el texto
-        ctx5.fillText(`${formattedValue}%`, labelX, labelY);  // Dibujar el label
-
-        // Actualizar el ángulo de inicio para el siguiente sector
-        startAngle += sliceAngle;
-    });
-}
-
-// Llamada a la función para dibujar el gráfico
-drawPieChart(ctx5, data);*/

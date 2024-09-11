@@ -32,7 +32,7 @@ def videosWithVoiceToText(response, results, taskCollection):
     for video in response["data"]["videos"]:
         if "voice_to_text" in video:
             results.append(video)
-    
+    print("Cantidad de videos: ", len(results))
     try:
         # Intentar insertar el documento en la colección
         tasksCollection.update_one(
@@ -198,7 +198,6 @@ async def process_profile_task(taskCollection, current_user):
             data = {
                 "query": {
                     "and": [
-                        { "operation": "IN", "field_name": "region_code", "field_values": ["ES"] },
                         { "operation": "EQ", "field_name": "username", "field_values": [username] }
                     ]
                 },
@@ -229,7 +228,6 @@ async def process_profile_task(taskCollection, current_user):
             if first_response.status_code == 200:
 
                 response_data = first_response.json()
-                print(json.dumps(response_data, indent=4))
 
                 videosWithVoiceToText(response_data, results, taskCollection)
                 videosWithoutVoiceToText(response_data, results2)

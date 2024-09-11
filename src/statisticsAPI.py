@@ -40,11 +40,11 @@ def process_statistics_profile_api(taskCollection, current_user):
         'hate': hateStatistics(video_data),
         'stereotypes': stereotypeStatistics(video_data),
         'intolerance': intoleranceStatistics(video_data),
-        'insult': insultStatistics(video_data),
+        'insult': insultStatistics(video_data, taskCollection),
         'irony': ironyStatistics(video_data),
         'humor': humorStatistics(video_data, taskCollection),
         'constructive': constructiveStatistics(video_data),
-        'improperLanguage': improperLanguageStatistics(video_data),
+        'improperLanguage': improperLanguageStatistics(video_data, taskCollection),
         'toxicity': toxicityStatistics(video_data),
         'sarcasm': sarcarsmStatistics(video_data),
         'aggressive': aggressiveStatistics(video_data),
@@ -89,11 +89,11 @@ def process_statistics_api(taskCollection, current_user):
         'hate': hateStatistics(video_data),
         'stereotypes': stereotypeStatistics(video_data),
         'intolerance': intoleranceStatistics(video_data),
-        'insult': insultStatistics(video_data),
+        'insult': insultStatistics(video_data, taskCollection),
         'irony': ironyStatistics(video_data),
         'humor': humorStatistics(video_data, taskCollection),
         'constructive': constructiveStatistics(video_data),
-        'improperLanguage': improperLanguageStatistics(video_data),
+        'improperLanguage': improperLanguageStatistics(video_data, taskCollection),
         'toxicity': toxicityStatistics(video_data),
         'sarcasm': sarcarsmStatistics(video_data),
         'aggressive': aggressiveStatistics(video_data),
@@ -217,6 +217,8 @@ def assignVideos(divisions, video_data):
         day_division['offensiveness'].append(offensiveStatistics(day_division['list_videos']))   
         day_division['constructiveness'] = []
         day_division['constructiveness'].append(constructiveStatistics(day_division['list_videos']))
+        day_division['intolerance'] = []
+        day_division['intolerance'].append(intoleranceStatistics(day_division['list_videos']))
 
     for week_division in divisions['weeks']:
         # Calculamos algunas estadisticas por semana
@@ -228,6 +230,8 @@ def assignVideos(divisions, video_data):
         week_division['offensiveness'].append(offensiveStatistics(week_division['list_videos']))
         week_division['constructiveness'] = []
         week_division['constructiveness'].append(constructiveStatistics(week_division['list_videos']))
+        week_division['intolerance'] = []
+        week_division['intolerance'].append(intoleranceStatistics(week_division['list_videos']))
 
     for month_division in divisions['months']:
         # Calculamos algunas estadisticas por mes
@@ -239,6 +243,9 @@ def assignVideos(divisions, video_data):
         month_division['offensiveness'].append(offensiveStatistics(month_division['list_videos']))
         month_division['constructiveness'] = []
         month_division['constructiveness'].append(constructiveStatistics(month_division['list_videos']))
+        month_division['intolerance'] = []
+        month_division['intolerance'].append(intoleranceStatistics(month_division['list_videos']))
+
     print("Acaba la asignación por fechas")
     return divisions
 
@@ -572,37 +579,40 @@ def argumentativeStatistics(video_data):
 
 def mockeryStatistics(video_data):
 
-    averageNotMockery = 0
     averageMockery = 0
-    mostMockery = -1
-    mostMockeryVideo = None
+    averageNotMockery = 0
 
+    numVideos = len(video_data)
     for video in video_data:
         classification = classificationCollection.find_one({'videoId': video['id']})
 
         if classification and 'mockery' in classification:
-            # Obtenemos el valor de agressive
+            # Obtenemos valores mockery
             mockeryValue = classification['mockery'].get('Mockery', None)
-
             averageMockery += mockeryValue
 
-            # Obtenemos el valor de not agressive
+            # Obtenemos valores not mockery
             notMockeryValue = classification['mockery'].get('Not mockery', None)
+            averageNotMockery += notMockeryValue
 
-            averageNotMockery +=  notMockeryValue
+    # Calculamos los promedios
+    averageMockery /= numVideos
+    averageNotMockery /= numVideos
 
-            if mostMockery < mockeryValue:
-                mostMockery = mockeryValue
-                mostMockeryVideo = video['id']
+    # Normalizamos los valores para que sumen 1
+    total = (averageMockery + averageNotMockery)
 
-    averageMockery /= len(video_data)
-    averageNotMockery /= len(video_data)
+    # Evitar la división por cero
+    if total > 0:
+        normalizedMockery = (averageMockery / total) * 100
+        normalizedNotMockery = (averageNotMockery / total) * 100
+    else:
+        # Si no hay datos válidos, todos son cero
+        normalizedMockery = normalizedNotMockery = 0
 
     result = {
-        'averageMockery': averageMockery,
-        'averageNotMockery': averageNotMockery,
-        'mostMockery': mostMockery,
-        'mostMockeryVideo': mostMockeryVideo
+        'averageMockery': normalizedMockery,
+        'averageNotMockery': normalizedNotMockery
     }
 
     return result
@@ -669,24 +679,28 @@ def toxicityStatistics(video_data):
         classification = classificationCollection.find_one({'videoId': video['id']})
 
         if classification and 'toxicity' in classification:
-            # Obtenemos los valores binarios (0 o 1) para cada nivel de toxicidad
+            # Obtenemos los valores de toxicidad para cada nivel
             toxicity_level_0 = classification['toxicity'].get('Toxicity level: 0 (between 0 and 3)', 0)
             toxicity_level_1 = classification['toxicity'].get('Toxicity level: 1 (between 0 and 3)', 0)
             toxicity_level_2 = classification['toxicity'].get('Toxicity level: 2 (between 0 and 3)', 0)
             toxicity_level_3 = classification['toxicity'].get('Toxicity level: 3 (between 0 and 3)', 0)
 
-            # Contar cuántos videos tienen toxicidad en cada nivel
-            toxicityLevel0 += toxicity_level_0
-            toxicityLevel1 += toxicity_level_1
-            toxicityLevel2 += toxicity_level_2
-            toxicityLevel3 += toxicity_level_3
+            # Identificar el nivel de toxicidad más alto para este video
+            maxToxicityLevel = max(toxicity_level_0, toxicity_level_1, toxicity_level_2, toxicity_level_3)
 
-            # Calcular el nivel más alto de toxicidad para este video
-            maxToxicityForVideo = max([toxicity_level_0 * 0, toxicity_level_1 * 1, toxicity_level_2 * 2, toxicity_level_3 * 3])
+            # Determinar cuál nivel tiene el valor más alto y sumar al contador correspondiente
+            if maxToxicityLevel == toxicity_level_0:
+                toxicityLevel0 += 1
+            elif maxToxicityLevel == toxicity_level_1:
+                toxicityLevel1 += 1
+            elif maxToxicityLevel == toxicity_level_2:
+                toxicityLevel2 += 1
+            elif maxToxicityLevel == toxicity_level_3:
+                toxicityLevel3 += 1
 
             # Si este video tiene un nivel de toxicidad más alto que el actual, lo actualizamos
-            if maxToxicityForVideo > highestToxicityLevel:
-                highestToxicityLevel = maxToxicityForVideo
+            if maxToxicityLevel > highestToxicityLevel:
+                highestToxicityLevel = maxToxicityLevel
                 mostToxicVideo = video['id']
 
     result = {
@@ -788,46 +802,112 @@ def offensiveStatistics(video_data):
 
     return result
 
-def insultStatistics(video_data):
+def insultStatistics(video_data, taskCollection):
 
+    print("empezamos insult")
     insultCount = 0
-    notInsult = 0
+    notInsultCount = 0
+
+    averageInsult = 0
+    averageNotInsult = 0
+
+    bestInsult = -float('inf')
+    bestNotInsult = -float('inf')
+
+    insultId = None
+    notInsultId = None
 
     for video in video_data:
         classification = classificationCollection.find_one({'videoId': video['id']})
 
         if classification and 'insult' in classification:
-            if classification['insult'].get('With insults', None) == 1:
+            insultValue = classification['insult'].get('With insults', None)
+            notInsultValue = classification['insult'].get('Without insults', None)
+
+            if insultValue > 0.49:
                 insultCount += 1
-            else:
-                notInsult += 1
+            else:      
+                notInsultCount += 1
+
+            if bestInsult < insultValue:
+                bestInsult = insultValue
+                insultId = video['id']
+            
+            if bestNotInsult < notInsultValue:
+                bestNotInsult = notInsultValue
+                notInsultId = video['id']
+
+            averageInsult += insultValue
+            averageNotInsult += notInsultValue
+
+    averageInsult /= len(video_data)
+    averageNotInsult /= len(video_data)
 
     result = {
-        'insult': insultCount,
-        'notInsult': notInsult
+        'averageInsult': averageInsult,
+        'bestInsult': bestInsult,
+        'insultId': searchVideo(insultId, taskCollection),
+        'averageNotInsult': averageNotInsult,
+        'bestNotInsult': bestNotInsult,
+        'notInsultId': searchVideo(notInsultId, taskCollection),
+        'videosWithInsult': insultCount,
+        'videosWithoutInsult': notInsultCount
     }
-
+    print("acabamos insult")
     return result
 
-def improperLanguageStatistics(video_data):
+def improperLanguageStatistics(video_data, taskCollection):
+    print("empezamos improper")
 
     improperCount = 0
     withoutImproperCount = 0
+
+    averageImproper = 0
+    averageWithoutImproper = 0
+
+    bestImproper = -float('inf')
+    bestWithoutImproper = -float('inf')
+
+    improperId = None
+    withoutImproperId = None
 
     for video in video_data:
         classification = classificationCollection.find_one({'videoId': video['id']})
 
         if classification and 'improper_language' in classification:
-            if classification['improper_language'].get('With improper language', None) == 1:
+            improperValue = classification['improper_language'].get('With improper language', None)
+            withoutImproperValue = classification['improper_language'].get('Without improper language', None)
+
+            if improperValue > 0.49:
                 improperCount += 1
-            else:
+            else:      
                 withoutImproperCount += 1
 
-    result = {
-        'improperLanguage': improperCount,
-        'withoutimproperLanguage': withoutImproperCount
-    }
+            if bestImproper < improperValue:
+                bestImproper = improperValue
+                improperId = video['id']
+            
+            if bestWithoutImproper < withoutImproperValue:
+                bestWithoutImproper = withoutImproperValue
+                withoutImproperId = video['id']
 
+            averageImproper += improperValue
+            averageWithoutImproper += withoutImproperValue
+
+    averageImproper /= len(video_data)
+    averageWithoutImproper /= len(video_data)
+
+    result = {
+        'averageImproper': averageImproper,
+        'bestImproper': bestImproper,
+        'improperId': searchVideo(improperId, taskCollection),
+        'averageWithoutImproper': averageWithoutImproper,
+        'bestWithoutImproper': bestWithoutImproper,
+        'withoutImproperId': searchVideo(withoutImproperId, taskCollection),
+        'videosWithImproper': improperCount,
+        'videosWithoutImproper': withoutImproperCount
+    }
+    print("acabamos improper")
     return result
 
 def ironyStatistics(video_data):
@@ -973,21 +1053,48 @@ def constructiveStatistics(video_data):
 
 def intoleranceStatistics(video_data):
 
-    intoleranceCount = 0
-    toleranceCount = 0
+    averageIntolerant = 0
+    averageTolerant = 0
+    mostTolerant = -1
+    mostTolerantVideo = None
 
     for video in video_data:
         classification = classificationCollection.find_one({'videoId': video['id']})
 
         if classification and 'intolerance' in classification:
-            if classification['intolerance'].get('Tolerant', None) == 1:
-                toleranceCount += 1
-            else:
-                intoleranceCount += 1
+            # Obtenemos el valor de tolerant
+            tolerantValue = classification['intolerance'].get('Tolerant', None)
+
+            averageTolerant += tolerantValue
+
+            # Obtenemos el valor de intolerant
+            intolerantValue = classification['intolerance'].get('Intolerant', None)
+
+            averageIntolerant += intolerantValue
+
+            if mostTolerant < tolerantValue:
+                mostTolerant = tolerantValue
+                mostTolerantVideo = video['id']
+
+    averageTolerant /= len(video_data)
+    averageIntolerant /= len(video_data)
+
+    # Normalizamos los valores para que sumen 1
+    total = (averageTolerant + averageIntolerant)
+
+    # Evitar la división por cero
+    if total > 0:
+        normalizedTolerant = (averageTolerant / total) * 100
+        normalizedIntolerant = (averageIntolerant / total) * 100
+    else:
+        # Si no hay datos válidos, todos son cero
+        normalizedTolerant = normalizedIntolerant = 0
 
     result = {
-        'tolerance': toleranceCount,
-        'intolerance': intoleranceCount
+        'averageTolerant': normalizedTolerant,
+        'averageIntolerant': normalizedIntolerant,
+        'mostTolerant': mostTolerant,
+        'mostTolerantVideo': mostTolerantVideo
     }
 
     return result
