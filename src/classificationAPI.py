@@ -134,10 +134,11 @@ def procces_classification_profile_api(taskCollection, current_user):
 
             num_videos = len(sentiment)
 
+            video_classification = []
+
             for i in range(num_videos):
-                classification_document = {
+                classification_data = {
                     'videoId': video_data[i]['id'],
-                    'taskId': taskCollection['_id'],
                     'voice_to_text': video_data[i]['voice_to_text'],
                     'age': age[i],
                     'bot': bot[i],
@@ -160,9 +161,19 @@ def procces_classification_profile_api(taskCollection, current_user):
                     'irony': irony[i],
                     'stereotype': stereotype[i],
                 }
+                print("Agregamos a la lista")
+                video_classification.append(classification_data)
 
-                # Insertar el documento en la colección de classification
-                result = classificationCollection.insert_one(classification_document)
+            print("Creamos el documento")
+            classification_document = {
+                'taskId': taskCollection['_id'],
+                'video_classifications': video_classification
+            }
+
+            print("Creamos el documento")
+
+            # Insertar el documento en la colección de classification
+            result = classificationCollection.insert_one(classification_document)
 
             # Ahora generaremos las estadisticas que se visualizaran en la pagina
             print("acabamos")
@@ -249,8 +260,10 @@ def process_classification_api(taskCollection, current_user):
 
         num_videos = len(sentiment)
 
+        video_classification = []
+
         for i in range(num_videos):
-            classification_document = {
+            classification_data = {
                 'videoId': video_data[i]['id'],
                 'voice_to_text': video_data[i]['voice_to_text'],
                 'sentiment': sentiment[i],
@@ -270,9 +283,15 @@ def process_classification_api(taskCollection, current_user):
                 'irony': irony[i],
                 'stereotype': stereotype[i],
             }
+            video_classification.append(classification_data)
 
-            # Insertar el documento en la colección de classification
-            result = classificationCollection.insert_one(classification_document)
+        classification_document = {
+            'taskId': taskCollection['_id'],
+            'video_classifications': video_classification
+        }
+
+        # Insertar el documento en la colección de classification
+        result = classificationCollection.insert_one(classification_document)
 
         # Ahora generaremos las estadisticas que se visualizaran en la pagina
         print("nos vamos a analizar")

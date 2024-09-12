@@ -251,18 +251,19 @@ async def process_general_task(taskCollection, current_user):
             data["cursor"] = response_data["data"]["cursor"]
             data["search_id"] = response_data["data"]["search_id"]
 
-            while data['cursor'] < 4000:
-                # Comprobamos si se puede seguir realizando paginacion
-                if not first_iteration and loop_response_data["data"]["has_more"] == False:
-                    print("No hay mas videos")
-                    print(loop_response_data["data"]["has_more"])
-                    break
+            while data['cursor'] < 1000:
+                print("hola")
                 print("Empezamos bucle")
                                 
                 if request_again == False:
                     if not first_iteration:
                         data["cursor"] = loop_response_data["data"]["cursor"]
                         data["search_id"] = loop_response_data["data"]["search_id"]
+                        # Comprobamos si se puede seguir realizando paginacion
+                        if loop_response_data["data"]["has_more"] and loop_response_data["data"]["has_more"] == False:
+                            print("No hay mas videos")
+                            print(loop_response_data["data"]["has_more"])
+                            break
                     else:
                         first_iteration = False
 
@@ -296,7 +297,7 @@ async def process_general_task(taskCollection, current_user):
                         request_again = True
                         print("Cantidad de videos: ", len(results))
                         print(loop_response.text)
-
+                        print(data['cursor'])
                     else:
                         loop_response_data2 = loop_response.json()
                         if loop_response_data2["error"]["message"] == "Invalid count or cursor":
@@ -335,6 +336,7 @@ async def process_general_task(taskCollection, current_user):
         'taskId': taskCollection['_id'],
         'userId': current_user,
         'tags': tags_list,
+        'keywords': keywords_list,
         'total_videos_with_voice': len(results),
         'total_videos_without_voice': len(results2),
         'list_videos': results,
