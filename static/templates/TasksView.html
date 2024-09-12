@@ -111,8 +111,9 @@
                     <th scope="col">End Date</th>
                     <th scope="col">Region</th>
                     <th scope="col">Task Type</th>
-                    <th scope="col">Review</th>
                     <th scope="col">Recovered Videos</th>
+                    <th scope="col">Review</th>
+                    <th scope="col">Edit</th>
                     <th scope="col">Delete</th>
                 </tr>
             </thead>
@@ -144,8 +145,13 @@
                         <td>{{ task['endDate'] }}</td>
                         <td>Spain</td>
                         <td>{{ task['taskType'] }}</td>
-                        <td><a class="taskReview" href="{{ url_for('taskReview', task_id=task['_id']) }}">Review</a></td>
                         <td>{{ task['recoveredVideos'] }} </td>
+                        <td><a class="taskReview" href="{{ url_for('taskReview', task_id=task['_id']) }}">Review</a></td>
+                        <td>
+                            <a href="{{ url_for('taskEdit', task_id=task['_id']) }}">
+                                <i class="bx bxs-edit-alt" style="color: white;"></i>
+                            </a>
+                        </td>
                         <td>
                             <a href="{{ url_for('tasksView', task_id=task['_id'], option='delete') }}">
                                 <i class="fas fa-trash-alt" style="color: red;"></i>

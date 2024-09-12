@@ -362,3 +362,5 @@ async def process_general_task(taskCollection, current_user):
             {'$set': {'state': 'Stopped', 'state_message': 'Error adding videos to the database'}}
         )
 
+async def process_edit_general_task(taskCollection, current_user, newStartDate, newEndDate):
+    print('llegamos a general')

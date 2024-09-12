@@ -168,7 +168,6 @@ def add_user_profile(username, headers, taskCollection, current_user):
             )
             return False
 
-
 async def process_profile_task(taskCollection, current_user):
     
     access_token = getAccessToken(taskCollection)
@@ -365,4 +364,6 @@ async def process_profile_task(taskCollection, current_user):
                 {'$set': {'state': 'Stopped', 'state_message': 'Error adding videos to the database'}}
             )
 
+async def process_edit_profile_task(taskCollection, current_user, newStartDate, newEndDate):
+    print('llegamos a profile')
     

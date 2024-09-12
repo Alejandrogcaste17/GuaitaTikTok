@@ -1,13 +1,14 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from bson.objectid import ObjectId
-from generalTaskAPI import process_general_task
-from profileTaskAPI import process_profile_task
+from generalTaskAPI import process_general_task, process_edit_general_task
+from profileTaskAPI import process_profile_task, process_edit_profile_task
 from mongoConfiguration import usersCollection, tasksCollection, videosCollection, statisticsCollection, profilesCollection, classificationCollection
 from hashlib import sha256
 import asyncio
 import threading
 import json
+from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor
 from pymongo.errors import PyMongoError
 
@@ -119,6 +120,12 @@ async def run_process_general_task(task_id, user_id):
 
 async def run_process_profile_task(task_id, user_id):
     await process_profile_task(task_id, user_id)
+
+async def run_process_edit_profile_task(task_id, user_id, startDate, endDate):
+    await process_edit_profile_task(task_id, user_id, startDate, endDate)
+
+async def run_process_edit_general_task(task_id, user_id, startDate, endDate):
+    await process_edit_general_task(task_id, user_id, startDate, endDate)
 
 # Crear un ThreadPoolExecutor para tareas de fondo
 executor = ThreadPoolExecutor(max_workers=4)
@@ -288,6 +295,37 @@ def tasksView(task_id, option):
             # Mostrar un mensaje de informacion de que no tiene tareas todavia creadas
             notTask = "Sorry, you don't have any tasks created yet, please go to the ""New Task"" section and start one."
             return render_template('tasksView.html', notTask=notTask, username=current_user.username)
+
+@app.route('/taskEdit/<task_id>', methods=['POST', 'GET'])
+@login_required
+def taskEdit(task_id):
+    if request.method == 'POST':
+
+        existing_task = tasksCollection.find_one({'_id': ObjectId(task_id)})
+
+        taskStartDate = datetime.strptime(existing_task['startDate'].replace("-", ""), '%Y%m%d')
+        taskEndDate = datetime.strptime(existing_task['endDate'].replace("-", ""), '%Y%m%d')
+
+        startDate = request.form['startDate'].replace("-", "")
+        startDate = datetime.strptime(startDate, '%Y%m%d')
+        endDate = request.form['endDate'].replace("-", "")
+        endDate = datetime.strptime(endDate, '%Y%m%d')
+        
+        if taskStartDate < startDate or taskEndDate > endDate:
+            message = "The start date must be before the set date and the end date must be after the set end date, or both. Please review and try again."
+            return render_template('taskEdit.html', task=existing_task, username=current_user.username, message=message)
+        else:
+            if existing_task['taskType'] == 'profile':
+                # Ejecutar la tarea en segundo plano usando ThreadPoolExecutor
+                executor.submit(asyncio.run, run_process_edit_general_task(existing_task, current_user.id, startDate, endDate))
+                return redirect(url_for('tasksView'))
+            else:
+                # Ejecutar la tarea en segundo plano usando ThreadPoolExecutor
+                executor.submit(asyncio.run, run_process_edit_profile_task(existing_task, current_user.id, startDate, endDate))
+                return redirect(url_for('tasksView'))
+    else:
+        existing_task = tasksCollection.find_one({'_id': ObjectId(task_id)})
+        return render_template('taskEdit.html', task=existing_task, username=current_user.username)
 
 @app.route('/taskDelete/<task_id>')
 @login_required

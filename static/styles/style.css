@@ -237,6 +237,21 @@ a {
     cursor: pointer;
 }
 
+button{
+    width: 100%;
+    border: none;
+    padding: 10px;
+    background-color: #77b7cd;
+    color: #fff;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+button:hover{
+    background-color: #295580;
+}
 
 .taskReview {
     background-color: rgb(77, 25, 221);
