@@ -226,12 +226,9 @@ async def process_general_task(taskCollection, current_user):
             print(count)
         # Procesa la respuesta
         if first_response.status_code == 200:
-            print("hey")
             response_data = first_response.json()
-            print("hey x2")
             videosWithVoiceToText(response_data, results, taskCollection)
             videosWithoutVoiceToText(response_data, results2)
-            print("hey x2")
 
             # Condicion para el caso en el que encuentre menos de 100 videos en el rango de fechas establecido
             if response_data["data"]["cursor"] < 100 and response_data["data"]["has_more"] == False:
@@ -239,7 +236,6 @@ async def process_general_task(taskCollection, current_user):
                 break
 
             time.sleep(5)
-            print("hey x3")
 
             # Variable para saber cuando la request ha fallado y realizar la peticion otra vez
             request_again = False
@@ -252,7 +248,6 @@ async def process_general_task(taskCollection, current_user):
             data["search_id"] = response_data["data"]["search_id"]
 
             while data['cursor'] < 1000:
-                print("hola")
                 print("Empezamos bucle")
                                 
                 if request_again == False:

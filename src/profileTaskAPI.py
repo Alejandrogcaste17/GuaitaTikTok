@@ -249,17 +249,18 @@ async def process_profile_task(taskCollection, current_user):
                     data["search_id"] = response_data["data"]["search_id"]
 
                     while data["cursor"] < 1000 and data["cursor"] % 100 == 0:
-                        # Comprobamos si se puede seguir realizando paginacion
-                        if not first_iteration and loop_response_data["data"]["has_more"] == False:
-                            print("No hay mas videos")
-                            print(loop_response_data["data"]["has_more"])
-                            break
+                        
                         print("Empezamos bucle")
                         
                         if request_again == False:
                             if not first_iteration:
                                 data["cursor"] = loop_response_data["data"]["cursor"]
                                 data["search_id"] = loop_response_data["data"]["search_id"]
+                                # Comprobamos si se puede seguir realizando paginacion
+                                if loop_response_data["data"]["has_more"] == False:
+                                    print("No hay mas videos")
+                                    print(loop_response_data["data"]["has_more"])
+                                    break
                             else:
                                 first_iteration = False
 
